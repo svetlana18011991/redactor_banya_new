@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Башня — Editor + Game (один файл) [v5-20260210-041857]</title>
+  <title>Башня — Editor + Game (один файл) [v7-20260210-042638]</title>
 
   <style>
     html, body{height:100%}
@@ -713,9 +713,9 @@
   <div class="app" id="editorRoot">
     <div class="panel settings">
       <div class="panel-header">
-        <div class="h">Редактор «Башня» <span class="pill" title="версия файла">v5-20260210-041857</span></div>
+        <div class="h">Редактор «Башня» <span class="pill" title="версия файла">v7-20260210-042638</span></div>
         <div class="row" style="margin:0">
-          <button class="btn primary" id="btnCopyCode" type="button">📋 Скопировать iframe (короткий)</button>
+          <button class="btn primary" id="btnCopyCode" type="button">📋 Скопировать ссылку (игра)</button>
         </div>
       </div>
 
@@ -788,7 +788,7 @@
           <div class="muted">
             Нажми <b>«📋 Скопировать iframe»</b> — в буфере будет короткий код вида:
             <div style="margin-top:8px; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size:12px; color:rgba(255,255,255,.86)">
-              &lt;iframe src=".../index.html#game=..."&gt;&lt;/iframe&gt;
+              .../index.html?game=...
             </div>
           </div>
         </div>
@@ -814,7 +814,7 @@
 
       <div class="panel-body" style="padding-top:0;border-top:1px solid rgba(255,255,255,.10);background:rgba(0,0,0,.10)">
         <div class="row" id="stickyBar" style="padding:12px 0;gap:10px;margin:0">
-          <button class="btn primary" id="btnCopyCode2" type="button" style="flex:1">📋 Скопировать iframe (короткий)</button>
+          <button class="btn primary" id="btnCopyCode2" type="button" style="flex:1">📋 Скопировать ссылку (игра)</button>
           <button class="btn" id="btnOpenGame" type="button" style="flex:1">▶ Открыть игру</button>
         </div>
         <div class="muted">Если кнопка наверху не видна — используй эти.</div>
@@ -871,14 +871,18 @@
   <div class="modal-backdrop" id="codeBackdrop" aria-hidden="true">
     <div class="modal" role="dialog" aria-modal="true" aria-labelledby="codeTitle">
       <div class="modal-head">
-        <div class="h" id="codeTitle">iframe для Genially</div>
+        <div class="h" id="codeTitle">Ссылка для запуска игры</div>
         <button class="btn small danger" id="btnCloseCode" type="button">Закрыть</button>
       </div>
       <div class="modal-body">
-        <div class="muted" style="margin-bottom:8px">Проверь, что ссылка внутри <b>src</b> содержит <b>?game=</b>.</div>
-        <textarea id="taIframe" spellcheck="false" style="min-height:160px;font-family: ui-monospace, SFMono-Regular, Menlo, monospace;"></textarea>
+        <div class="muted" style="margin-bottom:8px">Это ссылка на игру. Её можно вставлять в Genially (через iframe) и куда угодно.</div>
+        <label style="margin-top:0">Ссылка</label>
+<textarea id="taIframe" spellcheck="false" style="min-height:90px;font-family: ui-monospace, SFMono-Regular, Menlo, monospace;"></textarea>
+<label>iframe (если нужен)</label>
+<textarea id="taIframe2" spellcheck="false" style="min-height:120px;font-family: ui-monospace, SFMono-Regular, Menlo, monospace;"></textarea>
         <div class="row" style="margin-top:10px">
-          <button class="btn primary" id="btnCopyFromModal" type="button">📋 Скопировать ещё раз</button>
+          <button class="btn primary" id="btnCopyFromModal" type="button">📋 Скопировать ссылку</button>
+          <button class="btn" id="btnCopyIframe" type="button">📎 Скопировать iframe</button>
         </div>
       </div>
     </div>
@@ -1939,16 +1943,19 @@
     });
   }
 
-  function buildIframeCode(payload){
+  function buildGameUrl(payload){
     const data = b64urlEncode(JSON.stringify(payload));
-    const src = selfPageUrl() + "?game=" + data;
+    return selfPageUrl() + "?game=" + data + "#game=" + data;
+  }
+  function buildIframeFromUrl(src){
     return `<iframe src="${src}" style="width:100%;height:100%;min-height:720px;border:0;border-radius:18px;overflow:hidden;background:transparent" allow="autoplay; fullscreen" allowfullscreen loading="lazy"></iframe>`;
   }
 
   function updatePreview(previewWithDraft){
     const payload = buildPayload(previewWithDraft);
     const data = b64urlEncode(JSON.stringify(payload));
-    $("livePreview").src = selfPageUrl() + "?game=" + data + "&preview=1";
+    const src = selfPageUrl() + "?game=" + data + "&preview=1#game=" + data;
+    $("livePreview").src = src;
   }
 
   // ==== bindings ====
@@ -2079,17 +2086,19 @@
       return;
     }
     const payload = buildPayload(false);
-    const iframeCode = buildIframeCode(payload);
+    const url = buildGameUrl(payload);
+    const iframeCode = buildIframeFromUrl(url);
 
-    // show code modal so you can SEE what will be pasted to Genially
+    // show modal so you can SEE what will be pasted
     if ($("taIframe") && $("codeBackdrop")) {
-      $("taIframe").value = iframeCode;
+      $("taIframe").value = url;
+      if ($("taIframe2")) $("taIframe2").value = iframeCode;
       $("codeBackdrop").style.display = "flex";
       $("codeBackdrop").setAttribute("aria-hidden","false");
     }
 
-    const ok = await copyToClipboard(iframeCode);
-    toast(ok ? "iframe скопирован ✅" : "Не удалось скопировать");
+    const ok = await copyToClipboard(url);
+    toast(ok ? "Ссылка скопирована ✅" : "Не удалось скопировать");
   });
 
   
@@ -2112,7 +2121,16 @@
       const ok = await copyToClipboard(text);
       toast(ok ? "Скопировано ✅" : "Не удалось скопировать");
     });
+  
+  if ($("btnCopyIframe")) {
+    $("btnCopyIframe").addEventListener("click", async ()=>{
+      const text = ($("taIframe2")?.value || "").trim();
+      if(!text){ toast("Пусто"); return; }
+      const ok = await copyToClipboard(text);
+      toast(ok ? "iframe скопирован ✅" : "Не удалось скопировать");
+    });
   }
+}
 
 // ===== game-only mode =====
   function bootGameOnly(cfg){
