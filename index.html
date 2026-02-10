@@ -1759,10 +1759,30 @@
     let questions = Array.isArray(cfg.questions) ? cfg.questions.slice(0,9) : [];
     // sanitize
     questions = questions.map(q=>{
+      const rawSecs = (q && ("seconds" in q)) ? q.seconds : null;
+      const nSecs = (rawSecs==null || rawSecs==="") ? null : Number(rawSecs);
+      const seconds = (Number.isFinite(nSecs) && nSecs>0) ? Math.max(1, Math.min(600, Math.round(nSecs))) : null;
+      const imgDataUrl = String(q?.imgDataUrl || "");
+      const audioDataUrl = String(q?.audioDataUrl || "");
       if(q?.type === "text"){
-        return { type:"text", prompt:String(q.prompt||""), accepts:(Array.isArray(q.accepts)?q.accepts:[]).map(x=>String(x||"")) };
+        return {
+          type:"text",
+          prompt:String(q.prompt||""),
+          accepts:(Array.isArray(q.accepts)?q.accepts:[]).map(x=>String(x||"")),
+          seconds,
+          imgDataUrl,
+          audioDataUrl
+        };
       }
-      return { type:"choice", prompt:String(q?.prompt||""), options:(Array.isArray(q?.options)?q.options:[]).map(x=>String(x||"")), correctIndex:Number(q?.correctIndex||0) };
+      return {
+        type:"choice",
+        prompt:String(q?.prompt||""),
+        options:(Array.isArray(q?.options)?q.options:[]).map(x=>String(x||"")),
+        correctIndex:Number(q?.correctIndex||0),
+        seconds,
+        imgDataUrl,
+        audioDataUrl
+      };
     });
 
     // можно меньше 9 — игра зациклит вопросы
@@ -2068,11 +2088,26 @@
       const d = deepClone(Editor.draft);
       questions = questions.slice();
       if(d.type === "choice"){
-        const mapped = { type:"choice", prompt:d.prompt||"", options:(d.options||[]).slice(), correctIndex:Number(d.correctIndex||0) };
+        const mapped = {
+        type:"choice",
+        prompt:d.prompt||"",
+        options:(d.options||[]).slice(),
+        correctIndex:Number(d.correctIndex||0),
+        seconds: (d.seconds==null || d.seconds==="") ? null : Number(d.seconds),
+        imgDataUrl: d.imgDataUrl||"",
+        audioDataUrl: d.audioDataUrl||""
+      };
         if(questions.length === 0) questions.push(mapped);
         else questions[0] = mapped;
       } else {
-        const mapped = { type:"text", prompt:d.prompt||"", accepts:(d.accepts||[]).slice() };
+        const mapped = {
+        type:"text",
+        prompt:d.prompt||"",
+        accepts:(d.accepts||[]).slice(),
+        seconds: (d.seconds==null || d.seconds==="") ? null : Number(d.seconds),
+        imgDataUrl: d.imgDataUrl||"",
+        audioDataUrl: d.audioDataUrl||""
+      };
         if(questions.length === 0) questions.push(mapped);
         else questions[0] = mapped;
       }
