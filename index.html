@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Башня — Editor + Game (один файл) [v7-20260210-042638]</title>
+  <title>Башня — Editor + Game (один файл) [v8-20260210-044353]</title>
 
   <style>
     html, body{height:100%}
@@ -706,6 +706,269 @@
     }
     .bigMsg .h{font-weight:1000; font-size:18px}
     .bigMsg .p{color:rgba(255,255,255,.85); margin-top:6px; line-height:1.35}
+  
+
+    /* ===== ORIGINAL GAME CSS (canvas version) ===== */
+
+    :root{
+      --hud-bg: rgba(10, 12, 18, .55);
+      --panel-bg: rgba(20, 22, 30, .78);
+      --panel-stroke: rgba(255,255,255,.12);
+      --text: rgba(255,255,255,.92);
+      --muted: rgba(255,255,255,.72);
+      --good: rgba(120, 255, 170, .95);
+      --bad: rgba(255, 120, 140, .95);
+      --shadow: 0 18px 60px rgba(0,0,0,.35);
+    }
+    html,body{height:100%;margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;color:var(--text);overflow:hidden;background:#000;}
+    #wrap{position:relative;width:100%;height:100%;}
+    canvas{width:100%;height:100%;display:block;}
+
+    #hud{
+      position:absolute; left:12px; right:12px; top:12px;
+      display:flex; gap:12px; align-items:center;
+      pointer-events:none;
+      z-index: 3;
+    }
+    .pill{
+      background:var(--hud-bg);
+      border:1px solid rgba(255,255,255,.10);
+      border-radius:999px;
+      padding:10px 14px;
+      box-shadow:var(--shadow);
+      backdrop-filter: blur(10px);
+      display:flex; gap:10px; align-items:center;
+      white-space:nowrap;
+    }
+    #progressWrap{
+      flex:1;
+      background:var(--hud-bg);
+      border:1px solid rgba(255,255,255,.10);
+      border-radius:999px;
+      padding:10px 14px;
+      box-shadow:var(--shadow);
+      backdrop-filter: blur(10px);
+      display:flex; align-items:center; gap:10px;
+      min-width:160px;
+      pointer-events:none;
+    }
+    #bar{
+      height:10px; flex:1;
+      background:rgba(255,255,255,.12);
+      border-radius:999px;
+      overflow:hidden;
+      border:1px solid rgba(255,255,255,.10);
+    }
+    #bar>div{
+      height:100%; width:0%;
+      background: linear-gradient(90deg, rgba(120,190,255,.9), rgba(120,255,170,.85));
+      border-radius:999px;
+    }
+
+    #scorePill{ margin-left:auto; }
+    #scoreNum{ font-weight:900; letter-spacing:.2px; }
+    #leftPill{ gap:12px; }
+    #remainNum{ font-weight:900; }
+
+    #nextBtn{
+      position:absolute;
+      left:50%;
+      bottom:88px;
+      transform: translateX(160px);
+      pointer-events:auto;
+      border-radius:16px;
+      padding:12px 14px;
+      border:1px solid rgba(120,190,255,.35);
+      background: rgba(120,190,255,.22);
+      color: var(--text);
+      font-weight: 900;
+      cursor:pointer;
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(10px);
+      transition: transform .08s ease, filter .12s ease, opacity .12s ease;
+      user-select:none;
+      z-index: 4;
+    }
+    #nextBtn:active{ transform: translateX(160px) scale(.99); }
+    #nextBtn[disabled]{ opacity:.45; cursor:not-allowed; filter:saturate(.7); }
+
+    #overlay{
+      position:absolute; inset:0;
+      display:none; align-items:center; justify-content:center;
+      background: rgba(0,0,0,.25);
+      backdrop-filter: blur(6px);
+      z-index: 5;
+    }
+    #card{
+      width:min(640px, calc(100% - 24px));
+      background:var(--panel-bg);
+      border:1px solid var(--panel-stroke);
+      border-radius:18px;
+      box-shadow:var(--shadow);
+      padding:18px 18px 14px;
+
+      transform: translateY(10px) scale(.96);
+      opacity: 0;
+      transition: transform .18s ease, opacity .18s ease;
+      will-change: transform, opacity;
+    }
+    #overlay.show #card{
+      transform: translateY(0) scale(1);
+      opacity: 1;
+    }
+
+    #cardHeader{
+      display:flex; align-items:flex-start; justify-content:space-between;
+      gap:12px; margin-bottom:12px;
+    }
+    #title{ font-size:16px; color:var(--muted); letter-spacing:.2px; }
+    #q{ font-size:20px; line-height:1.25; margin-top:6px; }
+    #badge{
+      border-radius:999px; padding:6px 10px;
+      border:1px solid rgba(255,255,255,.12);
+      color:var(--muted); font-size:12px; white-space:nowrap;
+    }
+    #answers{ display:flex; flex-direction:column; gap:10px; margin-top:14px; }
+    .btn{
+      width:100%; text-align:left;
+      background:rgba(255,255,255,.08);
+      border:1px solid rgba(255,255,255,.12);
+      border-radius:14px;
+      padding:12px 12px;
+      color:var(--text);
+      cursor:pointer;
+      transition: transform .08s ease, background .12s ease;
+    }
+    .btn:hover{ background:rgba(255,255,255,.11); }
+    .btn:active{ transform:scale(.99); }
+
+    #inputRow{ display:none; gap:10px; align-items:center; margin-top:12px; }
+    #ansInput{
+      flex:1;
+      background:rgba(255,255,255,.07);
+      border:1px solid rgba(255,255,255,.14);
+      border-radius:14px;
+      padding:12px 12px;
+      color:var(--text);
+      outline:none;
+      font-size:16px;
+    }
+    #submit{
+      background:rgba(120,190,255,.20);
+      border:1px solid rgba(120,190,255,.35);
+      border-radius:14px;
+      padding:12px 14px;
+      cursor:pointer;
+      color:var(--text);
+      font-weight:800;
+    }
+    #submit:hover{ background:rgba(120,190,255,.26); }
+
+    #msg{ margin-top:12px; min-height:18px; font-size:14px; color:var(--muted); }
+    #hint{ margin-top:10px; font-size:12px; color:rgba(255,255,255,.55); }
+
+    #start{
+      position:absolute; inset:0;
+      display:flex; align-items:center; justify-content:center;
+      background: radial-gradient(1200px 800px at 50% 45%, rgba(0,0,0,.15), rgba(0,0,0,.55));
+      backdrop-filter: blur(3px);
+      z-index: 6;
+    }
+    #startCard{
+      width:min(700px, calc(100% - 24px));
+      background: rgba(20, 22, 30, .75);
+      border: 1px solid rgba(255,255,255,.12);
+      border-radius: 18px;
+      box-shadow: var(--shadow);
+      padding: 18px;
+    }
+    #startCard h1{ margin:0 0 8px 0; font-size:24px; }
+    #startCard p{ margin:0 0 14px 0; color: var(--muted); line-height:1.35; }
+    #play{
+      display:inline-flex; gap:10px; align-items:center;
+      padding:12px 14px;
+      border-radius:14px;
+      border:1px solid rgba(120,190,255,.35);
+      background: rgba(120,190,255,.22);
+      color: var(--text);
+      font-weight:900;
+      cursor:pointer;
+    }
+    #play:hover{ background: rgba(120,190,255,.28); }
+
+    #err{
+      display:none;
+      margin-top:12px;
+      padding:12px;
+      border-radius:14px;
+      border:1px solid rgba(255,120,140,.35);
+      background: rgba(255,120,140,.12);
+      color: rgba(255,235,238,.95);
+      font-size:13px;
+      line-height:1.35;
+    }
+    #err ul{ margin:8px 0 0 18px; }
+    code{background:rgba(255,255,255,.08); padding:2px 6px; border-radius:8px; border:1px solid rgba(255,255,255,.12);}
+
+    #finish{
+      position:absolute; inset:0;
+      display:none; align-items:center; justify-content:center;
+      background: rgba(0,0,0,.35);
+      backdrop-filter: blur(8px);
+      z-index: 7;
+    }
+    #finishCard{
+      width:min(720px, calc(100% - 24px));
+      border-radius:20px;
+      border:1px solid rgba(255,255,255,.14);
+      background: rgba(18, 20, 28, .75);
+      box-shadow: var(--shadow);
+      padding: 18px 18px 16px;
+      text-align:center;
+    }
+    #finishTitle{
+      font-size:30px; font-weight:1000; letter-spacing:.3px;
+      margin: 4px 0 8px;
+      background: linear-gradient(90deg, rgba(120,190,255,.95), rgba(120,255,170,.95));
+      -webkit-background-clip:text;
+      background-clip:text;
+      color:transparent;
+    }
+    #finishText{
+      color: rgba(255,255,255,.82);
+      font-size:18px;
+      margin: 0 0 10px;
+    }
+    #stats{
+      display:flex;
+      justify-content:center;
+      gap:12px;
+      flex-wrap:wrap;
+      margin: 10px 0 14px;
+    }
+    .stat{
+      background: rgba(255,255,255,.07);
+      border: 1px solid rgba(255,255,255,.12);
+      border-radius: 14px;
+      padding: 10px 12px;
+      min-width: 160px;
+      text-align:left;
+    }
+    .stat b{ font-size:18px; }
+    .stat div{ color: rgba(255,255,255,.70); font-size:12px; margin-top:4px; }
+    #restart{
+      display:inline-flex; gap:10px; align-items:center;
+      padding:12px 14px;
+      border-radius:14px;
+      border:1px solid rgba(120,190,255,.35);
+      background: rgba(120,190,255,.22);
+      color: var(--text);
+      font-weight:900;
+      cursor:pointer;
+    }
+    #restart:hover{ background: rgba(120,190,255,.28); }
+  
+
   </style>
 </head>
 
@@ -713,7 +976,7 @@
   <div class="app" id="editorRoot">
     <div class="panel settings">
       <div class="panel-header">
-        <div class="h">Редактор «Башня» <span class="pill" title="версия файла">v7-20260210-042638</span></div>
+        <div class="h">Редактор «Башня» <span class="pill" title="версия файла">v8-20260210-044353</span></div>
         <div class="row" style="margin:0">
           <button class="btn primary" id="btnCopyCode" type="button">📋 Скопировать ссылку (игра)</button>
         </div>
@@ -822,9 +1085,83 @@
     </div>
   </div>
 
-  <!-- GAME ONLY ROOT (когда открыто по #game=...) -->
+  <!-- GAME ONLY ROOT (when opened with ?game=... or #game=...) -->
   <div id="gameRoot" style="display:none">
-    <div class="gameHost" id="gameHost"></div>
+<div id="wrap">
+  <canvas id="c"></canvas>
+
+  <div id="hud">
+    <div class="pill" id="leftPill">
+      Башня: <b id="heightTxt">0</b>
+      <span style="opacity:.5">|</span>
+      Осталось: <b id="remainNum">9</b>
+    </div>
+
+    <div id="progressWrap">
+      Прогресс
+      <div id="bar"><div></div></div>
+      <span id="pct">0%</span>
+    </div>
+
+    <div class="pill" id="scorePill">Счёт: <b id="scoreNum">0</b></div>
+  </div>
+
+  <button id="nextBtn" disabled>Далее →</button>
+
+  <div id="overlay" role="dialog" aria-modal="true">
+    <div id="card">
+      <div id="cardHeader">
+        <div>
+          <div id="title">Вопрос</div>
+          <div id="q">...</div>
+        </div>
+        <div id="badge">1 / 9</div>
+      </div>
+
+      <div id="answers"></div>
+
+      <div id="inputRow">
+        <input id="ansInput" type="text" placeholder="Введите ответ..." autocomplete="off" />
+        <button id="submit">ОК</button>
+      </div>
+
+      <div id="msg"></div>
+      <div id="hint">Верно → блок опускается и становится этажом (+100). Неверно → обугливание, взрыв и исчезает.</div>
+    </div>
+  </div>
+
+  <div id="start">
+    <div id="startCard">
+      <h1>Башня знаний</h1>
+      <p>
+        Первый блок падает сам. Дальше — нажимай <b>Далее</b>.
+        Когда блок остановится — ответь на вопрос.
+        <br/>Верно → блок опускается и становится этажом (+100).
+        <br/>Неверно → блок обугливается, взрывается и исчезает.
+      </p>
+      <button id="play">▶ Начать</button>
+      <div id="err">
+        <b>Не получилось загрузить файлы.</b> Убедись, что они лежат рядом с <code>index.html</code> и имена совпадают.
+        <ul id="errList"></ul>
+      </div>
+    </div>
+  </div>
+
+  <div id="finish">
+    <div id="finishCard">
+      <div id="finishTitle">Молодец!</div>
+      <div id="finishText">Тобой заработано: <b id="finishScore">0</b> баллов</div>
+
+      <div id="stats">
+        <div class="stat"><b id="stCorrect">0</b><div>правильных ответов</div></div>
+        <div class="stat"><b id="stWrong">0</b><div>неправильных ответов</div></div>
+        <div class="stat"><b id="stHeight">0</b><div>блоков в башне</div></div>
+      </div>
+
+      <button id="restart">↻ Сыграть ещё раз</button>
+    </div>
+  </div>
+</div>
   </div>
 
   <!-- MODAL -->
@@ -912,6 +1249,12 @@
   });
 
   const $ = (id)=>document.getElementById(id);
+
+  // ===== Canvas game boot (ported from your original file) =====
+  window.__bootCanvasGame = function(cfg){
+    // Store cfg for the canvas game code below
+    window.__CANVAS_GAME_CFG__ = cfg || {};
+  };
 
   function uid(){
     return "q_" + Math.random().toString(36).slice(2,9) + "_" + Date.now().toString(36);
@@ -1020,598 +1363,7 @@
     return decodeURIComponent(escape(atob(s)));
   }
 
-  // ===== GAME renderer =====
-  function gameMarkup(){
-    return `
-<div class="stage" data-role="stage">
-  <div class="bg" data-role="bg"></div>
-  <div class="overlay"></div>
-
-  <div class="topbar">
-    <div class="leftPack">
-      <div class="title" data-role="tTitle">Башня</div>
-      <div class="sub">Отвечай правильно — строй башню!</div>
-    </div>
-
-    <div class="rightPack">
-      <div class="pillGame" data-role="pillRemain">Осталось: 9</div>
-      <div class="pillGame timerBadge" data-role="pillTimer" style="display:none">⏳ 00:30</div>
-      <div class="pillGame" data-role="pillScore">💎 Счёт: 0</div>
-      <div class="progressWrap"><div class="progressBar" data-role="bar"></div></div>
-    </div>
-  </div>
-
-  <div class="towerArea">
-    <div class="tower" data-role="tower"></div>
-  </div>
-
-  <div class="hintUnder">
-    <div class="hintBubble" data-role="hint">Первый блок уже летит…</div>
-  </div>
-
-  <div class="nextWrap">
-    <button class="btnGame primary" data-role="btnNext" type="button" disabled>Далее →</button>
-  </div>
-
-  <div class="cardBack" data-role="cardBack" aria-hidden="true">
-    <div class="card" role="dialog" aria-modal="true">
-      <div class="cardHead">
-        <div class="h" data-role="cardTitle">Вопрос</div>
-        <div class="pillGame" data-role="cardType">Тип</div>
-      </div>
-
-      <div class="cardBody">
-        <div class="block">
-          <div class="label">Вопрос</div>
-          <div class="qText" data-role="qText"></div>
-        </div>
-
-        <div style="height:10px"></div>
-
-        <div class="block">
-          <div class="label">Ответ</div>
-          <div class="answers" data-role="answers"></div>
-        </div>
-
-        <div style="height:8px"></div>
-        <div class="sub" data-role="miniHint" style="color:rgba(255,255,255,.80)"></div>
-      </div>
-
-      <div class="cardFoot">
-        <button class="btnGame" data-role="btnNoClose" type="button">Закрыть</button>
-      </div>
-    </div>
-  </div>
-
-  <div class="finish" data-role="finish">
-    <div class="finishCard">
-      <div class="finishHead">
-        <div class="h">Молодец! 🎉</div>
-        <button class="btnGame" data-role="btnRestart" type="button">Сыграть ещё раз</button>
-      </div>
-      <div class="finishBody">
-        <div class="grid">
-          <div class="stat"><div class="k">Правильных</div><div class="v" data-role="finCorrect">0</div></div>
-          <div class="stat"><div class="k">Неправильных</div><div class="v" data-role="finWrong">0</div></div>
-          <div class="stat"><div class="k">Баллы</div><div class="v" data-role="finScore">0</div></div>
-          <div class="stat"><div class="k">Башня (блоков)</div><div class="v" data-role="finHeight">0</div></div>
-        </div>
-
-        <div class="bigMsg">
-          <div class="h">Обратная связь: <span style="color:rgba(57,255,118,.95)">молодец</span> 💚</div>
-          <div class="p" data-role="finText">Отличная работа! Попробуй ещё раз и собери башню полностью.</div>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>`;
-  }
-
-  function mountGame(hostEl, cfg){
-    hostEl.innerHTML = gameMarkup();
-    const q = (role)=>hostEl.querySelector(`[data-role="${role}"]`);
-
-    function clamp(n,a,b){ return Math.max(a, Math.min(b,n)); }
-    function normStr(s){ return String(s ?? "").trim().toLowerCase(); }
-    function fmt(s){
-      const m = Math.floor(s/60);
-      const ss = s%60;
-      return String(m).padStart(2,"0")+":"+String(ss).padStart(2,"0");
-    }
-
-    function beep(type="ok"){
-      try{
-        const ctx = new (window.AudioContext||window.webkitAudioContext)();
-        const o = ctx.createOscillator();
-        const g = ctx.createGain();
-        o.connect(g); g.connect(ctx.destination);
-        const now = ctx.currentTime;
-        g.gain.setValueAtTime(0.001, now);
-
-        if(type==="ok"){
-          o.type="sine";
-          o.frequency.setValueAtTime(740, now);
-          g.gain.exponentialRampToValueAtTime(0.18, now+0.02);
-          g.gain.exponentialRampToValueAtTime(0.001, now+0.16);
-          o.start(now); o.stop(now+0.18);
-        } else {
-          o.type="square";
-          o.frequency.setValueAtTime(180, now);
-          g.gain.exponentialRampToValueAtTime(0.22, now+0.02);
-          o.frequency.exponentialRampToValueAtTime(90, now+0.12);
-          g.gain.exponentialRampToValueAtTime(0.001, now+0.22);
-          o.start(now); o.stop(now+0.24);
-        }
-      }catch(e){}
-    }
-
-    function makeSparks(x,y, count=14){
-      const stage = q("stage");
-      for(let i=0;i<count;i++){
-        const s = document.createElement("div");
-        s.className = "spark";
-        const a = Math.random()*Math.PI*2;
-        const r = 40 + Math.random()*70;
-        const dx = Math.cos(a)*r;
-        const dy = Math.sin(a)*r - (20+Math.random()*40);
-        s.style.left = x + "px";
-        s.style.top = y + "px";
-        s.style.setProperty("--dx", dx+"px");
-        s.style.setProperty("--dy", dy+"px");
-        stage.appendChild(s);
-        setTimeout(()=>s.remove(), 800);
-      }
-      for(let i=0;i<8;i++){
-        const m = document.createElement("div");
-        m.className = "smoke";
-        const a = Math.random()*Math.PI*2;
-        const r = 30 + Math.random()*60;
-        const dx = Math.cos(a)*r;
-        const dy = Math.sin(a)*r - (40+Math.random()*40);
-        m.style.left = x + "px";
-        m.style.top = y + "px";
-        m.style.setProperty("--dx", dx+"px");
-        m.style.setProperty("--dy", dy+"px");
-        stage.appendChild(m);
-        setTimeout(()=>m.remove(), 1100);
-      }
-    }
-
-    function floatPlus(x,y, text){
-      const stage = q("stage");
-      const p = document.createElement("div");
-      p.className = "floatPlus";
-      p.textContent = text;
-      p.style.left = x+"px";
-      p.style.top = y+"px";
-      stage.appendChild(p);
-      setTimeout(()=>p.remove(), 1000);
-    }
-
-    function towerCenter(){
-      const stage = q("stage");
-      const tower = q("tower");
-      const rs = stage.getBoundingClientRect();
-      const rt = tower.getBoundingClientRect();
-      return {
-        x: rt.left + rt.width/2 - rs.left,
-        yTop: rt.top - rs.top,
-        h: rt.height
-      };
-    }
-
-    function isImageMode(){
-      return !!cfg.useImages;
-    }
-
-    function createBlockEl(i, width){
-      const tower = q("tower");
-
-      if(isImageMode() && cfg.blockUrls && cfg.blockUrls[i]){
-        const img = document.createElement("img");
-        img.className = "imgBlock";
-        img.src = cfg.blockUrls[i];
-        img.alt = "block";
-        img.style.width = width + "px";
-        tower.appendChild(img);
-        return { el: img, kind:"img" };
-      }
-
-      const b = document.createElement("div");
-      b.className = "cssBlock";
-      b.style.width = width + "px";
-      tower.appendChild(b);
-      return { el: b, kind:"css" };
-    }
-
-    const bg = q("bg");
-    const tTitle = q("tTitle");
-    const pillRemain = q("pillRemain");
-    const pillTimer = q("pillTimer");
-    const pillScore = q("pillScore");
-    const bar = q("bar");
-    const hint = q("hint");
-    const btnNext = q("btnNext");
-
-    const cardBack = q("cardBack");
-    const qText = q("qText");
-    const answers = q("answers");
-    const miniHint = q("miniHint");
-    const cardType = q("cardType");
-    const btnNoClose = q("btnNoClose");
-
-    const finish = q("finish");
-    const btnRestart = q("btnRestart");
-    const finCorrect = q("finCorrect");
-    const finWrong = q("finWrong");
-    const finScore = q("finScore");
-    const finHeight = q("finHeight");
-    const finText = q("finText");
-
-    const questions = (cfg.questions || []).slice(0,9);
-    while(questions.length < 9){
-      questions.push({type:"choice", prompt:"(пустой вопрос)", options:["OK","..."], correctIndex:0});
-    }
-
-    tTitle.textContent = cfg.title || "Башня";
-
-    // background:
-    // 1) if bgDataUrl set (uploaded), use it
-    // 2) else if useRepoBg -> 1.png
-    if(cfg.bgDataUrl){
-      bg.style.display = "block";
-      bg.style.backgroundImage = 'url("' + cfg.bgDataUrl + '")';
-    } else if(cfg.useRepoBg){
-      bg.style.display = "block";
-      bg.style.backgroundImage = 'url("' + repoBgUrl + '")';
-    }
-
-    let timerEnabled = !!cfg.timer?.enabled;
-    let timerSeconds = clamp(Number(cfg.timer?.seconds || 30), 5, 600);
-    let timerLeft = timerSeconds;
-    let timerId = null;
-
-    let qIndex = 0;
-    let correct = 0;
-    let wrong = 0;
-    let score = 0;
-
-    let stack = [];
-    let falling = null;
-
-    const baseW = Math.min(380, Math.max(240, Math.floor(Math.min(window.innerWidth, hostEl.clientWidth || window.innerWidth) * 0.55)));
-    function widthForIndex(i){
-      // i=0 bottom (widest), i=8 top (narrowest)
-      const t = i / 8;
-      const w = baseW * (1 - 0.45 * t); // 45% taper total
-      return Math.round(w);
-    }
-    const cssBlockH = 78;
-    const overlap = 10;
-
-    function stackHeight(){
-      let h=0;
-      for(let i=0;i<stack.length;i++){
-        h += stack[i].h;
-        if(i>0) h -= overlap;
-      }
-      return h;
-    }
-
-    function baseY(){ return q("tower").clientHeight; }
-
-    function placeStackInstant(){
-      let y = baseY();
-      for(let i=0;i<stack.length;i++){
-        y -= stack[i].h;
-        stack[i].y = y;
-        stack[i].el.style.top = y + "px";
-        if(i < stack.length-1) y += overlap;
-      }
-    }
-
-    function updateTopUI(){
-      const remain = 9 - qIndex;
-      pillRemain.textContent = "Осталось: " + remain;
-      pillScore.textContent = "💎 Счёт: " + score;
-      bar.style.width = (qIndex/9*100) + "%";
-    }
-
-    function stopTimer(){
-      if(timerId){ clearInterval(timerId); timerId = null; }
-    }
-    function startTimer(){
-      stopTimer();
-      if(!timerEnabled){ pillTimer.style.display="none"; return; }
-      timerLeft = timerSeconds;
-      pillTimer.style.display="";
-      pillTimer.textContent = "⏳ " + fmt(timerLeft);
-      timerId = setInterval(()=>{
-        timerLeft--;
-        pillTimer.textContent = "⏳ " + fmt(timerLeft);
-        if(timerLeft <= 0){
-          stopTimer();
-          if(falling && falling.state === "waitAnswer"){
-            resolveAnswer(false, true);
-          }
-        }
-      }, 1000);
-    }
-
-    function showCard(qobj){
-      answers.innerHTML = "";
-      qText.textContent = qobj.prompt || "";
-      cardType.textContent = (qobj.type === "choice") ? "С выбором" : "С вводом";
-      miniHint.textContent = (qobj.type === "choice")
-        ? "Выбери правильный вариант."
-        : "Введи ответ и нажми «Проверить» или Enter.";
-
-      cardBack.style.display="flex";
-      cardBack.setAttribute("aria-hidden","false");
-      btnNext.disabled = true;
-      startTimer();
-
-      if(qobj.type === "choice"){
-        (qobj.options || []).forEach((opt, i)=>{
-          const b = document.createElement("div");
-          b.className = "pillBtn";
-          b.textContent = opt || ("Вариант " + (i+1));
-          b.onclick = ()=>{
-            const ok = (i === Number(qobj.correctIndex||0));
-            resolveAnswer(ok, false);
-          };
-          answers.appendChild(b);
-        });
-      } else {
-        const wrap = document.createElement("div");
-        wrap.className = "inputRow";
-
-        const inp = document.createElement("input");
-        inp.className = "inp";
-        inp.type = "text";
-        inp.placeholder = "Введите ответ…";
-
-        const btn = document.createElement("button");
-        btn.className = "btnGame primary";
-        btn.type = "button";
-        btn.textContent = "Проверить";
-
-        function check(){
-          const v = normStr(inp.value);
-          if(!v) return;
-          const acc = (qobj.accepts || []).map(normStr).filter(Boolean);
-          resolveAnswer(acc.includes(v), false);
-        }
-
-        btn.onclick = check;
-        inp.addEventListener("keydown",(e)=>{ if(e.key==="Enter") check(); });
-
-        wrap.appendChild(inp);
-        wrap.appendChild(btn);
-        answers.appendChild(wrap);
-      }
-    }
-
-    function hideCard(){
-      stopTimer();
-      cardBack.style.display="none";
-      cardBack.setAttribute("aria-hidden","true");
-    }
-
-    btnNoClose.onclick = () => {
-      hint.textContent = "Сначала ответь на вопрос 🙂";
-    };
-
-    function spawnBlock(i){
-      const w = widthForIndex(i);
-      const b = createBlockEl(i, w);
-
-      let h = cssBlockH;
-      if(b.kind==="img"){
-        h = 90;
-        b.el.onload = ()=>{
-          const ratio = (b.el.naturalHeight||90) / Math.max(1,(b.el.naturalWidth||w));
-          const realH = Math.round(w * ratio);
-          b.el.style.height = realH + "px";
-          if(falling && falling.el === b.el){
-            falling.h = realH;
-            falling.targetY = baseY() - stackHeight() - realH + overlap;
-          }
-          placeStackInstant();
-        };
-      } else {
-        b.el.style.height = h + "px";
-      }
-
-      const yStart = -h - 60;
-      const targetY = baseY() - stackHeight() - h + overlap;
-
-      falling = {
-        el: b.el,
-        y: yStart,
-        targetY,
-        vel: 0,
-        h,
-        state: "fall",
-        springT: 0,
-        idx: i
-      };
-      b.el.style.top = yStart + "px";
-    }
-
-    function scorchAndVanish(){
-      if(!falling) return;
-      const el = falling.el;
-      el.classList.add("burning");
-
-      const c = towerCenter();
-      const y = c.yTop + clamp(falling.y + falling.h/2, 80, c.h-60);
-      makeSparks(c.x, y, 18);
-
-      el.style.transition = "opacity .35s ease, transform .35s ease, filter .35s ease";
-      el.style.opacity = "0";
-      el.style.transform = "translateX(-50%) scale(1.02)";
-      setTimeout(()=>{ el.remove(); }, 380);
-
-      falling = null;
-    }
-
-    function landWithSpring(){
-      if(!falling) return;
-      falling.state = "spring";
-      falling.springT = 0;
-
-      const c = towerCenter();
-      const y = c.yTop + clamp(falling.targetY + falling.h - 18, 90, c.h-50);
-      makeSparks(c.x, y, 12);
-    }
-
-    function finalizeLand(){
-      if(!falling) return;
-      const item = { el: falling.el, h: falling.h, y: falling.targetY };
-      stack.push(item);
-      falling = null;
-      placeStackInstant();
-      btnNext.disabled = false;
-
-      if(qIndex >= 9){
-        hint.textContent = "Готово! Нажми «Далее», чтобы увидеть результат.";
-      } else {
-        hint.textContent = "Нажми «Далее», чтобы вызвать следующий блок.";
-      }
-    }
-
-    function resolveAnswer(ok, fromTimer){
-      hideCard();
-
-      if(!falling || falling.state !== "waitAnswer"){
-        return;
-      }
-
-      if(ok){
-        correct++;
-        score += 100;
-        beep("ok");
-
-        const c = towerCenter();
-        floatPlus(c.x, c.yTop + clamp(falling.targetY + 14, 90, c.h-120), "+100");
-
-        hint.textContent = "Верно ✅ Блок закрепился! Нажми «Далее».";
-        landWithSpring();
-      } else {
-        wrong++;
-        beep("bad");
-
-        hint.textContent = fromTimer
-          ? "Время вышло ⏱ Блок сгорел. Нажми «Далее»."
-          : "Неверно ❌ Блок сгорел. Нажми «Далее».";
-        scorchAndVanish();
-        btnNext.disabled = false;
-      }
-
-      updateTopUI();
-    }
-
-    function finishGame(){
-      btnNext.disabled = true;
-      finCorrect.textContent = String(correct);
-      finWrong.textContent = String(wrong);
-      finScore.textContent = String(score);
-      finHeight.textContent = String(stack.length);
-
-      if(correct === 9){
-        finText.textContent = "Идеально! Ты собрал(а) всю башню без ошибок 🔥";
-      } else if(correct >= 6){
-        finText.textContent = "Очень круто! Башня высокая. Попробуй ещё раз и добери до 9 💚";
-      } else {
-        finText.textContent = "Хорошее начало! Попробуй ещё раз — и башня станет выше 😊";
-      }
-
-      finish.style.display = "flex";
-    }
-
-    btnRestart.onclick = ()=>{
-      finish.style.display = "none";
-      stack.forEach(x=>x.el.remove());
-      stack = [];
-      if(falling?.el) falling.el.remove();
-      falling = null;
-
-      qIndex = 0;
-      correct = 0;
-      wrong = 0;
-      score = 0;
-
-      updateTopUI();
-      hint.textContent = "Первый блок уже летит…";
-      btnNext.disabled = true;
-
-      setTimeout(()=> spawnNext(), 320);
-    };
-
-    btnNext.onclick = ()=>{
-      if(falling) return;
-      if(qIndex >= 9){
-        finishGame();
-        return;
-      }
-      spawnNext();
-    };
-
-    function spawnNext(){
-      if(qIndex >= 9){
-        finishGame();
-        return;
-      }
-
-      spawnBlock(qIndex);
-      hint.textContent = "Ответь на вопрос, чтобы блок закрепился.";
-      updateTopUI();
-
-      setTimeout(()=>{
-        if(!falling) return;
-        falling.state = "waitAnswer";
-        showCard(questions[qIndex]);
-        qIndex++;
-        updateTopUI();
-      }, 260);
-    }
-
-    updateTopUI();
-    setTimeout(()=> spawnNext(), 320);
-
-    function loop(){
-      if(falling){
-        if(falling.state === "fall"){
-          falling.vel += 0.55;
-          falling.y += falling.vel;
-          if(falling.y >= falling.targetY){
-            falling.y = falling.targetY;
-            falling.vel = 0;
-            falling.state = "waitAnswer";
-          }
-          falling.el.style.top = falling.y + "px";
-        }
-        else if(falling.state === "spring"){
-          falling.springT++;
-          const t = Math.min(1, falling.springT/18);
-          const amp = 10;
-          const offset = Math.sin(t*Math.PI) * amp;
-          falling.el.style.top = (falling.targetY + offset) + "px";
-
-          if(falling.springT >= 18){
-            falling.el.style.top = falling.targetY + "px";
-            finalizeLand();
-          }
-        }
-      }
-      requestAnimationFrame(loop);
-    }
-    requestAnimationFrame(loop);
-
-    // responsive recalculation on resize
-    window.addEventListener("resize", ()=>{ placeStackInstant(); });
-  }
+  // ===== GAME (canvas version) injected below =====
 
   // ===== config =====
   function normalizeCfg(raw){
@@ -1633,10 +1385,9 @@
       return { type:"choice", prompt:String(q?.prompt||""), options:(Array.isArray(q?.options)?q.options:[]).map(x=>String(x||"")), correctIndex:Number(q?.correctIndex||0) };
     });
 
-    while(questions.length < 9){
-      questions.push({ type:"choice", prompt:"(пустой вопрос)", options:["OK","..."], correctIndex:0 });
-    }
-    questions.length = 9;
+    // Важно: редактор может отдать меньше 9 вопросов. Игра сама зациклит их по кругу.
+    // Если вопросов 0 — игра покажет заглушки.
+
 
     return {
       title,
@@ -1928,10 +1679,9 @@
       }
     }
 
-    while(questions.length < 9){
-      questions.push({ type:"choice", prompt:"(пустой вопрос)", options:["OK","..."], correctIndex:0 });
-    }
-    questions.length = 9;
+    // Важно: редактор может отдать меньше 9 вопросов. Игра сама зациклит их по кругу.
+    // Если вопросов 0 — игра покажет заглушки.
+
 
     return normalizeCfg({
       title: Editor.title || "Башня знаний",
@@ -2081,9 +1831,8 @@
   });
 
   $("btnCopyCode").addEventListener("click", async ()=>{
-    if(Editor.questions.length !== 9){
-      toast("Нужно ровно 9 вопросов (сейчас: " + Editor.questions.length + ")");
-      return;
+    if(Editor.questions.length === 0){
+      toast("Можно и без вопросов: будут использованы заглушки");
     }
     const payload = buildPayload(false);
     const url = buildGameUrl(payload);
@@ -2138,10 +1887,13 @@
     document.body.classList.add("gameOnly");
     $("editorRoot").style.display = "none";
     $("modalBackdrop").style.display = "none";
+    if($("codeBackdrop")) $("codeBackdrop").style.display = "none";
     $("gameRoot").style.display = "block";
-
-    const host = $("gameHost");
-    mountGame(host, cfg);
+    // Pass config to canvas game
+    window.__BOOT_CANVAS_CFG__ = cfg;
+    if(typeof window.__bootCanvasGame === "function"){
+      window.__bootCanvasGame(cfg);
+    }
   }
 
   // init (decide mode by hash)
@@ -2170,6 +1922,1063 @@
 
   renderList();
   updatePreview(false);
+
+// ===== Canvas game code (from original) =====
+(function(){
+  const __qp2 = new URLSearchParams(location.search);
+  const __hasGame2 = __qp2.get("game") || (location.hash||"").includes("game=");
+  if(!__hasGame2) return;
+  // cfg comes from bootGameOnly
+  const cfg = window.__CANVAS_GAME_CFG__ || {};
+  try{
+    window.__CFG = { title: cfg.title || "Башня знаний", questions: cfg.questions || [] };
+  }catch(e){ window.__CFG = { title:"Башня знаний", questions:[] }; }
+let __CFG = {title:'Башня знаний', questions: []};
+
+/** ФАЙЛЫ */
+const BG_FILE = "1.png";
+const BLOCK_FILES = ["3.png","4.png","5.png","6.png","7.png","8.png","9.png","10.png","11.png"];
+
+/** ОЧКИ */
+const SCORE_PER_BLOCK = 100;
+
+/* QUESTIONS injected from cfg */
+let QUESTIONS = [];
+
+/** Динамика */
+const FALL_SPEED = 620;
+const DROP_SPEED = 900;
+
+/** Эффекты */
+const SHAKE_ON_BOOM = 18;
+const SHAKE_ON_LAND = 7;
+
+/** Прогресс */
+const TARGET_BLOCKS_FOR_100 = 9;
+
+/** Влезание */
+const SAFE_TOP_MARGIN = 86;
+const SAFE_BOTTOM_MARGIN = 100;
+const DESIRED_TOWER_WIDTH = () => Math.min(window.innerWidth * 0.38, 360);
+
+/** TRIM/PROFILE */
+const TRIM_ALPHA_MIN = 34;
+const PROFILE_ALPHA_MIN = 22;
+const CENTROID_ALPHA_MIN = 24;
+
+/** Пружинящий “bounce” при приземлении */
+const LAND_BOUNCE_UP = 10;      // px вверх перед финальным прижатием
+const LAND_BOUNCE_TIME = 0.10;  // сек
+
+const canvas = document.getElementById("c");
+const ctx = canvas.getContext("2d");
+
+const overlay = document.getElementById("overlay");
+const qEl = document.getElementById("q");
+const badgeEl = document.getElementById("badge");
+const answersEl = document.getElementById("answers");
+const inputRow = document.getElementById("inputRow");
+const ansInput = document.getElementById("ansInput");
+const submitBtn = document.getElementById("submit");
+const msgEl = document.getElementById("msg");
+
+const startLayer = document.getElementById("start");
+const playBtn = document.getElementById("play");
+
+const finishLayer = document.getElementById("finish");
+const finishScoreEl = document.getElementById("finishScore");
+const stCorrect = document.getElementById("stCorrect");
+const stWrong = document.getElementById("stWrong");
+const stHeight = document.getElementById("stHeight");
+const restartBtn = document.getElementById("restart");
+
+const errBox = document.getElementById("err");
+const errList = document.getElementById("errList");
+
+const heightTxt = document.getElementById("heightTxt");
+const remainNum = document.getElementById("remainNum");
+const pctTxt = document.getElementById("pct");
+const barFill = document.querySelector("#bar > div");
+
+const scoreNum = document.getElementById("scoreNum");
+const nextBtn = document.getElementById("nextBtn");
+
+let W=0,H=0,DPR=1;
+function resize(){
+  DPR = Math.max(1, Math.floor(window.devicePixelRatio || 1));
+  W = Math.floor(window.innerWidth);
+  H = Math.floor(window.innerHeight);
+  canvas.width = W * DPR;
+  canvas.height = H * DPR;
+  ctx.setTransform(DPR,0,0,DPR,0,0);
+}
+window.addEventListener("resize", resize);
+resize();
+
+/** Audio */
+let audioCtx=null;
+function ensureAudio(){ if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)(); }
+function playBoom(){
+  ensureAudio();
+  const t = audioCtx.currentTime;
+
+  const osc = audioCtx.createOscillator();
+  const gain = audioCtx.createGain();
+  osc.type="sawtooth";
+  osc.frequency.setValueAtTime(120,t);
+  osc.frequency.exponentialRampToValueAtTime(38,t+0.22);
+  gain.gain.setValueAtTime(0.0001,t);
+  gain.gain.exponentialRampToValueAtTime(0.50,t+0.02);
+  gain.gain.exponentialRampToValueAtTime(0.0001,t+0.34);
+
+  const noiseBuf = audioCtx.createBuffer(1, audioCtx.sampleRate*0.30, audioCtx.sampleRate);
+  const data = noiseBuf.getChannelData(0);
+  for(let i=0;i<data.length;i++) data[i]=(Math.random()*2-1)*0.95;
+  const noise = audioCtx.createBufferSource(); noise.buffer=noiseBuf;
+  const nGain = audioCtx.createGain();
+  nGain.gain.setValueAtTime(0.0001,t);
+  nGain.gain.exponentialRampToValueAtTime(0.40,t+0.01);
+  nGain.gain.exponentialRampToValueAtTime(0.0001,t+0.30);
+
+  const filter = audioCtx.createBiquadFilter();
+  filter.type="lowpass";
+  filter.frequency.setValueAtTime(1700,t);
+  filter.frequency.exponentialRampToValueAtTime(320,t+0.26);
+
+  osc.connect(gain).connect(audioCtx.destination);
+  noise.connect(filter).connect(nGain).connect(audioCtx.destination);
+
+  osc.start(t); osc.stop(t+0.36);
+  noise.start(t); noise.stop(t+0.32);
+}
+function playGood(){
+  ensureAudio();
+  const t = audioCtx.currentTime;
+  const osc = audioCtx.createOscillator();
+  const gain = audioCtx.createGain();
+  osc.type="triangle";
+  osc.frequency.setValueAtTime(420,t);
+  osc.frequency.exponentialRampToValueAtTime(780,t+0.12);
+  gain.gain.setValueAtTime(0.0001,t);
+  gain.gain.exponentialRampToValueAtTime(0.20,t+0.02);
+  gain.gain.exponentialRampToValueAtTime(0.0001,t+0.18);
+  osc.connect(gain).connect(audioCtx.destination);
+  osc.start(t); osc.stop(t+0.2);
+}
+
+/** Assets */
+function assetUrl(file){ return new URL(file, new URL(".", window.location.href)).toString(); }
+function loadImage(url){
+  return new Promise((resolve, reject)=>{
+    const img=new Image();
+    img.onload=()=>resolve(img);
+    img.onerror=()=>reject(new Error(url));
+    img.src=url;
+  });
+}
+
+/** Профили */
+function buildTopBottomProfiles(imageData, w, h){
+  const d = imageData.data;
+  const top = new Array(w).fill(h);
+  const bottom = new Array(w).fill(-1);
+
+  for(let x=0;x<w;x++){
+    for(let y=0;y<h;y++){
+      const a = d[(y*w + x)*4 + 3];
+      if(a >= PROFILE_ALPHA_MIN){ top[x]=y; break; }
+    }
+    for(let y=h-1;y>=0;y--){
+      const a = d[(y*w + x)*4 + 3];
+      if(a >= PROFILE_ALPHA_MIN){ bottom[x]=y; break; }
+    }
+    if(bottom[x] < 0){ bottom[x] = h-1; }
+    if(top[x] >= h){ top[x] = 0; }
+  }
+  return { top, bottom };
+}
+
+function trimAndCentroidAndProfiles(img){
+  const c=document.createElement("canvas");
+  c.width=img.width; c.height=img.height;
+  const g=c.getContext("2d");
+  g.drawImage(img,0,0);
+
+  const im=g.getImageData(0,0,c.width,c.height);
+  const d=im.data;
+
+  let minX=c.width, minY=c.height, maxX=-1, maxY=-1;
+  let sumA=0, sumX=0, sumY=0;
+
+  for(let y=0;y<c.height;y++){
+    for(let x=0;x<c.width;x++){
+      const a = d[(y*c.width + x)*4 + 3];
+      if(a >= TRIM_ALPHA_MIN){
+        if(x<minX) minX=x;
+        if(y<minY) minY=y;
+        if(x>maxX) maxX=x;
+        if(y>maxY) maxY=y;
+      }
+      if(a >= CENTROID_ALPHA_MIN){
+        const wgt=a;
+        sumA += wgt;
+        sumX += x*wgt;
+        sumY += y*wgt;
+      }
+    }
+  }
+
+  if(maxX<0 || maxY<0){
+    return Promise.resolve({ img, w: img.width, h: img.height, cx: img.width/2, cy: img.height/2, top:null, bottom:null });
+  }
+
+  const w = (maxX-minX+1);
+  const h = (maxY-minY+1);
+
+  const outC=document.createElement("canvas");
+  outC.width=w; outC.height=h;
+  const og=outC.getContext("2d");
+  og.drawImage(c, minX, minY, w, h, 0, 0, w, h);
+
+  const cropped = og.getImageData(0,0,w,h);
+  const { top, bottom } = buildTopBottomProfiles(cropped, w, h);
+
+  let cx=w/2, cy=h/2;
+  if(sumA>0){
+    cx = (sumX/sumA) - minX;
+    cy = (sumY/sumA) - minY;
+  }
+
+  const out=new Image();
+  out.src=outC.toDataURL("image/png");
+  return new Promise((res,rej)=>{
+    out.onload=()=>res({ img: out, w, h, cx, cy, top, bottom });
+    out.onerror=rej;
+  });
+}
+
+
+function applyTitle(title){
+  const t = String(title || "Башня знаний");
+  document.title = t;
+  const h1 = document.querySelector("#startCard h1");
+  if(h1) h1.textContent = t;
+}
+/** State */
+const state = {
+  running:false,
+  bg:null,
+  blocks:[],
+  towerScale:1,
+
+  tower:[],
+  current:null,
+
+  particles:[],
+  smokes:[],
+  rings:[],
+  sparks:[],
+  flash:0,
+
+  cameraShake:0,
+  cameraX:0, cameraY:0,
+
+  towerOffsetY:0,
+  towerOffsetV:0,
+
+  questionIndex:0,
+  waitingAnswer:false,
+  dropping:false,
+
+  blockIndex:0,
+  readyForNext:false,
+
+  finished:false,
+
+  score:0,
+  scoreFloats:[],
+
+  correct:0,
+  wrong:0,
+
+  // bounce state
+  landingBounce: null, // {fromY,toY,age,dur}
+};
+
+/** HUD helpers */
+function setNextEnabled(on){
+  state.readyForNext = on;
+  nextBtn.disabled = !on;
+}
+function updateRemain(){
+  const remain = Math.max(0, 9 - state.questionIndex);
+  remainNum.textContent = String(remain);
+}
+
+function groundY(){
+  return H - 70 + state.towerOffsetY;
+}
+function alignedXForIdx(idx){
+  const b = state.blocks[idx];
+  const cxScaled = b.cx * state.towerScale;
+  return (W/2) - cxScaled;
+}
+function blockSize(idx){
+  const b = state.blocks[idx];
+  return { w: b.w*state.towerScale, h: b.h*state.towerScale };
+}
+function computeTowerScale(blocks){
+  const maxW = Math.max(...blocks.map(b => b.w));
+  const totalH = blocks.reduce((s,b)=>s+b.h,0);
+  const scaleByWidth = DESIRED_TOWER_WIDTH() / maxW;
+  const availableH = Math.max(220, H - SAFE_TOP_MARGIN - SAFE_BOTTOM_MARGIN);
+  const scaleByHeight = availableH / totalH;
+  return Math.min(scaleByWidth, scaleByHeight);
+}
+
+/** Пиксельно точный стек */
+function computeStackY(upper, lower){
+  const su = state.towerScale;
+  const upperMeta = state.blocks[upper.idx];
+  const lowerMeta = state.blocks[lower.idx];
+
+  const overlapLeft = Math.max(upper.x, lower.x);
+  const overlapRight = Math.min(upper.x + upper.w, lower.x + lower.w);
+
+  if(overlapRight <= overlapLeft + 2){
+    return Math.round(lower.y - upper.h);
+  }
+
+  let yMaxAllowed = Infinity;
+  const step = 2;
+
+  for(let wx = overlapLeft; wx <= overlapRight; wx += step){
+    const xu = Math.floor((wx - upper.x) / su);
+    const xl = Math.floor((wx - lower.x) / su);
+    if(xu < 0 || xu >= upperMeta.w) continue;
+    if(xl < 0 || xl >= lowerMeta.w) continue;
+
+    const bu = upperMeta.bottom[xu];
+    const tl = lowerMeta.top[xl];
+
+    const allowed = lower.y + tl*su - bu*su;
+    if(allowed < yMaxAllowed) yMaxAllowed = allowed;
+  }
+  // плотнее без щелей
+  return Math.round(yMaxAllowed) - 1;
+}
+
+/** spawn */
+function spawnBlock(){
+  if(state.finished) return;
+  if(state.blockIndex >= 9){ finishGame(); return; }
+
+  const idx = state.blockIndex;
+  const {w,h} = blockSize(idx);
+
+  state.current = { idx, w,h, x: alignedXForIdx(idx), y: -h - 30, char:0 };
+  state.dropping=false;
+  state.waitingAnswer=false;
+  state.landingBounce=null;
+  setNextEnabled(false);
+}
+
+/** score pop */
+function addScorePop(x,y, text){
+  state.scoreFloats.push({
+    x, y,
+    vx: (Math.random()*2-1)*30,
+    vy: -160 - Math.random()*60,
+    life: 0.85,
+    age: 0,
+    text
+  });
+}
+
+/** sparks at seam */
+function sparksAtSeam(x, y){
+  for(let i=0;i<18;i++){
+    const a = (-Math.PI/2) + (Math.random()*Math.PI*0.9 - Math.PI*0.45);
+    const sp = 220 + Math.random()*360;
+    state.sparks.push({
+      x: x + (Math.random()*40 - 20),
+      y: y + (Math.random()*6 - 3),
+      vx: Math.cos(a)*sp,
+      vy: Math.sin(a)*sp - (40+Math.random()*60),
+      life: 0.45 + Math.random()*0.2,
+      age: 0
+    });
+  }
+}
+
+/** smoke/dust */
+function dustAt(x,y){
+  for(let i=0;i<10;i++){
+    const a=Math.random()*Math.PI*2;
+    const sp=30+Math.random()*110;
+    state.smokes.push({
+      x:x + (Math.random()*18-9),
+      y:y + (Math.random()*10-5),
+      vx:Math.cos(a)*sp,
+      vy:Math.sin(a)*sp - (30+Math.random()*40),
+      life:0.55+Math.random()*0.35,
+      age:0,
+      rad: 10+Math.random()*14
+    });
+  }
+}
+
+/** settle with bounce */
+function settleCurrentBlock(){
+  const b = state.current;
+
+  let yFinal;
+  if(state.tower.length===0){
+    yFinal = Math.round(groundY() - b.h);
+  } else {
+    const lower = state.tower[state.tower.length - 1];
+    yFinal = computeStackY(b, lower);
+  }
+
+  // bounce: сначала чуть выше, потом вниз в финал
+  const yUp = Math.max(-200, yFinal - LAND_BOUNCE_UP);
+  state.landingBounce = { fromY: yUp, toY: yFinal, age: 0, dur: LAND_BOUNCE_TIME };
+
+  b.x = Math.round(b.x);
+  b.y = yUp;
+
+  // Запомним временно “собираемый” блок, добавим в башню только после bounce
+}
+
+/** finalize land */
+function finalizeLand(){
+  const b = state.current;
+  if(!b) return;
+
+  // искры из шва (x по центру башни, y на стыке)
+  const seamY = b.y + b.h;
+  sparksAtSeam(W/2, seamY);
+
+  state.tower.push({
+    x: Math.round(b.x),
+    y: Math.round(b.y),
+    w: b.w, h: b.h, idx: b.idx,
+    squash:1.0, squashV:0.0
+  });
+
+  // очки
+  state.score += SCORE_PER_BLOCK;
+  scoreNum.textContent = String(state.score);
+  addScorePop(W/2 + 70, b.y + 30, `+${SCORE_PER_BLOCK}`);
+
+  dustAt(W/2, seamY);
+  state.cameraShake = Math.max(state.cameraShake, SHAKE_ON_LAND);
+  state.towerOffsetV -= 120;
+
+  state.current = null;
+}
+
+/** boom + scorch */
+function boomAt(block){
+  const cx = block.x + block.w/2;
+  const cy = block.y + block.h/2;
+
+  state.flash = Math.min(1, state.flash + 0.95);
+  state.rings.push({ x:cx, y:cy, r:10, vr: 900, life:0.45, age:0 });
+
+  for(let i=0;i<44;i++){
+    const a=Math.random()*Math.PI*2;
+    const sp=160+Math.random()*720;
+    state.particles.push({
+      x:cx,y:cy,
+      vx:Math.cos(a)*sp,
+      vy:Math.sin(a)*sp-(260+Math.random()*360),
+      life:0.55+Math.random()*0.35,
+      age:0,
+      r:2+Math.random()*4
+    });
+  }
+
+  for(let i=0;i<14;i++){
+    const a=Math.random()*Math.PI*2;
+    const sp=50+Math.random()*210;
+    state.smokes.push({
+      x:cx,y:cy,
+      vx:Math.cos(a)*sp,
+      vy:Math.sin(a)*sp-(90+Math.random()*120),
+      life:1.1+Math.random()*0.8,
+      age:0,
+      rad: 22+Math.random()*26
+    });
+  }
+
+  state.cameraShake = Math.max(state.cameraShake, SHAKE_ON_BOOM);
+  playBoom();
+}
+
+/** finish */
+function finishGame(){
+  state.finished = true;
+  setNextEnabled(false);
+
+  finishScoreEl.textContent = String(state.score);
+  stCorrect.textContent = String(state.correct);
+  stWrong.textContent = String(state.wrong);
+  stHeight.textContent = String(state.tower.length);
+
+  finishLayer.style.display="flex";
+}
+
+/** restart */
+restartBtn.addEventListener("click", async ()=>{
+  finishLayer.style.display="none";
+  startLayer.style.display="flex";
+});
+
+/** card show/hide with animation */
+function showOverlayAnimated(){
+  overlay.style.display="flex";
+  requestAnimationFrame(()=> overlay.classList.add("show"));
+}
+function hideOverlayAnimated(){
+  overlay.classList.remove("show");
+  setTimeout(()=>{ overlay.style.display="none"; }, 140);
+}
+
+/** Update */
+function update(dt){
+  if(!state.running) return;
+
+  // remain
+  updateRemain();
+
+  // camera shake
+  if(state.cameraShake>0){
+    state.cameraShake=Math.max(0, state.cameraShake - dt*22);
+    const s=state.cameraShake;
+    state.cameraX=(Math.random()*2-1)*s;
+    state.cameraY=(Math.random()*2-1)*s;
+  } else {
+    state.cameraX=0; state.cameraY=0;
+  }
+
+  state.flash = Math.max(0, state.flash - dt*3.8);
+
+  // ground spring
+  {
+    const k=55, damp=10;
+    const a = -k*(state.towerOffsetY) - damp*state.towerOffsetV;
+    state.towerOffsetV += a*dt;
+    state.towerOffsetY += state.towerOffsetV*dt;
+    state.towerOffsetY = Math.max(-10, Math.min(10, state.towerOffsetY));
+  }
+
+  // tower squash
+  for(const b of state.tower){
+    const k=40, damp=8;
+    const a=-k*(b.squash-1)-damp*b.squashV;
+    b.squashV += a*dt;
+    b.squash  += b.squashV*dt;
+    b.squash = Math.max(0.88, Math.min(1.08, b.squash));
+  }
+
+  // particles
+  for(const p of state.particles){
+    p.age += dt; p.vy += 980*dt; p.x += p.vx*dt; p.y += p.vy*dt;
+  }
+  state.particles = state.particles.filter(p => p.age < p.life);
+
+  // smoke
+  for(const s of state.smokes){
+    s.age += dt; s.vy += 120*dt; s.x += s.vx*dt; s.y += s.vy*dt;
+  }
+  state.smokes = state.smokes.filter(s => s.age < s.life);
+
+  // ring
+  for(const r of state.rings){
+    r.age += dt; r.r += r.vr*dt;
+  }
+  state.rings = state.rings.filter(r => r.age < r.life);
+
+  // sparks
+  for(const sp of state.sparks){
+    sp.age += dt;
+    sp.vy += 980*dt;
+    sp.x += sp.vx*dt;
+    sp.y += sp.vy*dt;
+    sp.vx *= (1 - dt*1.8);
+  }
+  state.sparks = state.sparks.filter(s => s.age < s.life);
+
+  // score floats
+  for(const f of state.scoreFloats){
+    f.age += dt; f.vy += 260*dt; f.x += f.vx*dt; f.y += f.vy*dt;
+  }
+  state.scoreFloats = state.scoreFloats.filter(f => f.age < f.life);
+
+  // bounce step
+  if(state.landingBounce && state.current){
+    const bb = state.landingBounce;
+    bb.age += dt;
+    const t = Math.min(1, bb.age / bb.dur);
+    // easing
+    const ease = 1 - Math.pow(1 - t, 3);
+    state.current.y = Math.round(bb.fromY + (bb.toY - bb.fromY)*ease);
+
+    // чуть “сжатие” нижнего блока
+    if(state.tower.length>0){
+      const last = state.tower[state.tower.length-1];
+      last.squashV += 14 * dt;
+    }
+
+    if(t >= 1){
+      state.landingBounce = null;
+      // финальный y уже стоит, фиксируем блок как этаж
+      finalizeLand();
+      setNextEnabled(true);
+    }
+  }
+
+  // current block movement
+  if(state.current && !state.landingBounce){
+    const b = state.current;
+
+    if(state.waitingAnswer){
+      // wait
+    } else if(state.dropping){
+      let yTarget;
+      if(state.tower.length===0){
+        yTarget = groundY() - b.h;
+      } else {
+        const lower = state.tower[state.tower.length - 1];
+        yTarget = computeStackY(b, lower);
+      }
+
+      b.y += DROP_SPEED*dt;
+      if(b.y >= yTarget){
+        b.y = yTarget;
+        // начинаем bounce
+        settleCurrentBlock();
+      }
+    } else {
+      // stop before question
+      const topY = (state.tower.length===0 ? groundY() : state.tower[state.tower.length-1].y);
+      const stopY = Math.max(80, topY - b.h - 18);
+      b.y += FALL_SPEED*dt;
+      if(b.y>=stopY){
+        b.y=stopY;
+        state.waitingAnswer=true;
+        showQuestion();
+      }
+    }
+  }
+
+  // hud progress
+  heightTxt.textContent = String(state.tower.length);
+  const pct = Math.max(0, Math.min(100, Math.round((state.tower.length / TARGET_BLOCKS_FOR_100)*100)));
+  pctTxt.textContent = pct + "%";
+  barFill.style.width = pct + "%";
+}
+
+/** Draw */
+function drawBackground(){
+  if(state.bg){
+    const img=state.bg;
+    const scale=Math.max(W/img.width,H/img.height);
+    const dw=img.width*scale, dh=img.height*scale;
+    ctx.drawImage(img,(W-dw)/2,(H-dh)/2,dw,dh);
+  } else {
+    ctx.fillStyle="#0b0f18"; ctx.fillRect(0,0,W,H);
+  }
+  const grd=ctx.createRadialGradient(W*0.5,H*0.45,60, W*0.5,H*0.5, Math.max(W,H)*0.7);
+  grd.addColorStop(0,"rgba(0,0,0,0)");
+  grd.addColorStop(1,"rgba(0,0,0,0.45)");
+  ctx.fillStyle=grd; ctx.fillRect(0,0,W,H);
+
+  ctx.fillStyle="rgba(0,0,0,.35)";
+  ctx.fillRect(0,H-70,W,70);
+}
+
+function drawBlock(o, glow=false, squash=1.0, char=0){
+  const img = state.blocks[o.idx].img;
+
+  ctx.save();
+  ctx.shadowColor = glow ? "rgba(120,190,255,.35)" : "rgba(0,0,0,.45)";
+  ctx.shadowBlur  = glow ? 18 : 14;
+
+  const cx = o.x + o.w/2;
+  const cy = o.y + o.h;
+  const sx = 1 + (1 - squash) * 0.35;
+  const sy = squash;
+
+  ctx.translate(cx, cy);
+  ctx.scale(sx, sy);
+  ctx.translate(-cx, -cy);
+
+  ctx.drawImage(img, o.x, o.y, o.w, o.h);
+
+  // эффект обугливания (черная полупрозрачная маска)
+  if(char > 0){
+    ctx.globalCompositeOperation = "source-atop";
+    ctx.fillStyle = `rgba(0,0,0,${0.70*char})`;
+    ctx.fillRect(o.x-2, o.y-2, o.w+4, o.h+4);
+
+    // чуть красноватого “жара”
+    ctx.globalCompositeOperation = "screen";
+    ctx.fillStyle = `rgba(255,120,60,${0.10*char})`;
+    ctx.fillRect(o.x-2, o.y-2, o.w+4, o.h+4);
+
+    ctx.globalCompositeOperation = "source-over";
+  }
+
+  ctx.restore();
+}
+
+function drawScorePops(){
+  for(const f of state.scoreFloats){
+    const t = f.age / f.life;
+    const a = Math.max(0, 1 - t);
+    const s = 1 + (1 - a) * 0.15;
+
+    ctx.save();
+    ctx.globalAlpha = a;
+    ctx.translate(f.x, f.y);
+    ctx.scale(s, s);
+
+    ctx.font = "900 22px system-ui, -apple-system, Segoe UI, Roboto, Arial";
+    ctx.lineWidth = 5;
+    ctx.strokeStyle = "rgba(0,0,0,.35)";
+    ctx.strokeText(f.text, 0, 0);
+    ctx.fillStyle = "rgba(120,255,170,.95)";
+    ctx.fillText(f.text, 0, 0);
+
+    ctx.restore();
+  }
+}
+
+function draw(){
+  ctx.clearRect(0,0,W,H);
+
+  ctx.save();
+  ctx.translate(state.cameraX, state.cameraY);
+
+  drawBackground();
+
+  for(const b of state.tower){
+    drawBlock(b, false, b.squash, 0);
+  }
+
+  if(state.current){
+    drawBlock(state.current, true, 1.0, state.current.char || 0);
+  }
+
+  // smoke
+  for(const s of state.smokes){
+    const t = s.age / s.life;
+    const a = (1 - t) * 0.35;
+    const r = s.rad * (1 + t*1.25);
+    ctx.fillStyle = `rgba(20,20,20,${a})`;
+    ctx.beginPath();
+    ctx.arc(s.x, s.y, r, 0, Math.PI*2);
+    ctx.fill();
+  }
+
+  // ring
+  for(const r of state.rings){
+    const t = r.age / r.life;
+    const a = (1 - t) * 0.55;
+    ctx.strokeStyle = `rgba(255,255,255,${a})`;
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.arc(r.x, r.y, r.r, 0, Math.PI*2);
+    ctx.stroke();
+  }
+
+  // sparks
+  for(const sp of state.sparks){
+    const t = sp.age / sp.life;
+    const a = Math.max(0, 1 - t);
+    ctx.strokeStyle = `rgba(255, 220, 140, ${0.9*a})`;
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(sp.x, sp.y);
+    ctx.lineTo(sp.x - sp.vx*0.012, sp.y - sp.vy*0.012);
+    ctx.stroke();
+  }
+
+  // particles
+  for(const p of state.particles){
+    const a = 1 - (p.age/p.life);
+    ctx.fillStyle = `rgba(255, 200, 120, ${0.78*a})`;
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, p.r, 0, Math.PI*2);
+    ctx.fill();
+  }
+
+  drawScorePops();
+
+  if(state.flash>0){
+    ctx.fillStyle = `rgba(255,255,255,${state.flash*0.22})`;
+    ctx.fillRect(0,0,W,H);
+  }
+
+  ctx.restore();
+  requestAnimationFrame(draw);
+}
+
+let lastT=0;
+function loop(t){
+  if(!lastT) lastT=t;
+  const dt=Math.min(0.033,(t-lastT)/1000);
+  lastT=t;
+  update(dt);
+  requestAnimationFrame(loop);
+}
+
+/** Questions */
+function normalizeAnswer(s){ return String(s??"").trim().toLowerCase(); }
+
+function showQuestion(){
+  const qi = state.questionIndex;
+  const q = QUESTIONS[qi % QUESTIONS.length];
+
+  msgEl.textContent="";
+  answersEl.innerHTML="";
+  inputRow.style.display="none";
+  answersEl.style.display="flex";
+
+  qEl.textContent=q.q;
+  badgeEl.textContent=`${qi+1} / 9`;
+
+  if(q.type==="choice"){
+    for(const opt of q.options){
+      const btn=document.createElement("button");
+      btn.className="btn";
+      btn.textContent=opt;
+      btn.addEventListener("click", ()=>checkAnswer(opt));
+      answersEl.appendChild(btn);
+    }
+  } else {
+    answersEl.style.display="none";
+    inputRow.style.display="flex";
+    ansInput.value="";
+  }
+
+  showOverlayAnimated();
+  setTimeout(()=>{ if(q.type==="input") ansInput.focus(); }, 50);
+}
+
+function checkAnswer(userValue){
+  const qi = state.questionIndex;
+  const q = QUESTIONS[qi % QUESTIONS.length];
+  let ok=false;
+  if(q.type==="choice"){
+    ok = normalizeAnswer(userValue) === normalizeAnswer(q.answer);
+  } else {
+    const acc = (q.accepts && q.accepts.length) ? q.accepts : [q.answer];
+    ok = acc.map(normalizeAnswer).includes(normalizeAnswer(userValue));
+  }
+  const waitingBlock = state.current;
+
+  if(ok){
+    state.correct++;
+    msgEl.innerHTML = `<span style="color: var(--good); font-weight:900;">Верно!</span> Блок опускается (+100).`;
+    playGood();
+    state.dropping = false;
+
+    setTimeout(()=>{
+      hideOverlayAnimated();
+      state.waitingAnswer = false;
+      if(state.current) state.dropping = true;
+      else setNextEnabled(true);
+    }, 220);
+
+  } else {
+    state.wrong++;
+    msgEl.innerHTML = `<span style="color: var(--bad); font-weight:900;">Неверно!</span> Блок обугливается и исчезает.`;
+    state.dropping = false;
+
+    // обугливание (0.35 сек), потом взрыв и исчезновение
+    const scorchDur = 0.35;
+    let elapsed = 0;
+
+    function scorchStep(){
+      if(!state.current || state.current !== waitingBlock) return;
+      elapsed += 1/60;
+      state.current.char = Math.min(1, elapsed / scorchDur);
+      // немного дыма
+      if(Math.random() < 0.25){
+        state.smokes.push({
+          x: waitingBlock.x + waitingBlock.w/2 + (Math.random()*30-15),
+          y: waitingBlock.y + waitingBlock.h/2 + (Math.random()*20-10),
+          vx: (Math.random()*2-1)*40,
+          vy: -80 - Math.random()*80,
+          life:0.6+Math.random()*0.4,
+          age:0,
+          rad: 14+Math.random()*18
+        });
+      }
+      if(elapsed < scorchDur){
+        requestAnimationFrame(scorchStep);
+      }
+    }
+    requestAnimationFrame(scorchStep);
+
+    setTimeout(()=>{
+      hideOverlayAnimated();
+      state.waitingAnswer = false;
+
+      if(waitingBlock && waitingBlock === state.current){
+        boomAt(waitingBlock);
+      }
+      state.current = null;
+
+      setNextEnabled(true);
+    }, 520);
+  }
+
+  state.blockIndex++;
+}
+
+submitBtn.addEventListener("click", ()=>checkAnswer(ansInput.value));
+ansInput.addEventListener("keydown",(e)=>{ if(e.key==="Enter") checkAnswer(ansInput.value); });
+document.addEventListener("keydown",(e)=>{
+  if(overlay.style.display==="flex" && e.key==="Enter"){
+    const qi=state.questionIndex;
+    if(QUESTIONS[qi].type==="input") checkAnswer(ansInput.value);
+  }
+});
+
+/** Next */
+nextBtn.addEventListener("click", ()=>{
+  if(nextBtn.disabled) return;
+
+  state.questionIndex++;
+  if(state.questionIndex >= 9){
+    finishGame();
+    return;
+  }
+  spawnBlock();
+});
+
+
+function buildQuestionsFromCfg(cfg){
+  const src = Array.isArray(cfg?.questions) ? cfg.questions : [];
+  if(src.length === 0){
+    // fallback placeholders
+    return Array.from({length:9}, (_,i)=>({
+      type:"choice",
+      q:`(вопрос ${i+1})`,
+      options:["OK","..."],
+      answer:"OK"
+    }));
+  }
+  // Map editor schema -> game schema
+  const mapped = src.map((q,i)=>{
+    if(q && (q.type==="text" || q.type==="input")){
+      const accepts = Array.isArray(q.accepts) ? q.accepts : (Array.isArray(q.acceptsRaw) ? q.acceptsRaw : (Array.isArray(q.accepts) ? q.accepts : []));
+      const acc2 = Array.isArray(q.accepts) ? q.accepts : [];
+      const fromEditor = Array.isArray(q.accepts) ? q.accepts : (Array.isArray(q.accepts) ? q.accepts : []);
+      const a = Array.isArray(q.accepts) ? q.accepts : [];
+      // We'll read editor format: {type:"text", prompt, accepts:[...]}
+      const acc = Array.isArray(q.accepts) ? q.accepts : [];
+      return { type:"input", q:String(q.prompt||q.q||""), accepts: acc.map(String), answer: String(acc[0]||"") };
+    }
+    // choice
+    const opts = Array.isArray(q.options) ? q.options.map(String) : (Array.isArray(q.optionsRaw)?q.optionsRaw.map(String):[]);
+    const ci = Number.isFinite(q.correctIndex) ? q.correctIndex : 0;
+    const ans = (opts[ci] ?? opts[0] ?? "OK");
+    return { type:"choice", q:String(q.prompt||q.q||""), options: opts.length?opts:["OK","..."], answer: String(ans) };
+  });
+
+  // Ensure we have at least 1
+  if(mapped.length === 0){
+    return Array.from({length:9}, (_,i)=>({type:"choice", q:`(вопрос ${i+1})`, options:["OK","..."], answer:"OK"}));
+  }
+  // For gameplay we need QUESTIONS.length >0; we'll cycle for 9 steps
+  return mapped;
+}
+/** Start / Load */
+async function startGame(){
+  applyTitle(__CFG.title);
+  QUESTIONS = buildQuestionsFromCfg(__CFG);
+
+  errBox.style.display="none";
+  errList.innerHTML="";
+
+  ensureAudio();
+  if(audioCtx.state==="suspended"){ try{ await audioCtx.resume(); }catch{} }
+
+  Object.assign(state, {
+    running:false, bg:null, blocks:[], towerScale:1,
+    tower:[], current:null,
+    particles:[], smokes:[], rings:[], sparks:[], flash:0,
+    cameraShake:0, cameraX:0, cameraY:0,
+    towerOffsetY:0, towerOffsetV:0,
+    questionIndex:0, waitingAnswer:false, dropping:false,
+    blockIndex:0, readyForNext:false,
+    finished:false,
+    score:0,
+    scoreFloats:[],
+    correct:0,
+    wrong:0,
+    landingBounce:null,
+  });
+  scoreNum.textContent = "0";
+  setNextEnabled(false);
+  updateRemain();
+
+  const missing=[];
+
+  try{ state.bg = await loadImage(assetUrl(BG_FILE)); }
+  catch{ missing.push(BG_FILE); }
+
+  const blocks=[];
+  for(const f of BLOCK_FILES){
+    try{
+      const raw = await loadImage(assetUrl(f));
+      const t = await trimAndCentroidAndProfiles(raw);
+      blocks.push({ file:f, img:t.img, w:t.w, h:t.h, cx:t.cx, cy:t.cy, top:t.top, bottom:t.bottom });
+    } catch {
+      missing.push(f);
+    }
+  }
+
+  if(missing.length){
+    errBox.style.display="block";
+    for(const f of missing){
+      const li=document.createElement("li");
+      li.textContent = f + " (не найден/не загружается)";
+      errList.appendChild(li);
+    }
+    return;
+  }
+
+  state.towerScale = computeTowerScale(blocks);
+  state.blocks = blocks;
+
+  state.running = true;
+
+  spawnBlock(); // первый блок сам
+}
+
+playBtn.addEventListener("click", async ()=>{
+  startLayer.style.display="none";
+  await startGame();
+});
+
+// auto-start for iframe preview
+const __qp = new URLSearchParams(location.search);
+if(__qp.get("preview")==="1"){
+  startLayer.style.display="none";
+  setTimeout(()=>startGame(), 50);
+}
+
+requestAnimationFrame(loop);
+requestAnimationFrame(draw);
+
+})();
+
 })();
 </script>
 </body>
