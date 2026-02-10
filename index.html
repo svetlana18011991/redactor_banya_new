@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Башня — Editor + Game (один файл)</title>
+  <title>Башня — Editor + Game (один файл) [v4-20260210-041140]</title>
 
   <style>
     html, body{height:100%}
@@ -713,7 +713,7 @@
   <div class="app" id="editorRoot">
     <div class="panel settings">
       <div class="panel-header">
-        <div class="h">Редактор «Башня»</div>
+        <div class="h">Редактор «Башня» <span class="pill" title="версия файла">v4-20260210-041140</span></div>
         <div class="row" style="margin:0">
           <button class="btn primary" id="btnCopyCode" type="button">📋 Скопировать iframe (короткий)</button>
         </div>
@@ -867,7 +867,25 @@
     </div>
   </div>
 
+  
+  <div class="modal-backdrop" id="codeBackdrop" aria-hidden="true">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="codeTitle">
+      <div class="modal-head">
+        <div class="h" id="codeTitle">iframe для Genially</div>
+        <button class="btn small danger" id="btnCloseCode" type="button">Закрыть</button>
+      </div>
+      <div class="modal-body">
+        <div class="muted" style="margin-bottom:8px">Проверь, что ссылка внутри <b>src</b> содержит <b>?game=</b>.</div>
+        <textarea id="taIframe" spellcheck="false" style="min-height:160px;font-family: ui-monospace, SFMono-Regular, Menlo, monospace;"></textarea>
+        <div class="row" style="margin-top:10px">
+          <button class="btn primary" id="btnCopyFromModal" type="button">📋 Скопировать ещё раз</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <div class="toast" id="toast">Скопировано</div>
+
 
 <script>
 (() => {
@@ -1250,11 +1268,11 @@
     let stack = [];
     let falling = null;
 
-    const baseW = Math.min(320, Math.max(220, Math.floor(Math.min(window.innerWidth, hostEl.clientWidth || window.innerWidth) * 0.42)));
+    const baseW = Math.min(380, Math.max(240, Math.floor(Math.min(window.innerWidth, hostEl.clientWidth || window.innerWidth) * 0.55)));
     function widthForIndex(i){
-      // i=0 bottom block widest; i=8 top block narrowest
+      // i=0 bottom (widest), i=8 top (narrowest)
       const t = i / 8;
-      const w = baseW * (1 - 0.20 * t); // 20% taper
+      const w = baseW * (1 - 0.45 * t); // 45% taper total
       return Math.round(w);
     }
     const cssBlockH = 78;
@@ -2055,12 +2073,43 @@
     }
     const payload = buildPayload(false);
     const iframeCode = buildIframeCode(payload);
+
+    // show code modal so you can SEE what will be pasted to Genially
+    if ($("taIframe") && $("codeBackdrop")) {
+      $("taIframe").value = iframeCode;
+      $("codeBackdrop").style.display = "flex";
+      $("codeBackdrop").setAttribute("aria-hidden","false");
+    }
+
     const ok = await copyToClipboard(iframeCode);
     toast(ok ? "iframe скопирован ✅" : "Не удалось скопировать");
   });
 
-  // ===== game-only mode =====
+  
+  // iframe code modal
+  function hideCodeModal(){
+    if(!$("codeBackdrop")) return;
+    $("codeBackdrop").style.display = "none";
+    $("codeBackdrop").setAttribute("aria-hidden","true");
+  }
+  if ($("btnCloseCode")) $("btnCloseCode").addEventListener("click", hideCodeModal);
+  if ($("codeBackdrop")) {
+    $("codeBackdrop").addEventListener("click", (e)=>{
+      if(e.target === $("codeBackdrop")) hideCodeModal();
+    });
+  }
+  if ($("btnCopyFromModal")) {
+    $("btnCopyFromModal").addEventListener("click", async ()=>{
+      const text = ($("taIframe")?.value || "").trim();
+      if(!text){ toast("Пусто"); return; }
+      const ok = await copyToClipboard(text);
+      toast(ok ? "Скопировано ✅" : "Не удалось скопировать");
+    });
+  }
+
+// ===== game-only mode =====
   function bootGameOnly(cfg){
+    document.body.setAttribute("data-mode","game");
     document.body.classList.add("gameOnly");
     $("editorRoot").style.display = "none";
     $("modalBackdrop").style.display = "none";
