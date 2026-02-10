@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Gold Tower Editor</title>
 <style>
-  /* --- ТЕМА: ЗОЛОТО НА ЧЕРНОМ --- */
+  /* --- ТЕМА: ЗОЛОТО НА ТЕМНОМ --- */
   :root { 
     --bg: #050505; 
     --panel: #0f1219; 
@@ -21,13 +21,12 @@
   ::-webkit-scrollbar-thumb { background: #444; border-radius: 3px; }
 
   /* --- ЛЕВАЯ КОЛОНКА --- */
-  .editor-col { width: 450px; background: var(--panel); border-right: 1px solid var(--border); display: flex; flex-direction: column; z-index: 10; box-shadow: 5px 0 30px rgba(0,0,0,0.5); }
+  .editor-col { width: 450px; background: var(--panel); border-right: 1px solid var(--border); display: flex; flex-direction: column; z-index: 10; box-shadow: 10px 0 30px rgba(0,0,0,0.5); }
   
   .header { padding: 20px; border-bottom: 1px solid var(--gold); display: flex; justify-content: space-between; align-items: center; background: linear-gradient(to right, #0f1219, #1a1d26); }
   .logo { font-weight: 800; color: var(--gold); letter-spacing: 2px; text-transform: uppercase; font-size: 18px; text-shadow: 0 0 15px var(--gold-glow); }
   
   .scroll-wrap { flex: 1; overflow-y: auto; padding: 20px; }
-  
   .section { margin-bottom: 25px; }
   .sec-head { color: var(--gold); font-size: 11px; text-transform: uppercase; letter-spacing: 1.5px; font-weight: bold; margin-bottom: 10px; border-bottom: 1px solid #333; padding-bottom: 5px; }
 
@@ -50,11 +49,14 @@
 
   /* ЗАГРУЗКА ФОНА */
   .upload-area {
-    border: 1px dashed #444; background: rgba(0,0,0,0.3); padding: 10px; border-radius: 6px;
+    border: 1px dashed #444; background: rgba(0,0,0,0.3); padding: 5px; border-radius: 6px;
     display: flex; justify-content: space-between; align-items: center;
   }
-  .file-label { font-size: 12px; color: #aaa; display: flex; align-items: center; gap: 8px; cursor: pointer; }
-  .file-label:hover { color: var(--gold); }
+  .file-label { 
+    font-size: 13px; color: #aaa; display: flex; align-items: center; justify-content: center; 
+    width: 100%; padding: 10px; cursor: pointer; font-weight: bold; text-transform: uppercase;
+  }
+  .file-label:hover { color: var(--gold); background: rgba(255,255,255,0.05); border-radius: 4px; }
   
   /* СПИСОК ВОПРОСОВ */
   .q-list { display: flex; flex-direction: column; gap: 8px; }
@@ -69,6 +71,10 @@
   /* --- ПРАВАЯ КОЛОНКА (ПРЕВЬЮ) --- */
   .preview-col { flex: 1; background: #000; position: relative; overflow: hidden; display: flex; flex-direction: column; }
   iframe { width: 100%; height: 100%; border: none; display: block; background: #000; }
+  .preview-overlay-label {
+    position: absolute; top: 10px; right: 10px; color: #444; font-size: 10px; 
+    text-transform: uppercase; letter-spacing: 2px; pointer-events: none; z-index: 20;
+  }
 
   /* --- МОДАЛКА --- */
   .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 100; display: none; align-items: center; justify-content: center; backdrop-filter: blur(5px); }
@@ -116,13 +122,12 @@
       <div class="sec-head">Фон Игры</div>
       <div class="upload-area">
         <label class="file-label">
-          <span style="font-size:18px">🖼️</span>
-          <span id="bgStatus">Стандартный (1.png)</span>
+          <span style="font-size:18px; margin-right:10px">🖼️</span>
+          <span id="bgLabel">ЗАГРУЗИТЬ</span>
           <input type="file" accept="image/*" style="display:none" onchange="uploadBg(this)">
         </label>
-        <button class="icon-btn" onclick="clearBg()" title="Сбросить">✕</button>
+        <button class="icon-btn" onclick="clearBg()" title="Сбросить на стандартный" style="border-left:1px solid #444">✕</button>
       </div>
-      <div style="font-size:10px; color:#555; margin-top:5px; padding-left:5px">Нажмите на текст, чтобы «Загрузить» свой фон</div>
     </div>
 
     <div class="section">
@@ -136,6 +141,7 @@
 </div>
 
 <div class="preview-col">
+  <div class="preview-overlay-label">LIVE PREVIEW</div>
   <iframe id="previewFrame"></iframe>
 </div>
 
@@ -199,7 +205,6 @@
   body{margin:0;overflow:hidden;background:#000;font-family:'Segoe UI',sans-serif;color:#f3e5ab;user-select:none;}
   canvas{display:block;width:100%;height:100%;}
   
-  /* UI LAYERS */
   #hud{position:absolute;top:20px;left:20px;right:20px;display:flex;justify-content:space-between;pointer-events:none;z-index:10;}
   .pill{
     background:rgba(15, 18, 25, 0.9); border:1px solid #d4af37; color:#d4af37; 
@@ -218,11 +223,9 @@
   #qImg{max-width:100%; max-height:180px; border-radius:8px; margin-bottom:15px; border:1px solid #333; display:none; margin-left:auto; margin-right:auto;}
   #qText{font-size:20px; margin-bottom:20px; line-height:1.4; color:#fff; font-weight:bold;}
   
-  /* TIMER */
   #timerLine{width:100%; height:4px; background:#222; margin-bottom:15px; border-radius:2px; display:none; overflow:hidden;}
   #timerFill{width:100%; height:100%; background:#d4af37; transition:width 1s linear;}
 
-  /* ANSWERS */
   .ans-btn{
     display:block; width:100%; background:linear-gradient(90deg, #1a1d26, #252836); 
     border:1px solid #444; padding:14px; color:#e2e8f0; border-radius:10px; 
@@ -241,7 +244,6 @@
   
   #msg{height:30px; margin-top:15px; font-weight:800; font-size:20px; letter-spacing:1px;}
   
-  /* START/END */
   #startScreen, #endScreen{position:absolute;inset:0;background:#050505;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:30;pointer-events:auto;}
   h1{margin:0 0 20px; background:linear-gradient(135deg, #d4af37, #fffbeb); -webkit-background-clip:text; color:transparent; font-size:48px; text-transform:uppercase; letter-spacing:4px;}
   
@@ -256,28 +258,18 @@
 <body>
 <div id="wrap">
   <canvas id="c"></canvas>
-  
-  <div id="hud">
-    <div class="pill">Этаж: <span id="hTxt">0</span></div>
-    <div class="pill">Счёт: <span id="sTxt">0</span></div>
-  </div>
-  
+  <div id="hud"><div class="pill">Этаж: <span id="hTxt">0</span></div><div class="pill">Счёт: <span id="sTxt">0</span></div></div>
   <div id="overlay">
     <div id="card">
       <div id="timerLine"><div id="timerFill"></div></div>
-      <img id="qImg">
-      <div id="audioBox"></div>
-      <div id="qText"></div>
-      <div id="ansArea"></div>
-      <div id="msg"></div>
+      <img id="qImg"><div id="audioBox"></div>
+      <div id="qText"></div><div id="ansArea"></div><div id="msg"></div>
     </div>
   </div>
-
   <div id="startScreen">
     <h1>БАШНЯ</h1>
     <button class="big-btn" onclick="startGame()">НАЧАТЬ</button>
   </div>
-
   <div id="endScreen" style="display:none">
     <h1 id="endTitle">ФИНАЛ</h1>
     <p style="font-size:24px; margin-bottom:40px; color:#fff">Счёт: <span id="finalScore" style="color:#d4af37">0</span></p>
@@ -286,16 +278,16 @@
 </div>
 
 <script>
+// CONFIG
 const CONFIG = {{CONFIG}};
 const cvs = document.getElementById("c");
 const ctx = cvs.getContext("2d");
 let W, H, DPR;
 const IMAGES = {};
 const BLOCKS = ["3.png","4.png","5.png","6.png","7.png","8.png","9.png","10.png","11.png"];
-
 let state = { running:false, tower:[], current:null, qIdx:0, score:0, camY:0, phase:'menu', timer:null };
 
-// --- АВТОМАТИЧЕСКИЙ ПОИСК РЕСУРСОВ ---
+// АВТО ОПРЕДЕЛЕНИЕ ПУТИ
 function getBaseUrl() {
   let path = window.location.href;
   return path.substring(0, path.lastIndexOf('/') + 1);
@@ -315,9 +307,7 @@ function loadImg(src) {
 async function init() {
   resize();
   const baseUrl = getBaseUrl();
-  // Фон: либо свой (base64), либо 1.png с сайта
   IMAGES.bg = await loadImg(CONFIG.bgUser || (baseUrl + "1.png"));
-  // Блоки: с сайта
   for(let b of BLOCKS) IMAGES[b] = await loadImg(baseUrl + b);
 }
 
@@ -329,7 +319,8 @@ function resize() {
 }
 window.onresize = resize;
 
-function startGame() {
+// ГЛОБАЛЬНАЯ ФУНКЦИЯ ЗАПУСКА (ДЛЯ НАДЕЖНОСТИ)
+window.startGame = function() {
   document.getElementById("startScreen").style.display="none";
   state = { running:true, tower:[], current:null, qIdx:0, score:0, camY:0, phase:'spawn', timer:null };
   spawn();
@@ -360,25 +351,21 @@ function update() {
 }
 
 function draw() {
-  // BG
   if(IMAGES.bg) {
     const s = Math.max(W/IMAGES.bg.width, H/IMAGES.bg.height);
     ctx.drawImage(IMAGES.bg, (W-IMAGES.bg.width*s)/2, (H-IMAGES.bg.height*s)/2, IMAGES.bg.width*s, IMAGES.bg.height*s);
   } else {
     const g = ctx.createLinearGradient(0,0,0,H);
-    g.addColorStop(0,"#050b14"); g.addColorStop(1,"#0f172a");
+    g.addColorStop(0,"#050505"); g.addColorStop(1,"#0f172a");
     ctx.fillStyle = g; ctx.fillRect(0,0,W,H);
   }
   ctx.save();
   ctx.translate(0, state.camY);
-  // Platform
   ctx.fillStyle="#334155"; ctx.fillRect((W-300)/2, H-100, 300, 20);
-  // Tower
   state.tower.forEach(b => {
     if(b.img) ctx.drawImage(b.img, b.x, b.y, b.w, b.h);
     else { ctx.fillStyle="#d4af37"; ctx.fillRect(b.x,b.y,b.w,b.h); ctx.strokeStyle="#fff"; ctx.strokeRect(b.x,b.y,b.w,b.h); }
   });
-  // Current
   if(state.current && state.phase==='drop') {
     const b = state.current;
     if(b.img) ctx.drawImage(b.img, b.x, b.y, b.w, b.h);
@@ -413,13 +400,11 @@ function showQ() {
   audioDiv.innerHTML = "";
   tLine.style.display = "none";
   
-  // Media
   if(q.media) {
     if(q.media.startsWith("data:audio")) audioDiv.innerHTML = `<audio controls autoplay src="${q.media}" style="width:100%; margin-bottom:15px"></audio>`;
     else { imgEl.src = q.media; imgEl.style.display = "block"; }
   }
 
-  // Timer
   if(q.timer && q.timer > 0) {
     tLine.style.display = "block";
     document.getElementById("timerFill").style.width = "100%";
@@ -443,7 +428,7 @@ function showQ() {
     });
   } else {
     const i = document.createElement("input");
-    i.className="inp-field"; i.placeholder="Введите ответ...";
+    i.className="inp"; i.placeholder="Введите ответ...";
     const b = document.createElement("button");
     b.className="main-btn"; b.textContent="ПРОВЕРИТЬ";
     b.onclick = ()=>check(i.value);
@@ -526,16 +511,16 @@ function uploadBg(inp) {
   const r = new FileReader();
   r.onload = e => { 
     config.bgUser = e.target.result; 
-    document.getElementById("bgStatus").innerText = "Загружен: " + f.name;
-    document.getElementById("bgStatus").style.color = "#d4af37";
+    document.getElementById("bgLabel").innerText = "ЗАГРУЖЕНО: " + f.name;
+    document.getElementById("bgLabel").style.color = "#d4af37";
     updatePreview(); 
   };
   r.readAsDataURL(f);
 }
 function clearBg() {
   config.bgUser = null;
-  document.getElementById("bgStatus").innerText = "Стандартный (1.png)";
-  document.getElementById("bgStatus").style.color = "#aaa";
+  document.getElementById("bgLabel").innerText = "ЗАГРУЗИТЬ";
+  document.getElementById("bgLabel").style.color = "#aaa";
   updatePreview();
 }
 
@@ -543,7 +528,13 @@ function clearBg() {
 function updatePreview() {
   const tmpl = document.getElementById("gameTemplate").textContent;
   const html = tmpl.replace("{{CONFIG}}", JSON.stringify(config));
-  const blob = new Blob([html], {type: 'text/html'});
+  
+  // === ГЛАВНОЕ ИСПРАВЛЕНИЕ: ДОБАВЛЯЕМ BASE TAG В BLOB ===
+  // Это заставляет Blob думать, что он находится на сайте, а не в памяти
+  const baseUrl = window.location.href.substring(0, window.location.href.lastIndexOf('/') + 1);
+  const fixedHtml = html.replace('<head>', `<head><base href="${baseUrl}">`);
+  
+  const blob = new Blob([fixedHtml], {type: 'text/html'});
   document.getElementById("previewFrame").src = URL.createObjectURL(blob);
 }
 
@@ -552,11 +543,17 @@ function renderList() {
   const l = document.getElementById("qList"); l.innerHTML = "";
   document.getElementById("qCount").textContent = config.qs.length;
   
+  if(config.qs.length === 0) {
+    l.innerHTML = "<div style='text-align:center;color:#444;font-size:12px;margin-top:20px'>Список пуст</div>";
+    return;
+  }
+
   config.qs.forEach((q, i) => {
     const d = document.createElement("div"); d.className = "q-item";
     let typeTxt = q.type === 'choice' ? 'ВЫБОР' : 'ВВОД';
     d.innerHTML = `
       <div class="q-info">
+        <span class="q-badge">${i+1}</span>
         <span class="q-type">${typeTxt}</span>
         <span class="q-text">${q.q}</span>
       </div>
