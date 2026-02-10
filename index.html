@@ -6,6 +6,8 @@
   <title>Башня — Editor + Game (один файл)</title>
 
   <style>
+    html, body{height:100%}
+
     :root{
       --text:#eaf0ff;
       --muted:#a9b6e6;
@@ -233,7 +235,7 @@
       border-radius:var(--radius2);
       border:1px solid rgba(255,255,255,.10);
       overflow:hidden;
-      min-height: 720px;
+      min-height: 720px; height: calc(100vh - 120px);
       background:rgba(0,0,0,.18);
       box-shadow: var(--shadow2);
     }
@@ -340,7 +342,7 @@
     .gameHost{
       width:100%;
       height:100%;
-      min-height:720px;
+      min-height:0;
     }
     .gameHost *{box-sizing:border-box;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
     .stage{
@@ -428,7 +430,7 @@
       align-items:flex-end;
       justify-content:center;
       z-index:10;
-      padding-bottom: 96px;
+      padding-bottom: 64px;
     }
     .tower{
       position:relative;
@@ -805,8 +807,17 @@
 
       <div class="panel-body">
         <div class="preview-stage">
-          <iframe id="livePreview" title="Preview" style="width:100%;height:720px;border:0;background:transparent;border-radius:18px;overflow:hidden" allow="autoplay; fullscreen" allowfullscreen></iframe>
+          <iframe id="livePreview" title="Preview" style="width:100%;height:100%;min-height:720px;border:0;background:transparent;border-radius:18px;overflow:hidden" allow="autoplay; fullscreen" allowfullscreen></iframe>
         </div>
+      
+      </div>
+
+      <div class="panel-body" style="padding-top:0;border-top:1px solid rgba(255,255,255,.10);background:rgba(0,0,0,.10)">
+        <div class="row" id="stickyBar" style="padding:12px 0;gap:10px;margin:0">
+          <button class="btn primary" id="btnCopyCode2" type="button" style="flex:1">📋 Скопировать iframe (короткий)</button>
+          <button class="btn" id="btnOpenGame" type="button" style="flex:1">▶ Открыть игру</button>
+        </div>
+        <div class="muted">Если кнопка наверху не видна — используй эти.</div>
       </div>
     </div>
   </div>
@@ -1225,7 +1236,13 @@
     let stack = [];
     let falling = null;
 
-    const blockW = Math.min(280, Math.max(200, Math.floor(window.innerWidth * 0.30)));
+    const baseW = Math.min(320, Math.max(220, Math.floor(Math.min(window.innerWidth, hostEl.clientWidth || window.innerWidth) * 0.42)));
+    function widthForIndex(i){
+      // i=0 bottom block widest; i=8 top block narrowest
+      const t = i / 8;
+      const w = baseW * (1 - 0.20 * t); // 20% taper
+      return Math.round(w);
+    }
     const cssBlockH = 78;
     const overlap = 10;
 
@@ -1343,14 +1360,15 @@
     };
 
     function spawnBlock(i){
-      const b = createBlockEl(i, blockW);
+      const w = widthForIndex(i);
+      const b = createBlockEl(i, w);
 
       let h = cssBlockH;
       if(b.kind==="img"){
         h = 90;
         b.el.onload = ()=>{
-          const ratio = (b.el.naturalHeight||90) / Math.max(1,(b.el.naturalWidth||blockW));
-          const realH = Math.round(blockW * ratio);
+          const ratio = (b.el.naturalHeight||90) / Math.max(1,(b.el.naturalWidth||w));
+          const realH = Math.round(w * ratio);
           b.el.style.height = realH + "px";
           if(falling && falling.el === b.el){
             falling.h = realH;
@@ -1885,7 +1903,7 @@
   function buildIframeCode(payload){
     const data = b64urlEncode(JSON.stringify(payload));
     const src = BASE + "index.html#game=" + data;
-    return `<iframe src="${src}" style="width:100%;height:720px;border:0;border-radius:18px;overflow:hidden;background:transparent" allow="autoplay; fullscreen" allowfullscreen loading="lazy"></iframe>`;
+    return `<iframe src="${src}" style="width:100%;height:100%;min-height:720px;border:0;border-radius:18px;overflow:hidden;background:transparent" allow="autoplay; fullscreen" allowfullscreen loading="lazy"></iframe>`;
   }
 
   function updatePreview(previewWithDraft){
