@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Башня — Editor + Game (один файл) [v16-20260210-055757]</title>
+  <title>Башня — Editor + Game (один файл) [v17-20260210-060327]</title>
 
   <style>
     html, body{height:100%}
@@ -43,7 +43,7 @@
       max-width: 1540px;
       margin: 0 auto;
     }
-    @media (max-width: 1020px){
+    @media (max-width: 760px){
       .app{grid-template-columns:1fr}
     }
 
@@ -341,7 +341,10 @@
     }
     .errbar.show{display:block}
 
-    /* ===== GAME styles (scoped by .gameHost) ===== */
+    
+    /* hide export section (kept for future, but invisible) */
+    .exportHidden{display:none !important;}
+/* ===== GAME styles (scoped by .gameHost) ===== */
     .gameHost{
       width:100%;
       height:100%;
@@ -761,7 +764,7 @@
   <div class="app" id="editorRoot">
     <div class="panel settings">
       <div class="panel-header">
-        <div class="h">Редактор «Башня» <span class="pill" title="версия файла">v16-20260210-055757</span></div>
+        <div class="h">Редактор «Башня» <span class="pill" title="версия файла">v17-20260210-060327</span></div>
         <div class="row" style="margin:0">
           <button class="btn primary" id="btnCopyCode" type="button">📋 Скопировать код (iframe)</button>
         </div>
