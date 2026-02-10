@@ -3,108 +3,61 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Gold Tower Editor (Final Fix)</title>
+<title>Gold Tower Editor (Original Engine)</title>
 <style>
-  /* --- ТЕМА: ЗОЛОТО НА ЧЕРНОМ --- */
-  :root { 
-    --bg: #050505; 
-    --panel: #0f1219; 
-    --gold: #d4af37; 
-    --gold-glow: rgba(212, 175, 55, 0.3);
-    --border: #333; 
-    --text: #e2e8f0;
-  }
-  
-  body { margin:0; font-family: 'Segoe UI', system-ui, sans-serif; background: var(--bg); color: var(--text); height: 100vh; display: flex; overflow: hidden; }
-  ::-webkit-scrollbar { width: 6px; }
-  ::-webkit-scrollbar-track { background: var(--panel); }
-  ::-webkit-scrollbar-thumb { background: #444; border-radius: 3px; }
+  /* --- ТЕМА РЕДАКТОРА: ЗОЛОТО НА ЧЕРНОМ --- */
+  :root { --bg: #050505; --panel: #0f1219; --gold: #d4af37; --gold-glow: rgba(212, 175, 55, 0.3); --border: #333; --text: #e2e8f0; }
+  body { margin:0; font-family: 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); height: 100vh; display: flex; overflow: hidden; }
+  ::-webkit-scrollbar { width: 6px; } ::-webkit-scrollbar-track { background: var(--panel); } ::-webkit-scrollbar-thumb { background: #444; border-radius: 3px; }
 
-  /* --- ЛЕВАЯ КОЛОНКА --- */
-  .editor-col { width: 450px; background: var(--panel); border-right: 1px solid var(--border); display: flex; flex-direction: column; z-index: 10; box-shadow: 5px 0 30px rgba(0,0,0,0.5); }
-  
-  .header { padding: 20px; border-bottom: 1px solid var(--gold); display: flex; justify-content: space-between; align-items: center; background: linear-gradient(to right, #0f1219, #1a1d26); }
-  .logo { font-weight: 800; color: var(--gold); letter-spacing: 2px; text-transform: uppercase; font-size: 18px; text-shadow: 0 0 15px var(--gold-glow); }
-  
+  /* EDITOR SIDE */
+  .editor-col { width: 460px; background: var(--panel); border-right: 1px solid var(--border); display: flex; flex-direction: column; z-index: 10; box-shadow: 10px 0 40px #000; }
+  .header { padding: 20px; border-bottom: 1px solid var(--gold); display: flex; justify-content: space-between; align-items: center; background: #0f1219; }
+  .logo { font-weight: 800; color: var(--gold); letter-spacing: 2px; font-size: 18px; text-transform: uppercase; text-shadow: 0 0 15px var(--gold-glow); }
   .scroll-wrap { flex: 1; overflow-y: auto; padding: 20px; }
-  .section { margin-bottom: 25px; }
-  .sec-head { color: var(--gold); font-size: 11px; text-transform: uppercase; letter-spacing: 1.5px; font-weight: bold; margin-bottom: 10px; border-bottom: 1px solid #333; padding-bottom: 5px; }
+  .section { margin-bottom: 25px; border: 1px solid #222; padding: 15px; border-radius: 8px; background: #0a0c10; }
+  .sec-head { color: var(--gold); font-size: 11px; text-transform: uppercase; font-weight: bold; margin-bottom: 10px; border-bottom: 1px solid #333; padding-bottom: 5px; }
 
-  /* КНОПКИ */
-  button { cursor: pointer; border: none; font-family: inherit; font-weight: 600; transition: 0.2s; border-radius: 4px; }
-  
-  .btn-gold { 
-    background: linear-gradient(135deg, #b8860b, #d4af37); 
-    color: #000; padding: 8px 16px; font-size: 12px; text-transform: uppercase; letter-spacing: 1px; 
-    box-shadow: 0 0 15px var(--gold-glow);
-  }
-  .btn-gold:hover { filter: brightness(1.2); box-shadow: 0 0 25px var(--gold-glow); }
-  
-  .btn-add { background: rgba(212, 175, 55, 0.1); border: 1px dashed var(--gold); color: var(--gold); width: 100%; padding: 12px; margin-top: 10px; }
+  /* BUTTONS */
+  button { cursor: pointer; border: none; font-weight: bold; transition: 0.2s; border-radius: 4px; font-family: inherit; }
+  .btn-gold { background: linear-gradient(135deg, #b8860b, #d4af37); color: #000; padding: 8px 16px; font-size: 12px; text-transform: uppercase; box-shadow: 0 0 15px var(--gold-glow); }
+  .btn-gold:hover { filter: brightness(1.2); }
+  .btn-add { background: rgba(212, 175, 55, 0.1); border: 1px dashed var(--gold); color: var(--gold); width: 100%; padding: 12px; margin-top: 5px; }
   .btn-add:hover { background: var(--gold); color: #000; }
-
   .icon-btn { background: transparent; color: #666; font-size: 16px; padding: 5px; }
   .icon-btn:hover { color: #fff; }
   .icon-btn.del:hover { color: #ef4444; }
 
-  /* ЗАГРУЗКА ФОНА */
-  .upload-area {
-    border: 1px dashed #444; background: rgba(0,0,0,0.3); padding: 5px; border-radius: 6px;
-    display: flex; justify-content: space-between; align-items: center;
-  }
-  .file-label { 
-    font-size: 13px; color: #aaa; display: flex; align-items: center; justify-content: center; 
-    width: 100%; padding: 10px; cursor: pointer; font-weight: bold; text-transform: uppercase;
-  }
-  .file-label:hover { color: var(--gold); background: rgba(255,255,255,0.05); border-radius: 4px; }
+  /* UPLOAD */
+  .upload-row { display: flex; align-items: center; justify-content: space-between; background: rgba(255,255,255,0.05); padding: 8px; border-radius: 4px; border: 1px dashed #444; }
+  .file-label { font-size: 11px; color: #aaa; cursor: pointer; display: flex; align-items: center; gap: 10px; width: 100%; }
+  .file-label:hover { color: var(--gold); }
   
-  /* СПИСОК ВОПРОСОВ */
-  .q-list { display: flex; flex-direction: column; gap: 8px; }
-  .q-item { 
-    background: rgba(255,255,255,0.03); padding: 12px; border-radius: 6px; 
-    display: flex; justify-content: space-between; align-items: center; 
-    border-left: 2px solid transparent; transition: 0.2s; 
-  }
-  .q-item:hover { background: rgba(255,255,255,0.07); border-left-color: var(--gold); }
-  .q-badge { font-size: 9px; background: #000; color: #888; padding: 2px 5px; border-radius: 3px; border: 1px solid #333; text-transform: uppercase; margin-right: 8px;}
+  /* LIST */
+  .q-item { background: #151921; padding: 10px; border-radius: 4px; margin-bottom: 5px; display: flex; justify-content: space-between; align-items: center; border-left: 2px solid transparent; }
+  .q-item:hover { border-left-color: var(--gold); background: #1a1d26; }
+  .q-txt { font-size: 13px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; max-width: 250px; }
 
-  /* --- ПРАВАЯ КОЛОНКА (ПРЕВЬЮ) --- */
-  .preview-col { flex: 1; background: #000; position: relative; overflow: hidden; display: flex; flex-direction: column; }
-  iframe { width: 100%; height: 100%; border: none; display: block; background: #000; }
-  .preview-overlay-label {
-    position: absolute; top: 10px; right: 10px; color: #444; font-size: 10px; 
-    text-transform: uppercase; letter-spacing: 2px; pointer-events: none; z-index: 20;
-  }
+  /* PREVIEW */
+  .preview-col { flex: 1; background: #000; position: relative; display: flex; flex-direction: column; }
+  .preview-bar { height: 30px; background: #111; border-bottom: 1px solid #333; display: flex; align-items: center; justify-content: center; color: #555; font-size: 10px; letter-spacing: 2px; text-transform: uppercase; }
+  iframe { flex: 1; border: none; width: 100%; background: #000; }
 
-  /* --- МОДАЛКА --- */
-  .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 100; display: none; align-items: center; justify-content: center; backdrop-filter: blur(5px); }
-  .modal { background: #151921; width: 600px; max-height: 90vh; border-radius: 12px; border: 1px solid var(--gold); box-shadow: 0 0 60px rgba(212, 175, 55, 0.15); display: flex; flex-direction: column; }
-  .modal-head { padding: 15px 20px; border-bottom: 1px solid #333; display: flex; justify-content: space-between; align-items: center; }
-  .modal-head h3 { margin: 0; color: #f3e5ab; font-size: 16px; text-transform: uppercase; letter-spacing: 1px; }
+  /* MODAL */
+  .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 999; display: none; align-items: center; justify-content: center; }
+  .modal { background: #0f1219; width: 550px; border: 1px solid var(--gold); border-radius: 8px; box-shadow: 0 0 50px var(--gold-glow); display: flex; flex-direction: column; max-height: 90vh; }
+  .modal-head { padding: 15px; border-bottom: 1px solid #333; display: flex; justify-content: space-between; align-items: center; }
+  .modal-head h3 { margin: 0; color: var(--gold); font-size: 14px; text-transform: uppercase; }
   .modal-body { padding: 20px; overflow-y: auto; }
-  .modal-foot { padding: 15px 20px; border-top: 1px solid #333; text-align: right; }
+  .modal-foot { padding: 15px; border-top: 1px solid #333; text-align: right; }
 
-  input, select, textarea { 
-    width: 100%; background: #0a0c10; border: 1px solid #333; color: #fff; padding: 10px; 
-    border-radius: 6px; box-sizing: border-box; font-size: 14px; font-family: inherit; margin-bottom: 10px;
-  }
+  input, select, textarea { width: 100%; background: #050505; border: 1px solid #444; color: #fff; padding: 10px; border-radius: 4px; box-sizing: border-box; font-size: 13px; margin-bottom: 10px; }
   input:focus, select:focus, textarea:focus { border-color: var(--gold); outline: none; }
   
-  .row { display: flex; gap: 15px; }
-  .col { flex: 1; }
-  label { display: block; color: #888; font-size: 11px; text-transform: uppercase; margin-bottom: 4px; font-weight: bold; }
-
-  /* Media Box */
-  .media-box { border: 1px dashed #444; padding: 15px; border-radius: 6px; text-align: center; cursor: pointer; transition: 0.2s; position: relative; background: rgba(0,0,0,0.2); }
-  .media-box:hover { border-color: var(--gold); background: rgba(255,255,255,0.02); }
-  .media-box input { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; }
+  .opt-row { display: flex; gap: 5px; align-items: center; margin-bottom: 5px; }
+  .radio { width: 20px; height: 20px; accent-color: var(--gold); cursor: pointer; }
   
-  .preview-media { margin-top: 10px; max-height: 100px; border: 1px solid #333; border-radius: 4px; display: none; margin-left: auto; margin-right: auto; }
-
-  .opt-row { display: flex; gap: 8px; margin-bottom: 8px; align-items: center; }
-  .radio { width: 18px; height: 18px; accent-color: var(--gold); cursor: pointer; }
-
-  .toast { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); background: var(--gold); color: #000; padding: 12px 30px; border-radius: 30px; font-weight: bold; opacity: 0; pointer-events: none; transition: 0.3s; z-index: 2000; box-shadow: 0 0 20px var(--gold-glow); }
+  .toast { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); background: var(--gold); color: #000; padding: 10px 30px; border-radius: 30px; font-weight: bold; opacity: 0; pointer-events: none; transition: 0.3s; z-index: 2000; }
   .toast.show { opacity: 1; bottom: 50px; }
 </style>
 </head>
@@ -112,7 +65,7 @@
 
 <div class="editor-col">
   <div class="header">
-    <div class="logo">🏛️ GOLD TOWER</div>
+    <div class="logo">GOLD TOWER</div>
     <button class="btn-gold" onclick="generateCode()">КОПИРОВАТЬ КОД</button>
   </div>
   
@@ -120,75 +73,74 @@
     
     <div class="section">
       <div class="sec-head">Фон Игры</div>
-      <div class="upload-area">
+      <div class="upload-row">
         <label class="file-label">
-          <span style="font-size:18px; margin-right:10px">🖼️</span>
-          <span id="bgLabel">ЗАГРУЗИТЬ</span>
+          <span style="font-size:20px">🖼️</span>
+          <div style="display:flex; flex-direction:column">
+            <span id="bgStatus" style="color:#fff; font-weight:bold">ЗАГРУЗИТЬ</span>
+            <span style="font-size:9px; color:#666">Или будет стандартный</span>
+          </div>
           <input type="file" accept="image/*" style="display:none" onchange="uploadBg(this)">
         </label>
-        <button class="icon-btn" onclick="clearBg()" title="Сбросить на стандартный" style="border-left:1px solid #444">✕</button>
+        <button class="icon-btn" onclick="clearBg()" title="Сбросить">✕</button>
       </div>
     </div>
 
     <div class="section">
       <div class="sec-head">Вопросы (<span id="qCount">0</span>/9)</div>
       <div id="qList" class="q-list"></div>
-      
       <button class="btn-add" onclick="openModal()">+ ДОБАВИТЬ ВОПРОС</button>
-      <button style="background:transparent; color:#555; width:100%; margin-top:10px; font-size:11px" onclick="if(confirm('Удалить все?')){config.qs=[];renderList();updatePreview()}">Очистить список</button>
+      <button style="width:100%; background:transparent; color:#555; margin-top:5px; font-size:10px" onclick="resetQs()">СБРОСИТЬ ВСЁ</button>
     </div>
+
   </div>
 </div>
 
 <div class="preview-col">
-  <div class="preview-overlay-label">LIVE PREVIEW</div>
+  <div class="preview-bar">LIVE PREVIEW</div>
   <iframe id="previewFrame"></iframe>
 </div>
 
 <div class="modal-overlay" id="modal">
   <div class="modal">
     <div class="modal-head">
-      <h3>Настройка вопроса</h3>
-      <button onclick="closeModal()" style="background:transparent; color:#666; font-size:20px">✕</button>
+      <h3>Редактор Вопроса</h3>
+      <button onclick="closeModal()" class="icon-btn">✕</button>
     </div>
-    
     <div class="modal-body">
-      <div class="row">
-        <div class="col">
-          <label>Тип</label>
+      <div style="display:flex; gap:15px">
+        <div style="flex:1">
+          <label style="font-size:10px; color:#888; text-transform:uppercase">Тип</label>
           <select id="mType" onchange="renderOpts()">
             <option value="choice">Множественный выбор</option>
-            <option value="input">Ввод ответа</option>
+            <option value="text">Ввод ответа</option>
           </select>
         </div>
-        <div class="col">
-          <label>Таймер (сек)</label>
-          <div style="display:flex; gap:10px; align-items:center">
+        <div style="flex:1">
+          <label style="font-size:10px; color:#888; text-transform:uppercase">Таймер (сек)</label>
+          <div style="display:flex; align-items:center; gap:5px">
             <input type="checkbox" id="mTimerOn" onchange="toggleTimer()" style="width:20px; height:20px; margin:0; accent-color:var(--gold)">
             <input type="number" id="mTimerVal" value="30" disabled style="margin:0">
           </div>
         </div>
       </div>
 
-      <label>Текст вопроса</label>
-      <textarea id="mText" rows="2" placeholder="Напишите вопрос..."></textarea>
+      <label style="font-size:10px; color:#888; text-transform:uppercase">Текст</label>
+      <textarea id="mText" rows="2"></textarea>
 
-      <label>Медиа (необязательно)</label>
-      <div class="media-box">
-        <span style="color:var(--gold); font-weight:bold; text-transform:uppercase; font-size:12px">Загрузить (Картинка / Звук)</span>
-        <input type="file" accept="image/*,audio/*" onchange="uploadMedia(this)">
+      <label style="font-size:10px; color:#888; text-transform:uppercase">Медиа</label>
+      <div class="upload-row" style="margin-bottom:10px">
+        <label class="file-label">
+          <span>📁</span> <span id="mMediaStatus">Загрузить файл (Картинка/Аудио)</span>
+          <input type="file" accept="image/*,audio/*" style="display:none" onchange="uploadMedia(this)">
+        </label>
+        <button class="icon-btn" onclick="clearMedia()">✕</button>
       </div>
-      <img id="mImgPrev" class="preview-media">
-      <div id="mAudioPrev" style="display:none; text-align:center; color:#aaa; margin-top:5px; font-size:12px">🎵 Аудио добавлено</div>
-      <button onclick="clearMedia()" style="background:transparent; color:#ef4444; font-size:11px; width:100%; margin-top:5px" id="mClearMediaBtn">Удалить медиа</button>
 
-      <div style="margin-top:20px; padding-top:15px; border-top:1px solid #333">
-        <div id="mOptsArea"></div>
-      </div>
+      <div id="mOptsArea" style="border-top:1px solid #333; padding-top:15px; margin-top:10px"></div>
     </div>
-
     <div class="modal-foot">
-      <button class="btn-gold" onclick="saveQ()">Сохранить</button>
+      <button class="btn-gold" onclick="saveQ()">СОХРАНИТЬ</button>
     </div>
   </div>
 </div>
@@ -196,309 +148,314 @@
 <div class="toast" id="toast">Код скопирован!</div>
 
 <script id="gameTemplate" type="text/plain">
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ru">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
 <style>
-  body{margin:0;overflow:hidden;background:#000;font-family:'Segoe UI',sans-serif;color:#f3e5ab;user-select:none;}
-  canvas{display:block;width:100%;height:100%;}
+  :root{ --text:#eaf0ff; --muted:#a9b6e6; --border: rgba(255,255,255,.10); --gold:#f59e0b; }
+  *{box-sizing:border-box;font-family:system-ui,sans-serif}
+  body{margin:0;color:var(--text);background:#050505;overflow:hidden;}
   
-  #hud{position:absolute;top:20px;left:20px;right:20px;display:flex;justify-content:space-between;pointer-events:none;z-index:10;}
-  .pill{
-    background:rgba(15, 18, 25, 0.9); border:1px solid #d4af37; color:#d4af37; 
-    padding:10px 20px; border-radius:30px; font-weight:800; text-transform:uppercase; 
-    font-size:12px; box-shadow:0 0 15px rgba(212,175,55,0.2);
-  }
-  
-  #overlay{position:absolute;inset:0;background:rgba(5, 11, 20, 0.92);display:none;align-items:center;justify-content:center;z-index:20;pointer-events:auto;}
-  #card{
-    width:90%; max-width:450px; background:#0f1219; padding:25px; border-radius:20px; 
-    border:2px solid #d4af37; text-align:center; box-shadow:0 0 80px rgba(212,175,55,0.2); 
-    transform:scale(0.95); opacity:0; transition:0.3s; position:relative; max-height:90vh; overflow-y:auto;
-  }
-  #card.show{transform:scale(1); opacity:1;}
-  
-  #qImg{max-width:100%; max-height:180px; border-radius:8px; margin-bottom:15px; border:1px solid #333; display:none; margin-left:auto; margin-right:auto;}
-  #qText{font-size:20px; margin-bottom:20px; line-height:1.4; color:#fff; font-weight:bold;}
-  
-  #timerLine{width:100%; height:4px; background:#222; margin-bottom:15px; border-radius:2px; display:none; overflow:hidden;}
-  #timerFill{width:100%; height:100%; background:#d4af37; transition:width 1s linear;}
+  /* START SCREEN */
+  #startScreen, #endScreen { position:absolute; inset:0; background:rgba(5,5,5,0.95); display:flex; flex-direction:column; align-items:center; justify-content:center; z-index:100; }
+  .play-btn { padding:15px 50px; background:linear-gradient(135deg, #b45309, #f59e0b); border:none; border-radius:50px; font-weight:900; font-size:24px; color:#000; cursor:pointer; box-shadow:0 0 30px rgba(245,158,11,0.4); text-transform:uppercase; transition:0.3s; }
+  .play-btn:hover { transform:scale(1.05); }
 
-  .ans-btn{
-    display:block; width:100%; background:linear-gradient(90deg, #1a1d26, #252836); 
-    border:1px solid #444; padding:14px; color:#e2e8f0; border-radius:10px; 
-    margin-bottom:8px; cursor:pointer; font-size:15px; text-align:left; transition:0.2s;
-  }
-  .ans-btn:hover{border-color:#d4af37; background:#2a2d38;}
-  .ans-btn:active{transform:scale(0.98);}
+  .stage{position:relative;width:100%;height:100vh;overflow:hidden;background:radial-gradient(circle at center, #1e293b 0%, #000 100%);}
+  .bg{position:absolute;inset:0;background-size:cover;background-position:center;opacity:0.6;}
   
-  input.inp{width:100%; padding:14px; background:#050505; border:1px solid #444; color:#d4af37; border-radius:10px; margin-bottom:12px; box-sizing:border-box; font-size:18px; text-align:center; font-weight:bold; outline:none;}
-  input.inp:focus{border-color:#d4af37;}
+  .topbar{position:absolute;top:10px;left:10px;right:10px;display:flex;justify-content:space-between;z-index:20;}
+  .pill{background:rgba(0,0,0,0.7);border:1px solid #333;padding:8px 15px;border-radius:20px;font-weight:bold;color:var(--gold);}
+
+  .towerArea{position:absolute;inset:0;display:flex;align-items:flex-end;justify-content:center;padding-bottom:80px;pointer-events:none;}
+  .tower{position:relative;width:300px;height:100%;display:flex;align-items:flex-end;justify-content:center;}
   
-  .main-btn{
-    padding:14px; width:100%; background:#d4af37; color:#000; border:none; 
-    border-radius:10px; font-weight:900; font-size:16px; cursor:pointer; text-transform:uppercase;
-  }
+  .imgBlock{position:absolute;left:50%;transform:translateX(-50%);filter:drop-shadow(0 10px 10px rgba(0,0,0,0.5));}
+  .burning{filter:grayscale(1) brightness(0.5) sepia(1) hue-rotate(-50deg) saturate(5) !important; transition:0.5s;}
   
-  #msg{height:30px; margin-top:15px; font-weight:800; font-size:20px; letter-spacing:1px;}
+  /* CARD */
+  .cardBack{position:absolute;inset:0;background:rgba(0,0,0,0.8);display:none;align-items:center;justify-content:center;z-index:50;pointer-events:auto;}
+  .card{width:90%;max-width:400px;background:#111;border:2px solid var(--gold);border-radius:20px;padding:20px;text-align:center;box-shadow:0 0 50px rgba(245,158,11,0.2);}
+  #qImg{max-width:100%;max-height:150px;border-radius:8px;margin-bottom:10px;display:none;}
+  #qText{font-size:18px;margin-bottom:20px;line-height:1.4;}
   
-  #startScreen, #endScreen{position:absolute;inset:0;background:#050505;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:30;pointer-events:auto;}
-  h1{margin:0 0 20px; background:linear-gradient(135deg, #d4af37, #fffbeb); -webkit-background-clip:text; color:transparent; font-size:48px; text-transform:uppercase; letter-spacing:4px;}
+  .btn{display:block;width:100%;background:#222;border:1px solid #444;padding:12px;color:#fff;border-radius:8px;margin-bottom:8px;cursor:pointer;text-align:left;}
+  .btn:hover{border-color:var(--gold);background:#333;}
+  input.inp{width:100%;padding:12px;background:#000;border:1px solid #444;color:var(--gold);border-radius:8px;text-align:center;font-size:16px;outline:none;margin-bottom:10px;}
   
-  .big-btn{
-    padding:18px 60px; border-radius:60px; background:linear-gradient(90deg, #b8860b, #d4af37); 
-    color:#000; border:none; font-weight:900; font-size:22px; cursor:pointer; 
-    box-shadow:0 0 40px rgba(212,175,55,0.4); text-transform:uppercase; letter-spacing:2px; transition:0.3s;
-  }
-  .big-btn:hover{transform:scale(1.05); filter:brightness(1.1);}
+  /* EFFECTS */
+  .spark{position:absolute;width:6px;height:6px;background:#ffcc00;border-radius:50%;pointer-events:none;z-index:40;animation:fly 0.8s ease-out forwards;}
+  @keyframes fly{to{transform:translate(var(--dx),var(--dy)) scale(0);opacity:0;}}
+  
+  .nextWrap{position:absolute;bottom:20px;left:0;right:0;text-align:center;z-index:30;pointer-events:auto;}
+  .btn-next{background:var(--gold);color:#000;border:none;padding:12px 30px;border-radius:30px;font-weight:bold;font-size:16px;cursor:pointer;display:none;}
 </style>
 </head>
 <body>
-<div id="wrap">
-  <canvas id="c"></canvas>
-  <div id="hud"><div class="pill">Этаж: <span id="hTxt">0</span></div><div class="pill">Счёт: <span id="sTxt">0</span></div></div>
-  <div id="overlay">
-    <div id="card">
-      <div id="timerLine"><div id="timerFill"></div></div>
-      <img id="qImg"><div id="audioBox"></div>
-      <div id="qText"></div><div id="ansArea"></div><div id="msg"></div>
+
+<div id="startScreen">
+  <h1 style="color:#d4af37; margin-bottom:40px; font-size:40px">БАШНЯ</h1>
+  <button class="play-btn" onclick="startGame()">НАЧАТЬ</button>
+</div>
+
+<div id="endScreen" style="display:none">
+  <h1 id="endTitle" style="color:#d4af37; margin-bottom:20px">ФИНАЛ</h1>
+  <p style="font-size:24px; margin-bottom:40px">Счёт: <span id="endScore">0</span></p>
+  <button class="play-btn" onclick="location.reload()">ЕЩЕ РАЗ</button>
+</div>
+
+<div class="stage" id="stage">
+  <div class="bg" id="bg"></div>
+  
+  <div class="topbar">
+    <div class="pill">Этаж: <span id="hTxt">0</span></div>
+    <div class="pill">Счёт: <span id="sTxt">0</span></div>
+  </div>
+
+  <div class="towerArea"><div class="tower" id="tower"></div></div>
+  
+  <div class="nextWrap"><button class="btn-next" id="btnNext" onclick="spawnNext()">ДАЛЕЕ</button></div>
+
+  <div class="cardBack" id="cardBack">
+    <div class="card">
+      <img id="qImg">
+      <div id="audioBox"></div>
+      <div id="qText"></div>
+      <div id="ansArea"></div>
+      <div id="msg" style="height:20px;margin-top:10px;font-weight:bold"></div>
     </div>
-  </div>
-  <div id="startScreen">
-    <h1>БАШНЯ</h1>
-    <button class="big-btn" id="btnStart">НАЧАТЬ</button>
-  </div>
-  <div id="endScreen" style="display:none">
-    <h1 id="endTitle">ФИНАЛ</h1>
-    <p style="font-size:24px; margin-bottom:40px; color:#fff">Счёт: <span id="finalScore" style="color:#d4af37">0</span></p>
-    <button class="big-btn" onclick="location.reload()">ЕЩЕ РАЗ</button>
   </div>
 </div>
 
 <script>
-const CONFIG = {{CONFIG}};
-const cvs = document.getElementById("c");
-const ctx = cvs.getContext("2d");
-let W, H, DPR;
+// === INJECTED CONFIG ===
+const cfg = {{CONFIG}};
+// =======================
+
+// --- PATH FINDER ---
+function getBaseUrl() { let p = window.location.href; return p.substring(0, p.lastIndexOf('/')+1); }
+const BASE = getBaseUrl();
+
+// RESOURCES
 const IMAGES = {};
 const BLOCKS = ["3.png","4.png","5.png","6.png","7.png","8.png","9.png","10.png","11.png"];
-let state = { running:false, tower:[], current:null, qIdx:0, score:0, camY:0, phase:'menu', timer:null };
 
-// ГЕНЕРАЦИЯ ПУТИ
-function getBaseUrl() {
-  let path = window.location.href;
-  return path.substring(0, path.lastIndexOf('/') + 1);
-}
+// STATE
+let state = { running:false, tower:[], falling:null, qIdx:0, score:0, camY:0 };
+const towerEl = document.getElementById("tower");
 
-function loadImg(src) {
+// LOAD
+async function loadImg(src) {
   return new Promise(r => {
     if(!src) { r(null); return; }
     const i = new Image();
     i.crossOrigin = "Anonymous";
-    i.onload = () => r(i);
-    // FALLBACK IF ERROR (ПРЕДОТВРАЩАЕТ ЗАВИСАНИЕ)
+    i.onload = () => r(i.src);
     i.onerror = () => r(null);
     i.src = src;
   });
 }
 
-async function init() {
-  resize();
-  const baseUrl = getBaseUrl();
-  IMAGES.bg = await loadImg(CONFIG.bgUser || (baseUrl + "1.png"));
-  for(let b of BLOCKS) IMAGES[b] = await loadImg(baseUrl + b);
-}
+// INIT
+async function startGame() {
+  document.getElementById("startScreen").style.display = "none";
+  
+  // BG Load
+  let bgSrc = cfg.bgUser || (BASE + "1.png");
+  let bgUrl = await loadImg(bgSrc);
+  if(bgUrl) document.getElementById("bg").style.backgroundImage = `url('${bgUrl}')`;
 
-function resize() {
-  DPR = window.devicePixelRatio || 1;
-  W = window.innerWidth; H = window.innerHeight;
-  cvs.width = W*DPR; cvs.height = H*DPR;
-  ctx.setTransform(DPR,0,0,DPR,0,0);
-}
-window.onresize = resize;
-
-// === ИСПРАВЛЕННЫЙ ЗАПУСК ===
-// Вместо onclick в HTML используем Listener, чтобы гарантировать определение функции
-document.getElementById('btnStart').addEventListener('click', startGame);
-
-function startGame() {
-  document.getElementById("startScreen").style.display="none";
-  state = { running:true, tower:[], current:null, qIdx:0, score:0, camY:0, phase:'spawn', timer:null };
-  spawn();
+  // Start Loop
+  state.running = true;
+  spawnNext();
   loop();
 }
 
-function spawn() {
-  if(state.qIdx >= CONFIG.qs.length) { win(); return; }
-  const w = state.tower.length ? state.tower[state.tower.length-1].w : 300;
-  const imgKey = BLOCKS[state.qIdx % BLOCKS.length];
-  state.current = {
-    x: -w, y: H - 100 - (state.tower.length*60) + state.camY,
-    w: w, h: 60, dir: 1, speed: 5 + (state.qIdx*0.5),
-    img: IMAGES[imgKey]
+function spawnNext() {
+  document.getElementById("btnNext").style.display = "none";
+  if(state.qIdx >= cfg.qs.length) { winGame(); return; }
+  
+  // Create falling block
+  let bName = BLOCKS[state.qIdx % BLOCKS.length];
+  let bSrc = BASE + bName; // Always from repo
+  
+  let el = document.createElement("img");
+  el.className = "imgBlock";
+  el.src = bSrc;
+  // Fallback if image fails (colored rect)
+  el.onerror = () => { el.src=""; el.style.backgroundColor="#38bdf8"; el.style.width="200px"; el.style.height="60px"; };
+  
+  // Width logic
+  let w = state.tower.length ? state.tower[state.tower.length-1].w : 280;
+  el.style.width = w + "px";
+  
+  towerEl.appendChild(el);
+  
+  state.falling = {
+    el: el,
+    y: -100, // Start above
+    targetY: getTargetY(),
+    w: w,
+    speed: 5 + (state.qIdx*0.5),
+    dir: 1,
+    x: 0, // Relative center offset
+    phase: 'drop'
   };
-  state.phase = 'drop';
 }
 
-function update() {
-  if(!state.running) return;
-  if(state.phase === 'drop') {
-    const b = state.current;
-    b.x += b.speed * b.dir;
-    if(b.x + b.w > W && b.dir > 0) b.dir = -1;
-    if(b.x < 0 && b.dir < 0) b.dir = 1;
-  }
-  state.camY += (Math.max(0, (state.tower.length*60)-(H*0.4)) - state.camY)*0.1;
-}
-
-function draw() {
-  // BG + Fallback
-  if(IMAGES.bg) {
-    const s = Math.max(W/IMAGES.bg.width, H/IMAGES.bg.height);
-    ctx.drawImage(IMAGES.bg, (W-IMAGES.bg.width*s)/2, (H-IMAGES.bg.height*s)/2, IMAGES.bg.width*s, IMAGES.bg.height*s);
-  } else {
-    const g = ctx.createLinearGradient(0,0,0,H);
-    g.addColorStop(0,"#050505"); g.addColorStop(1,"#0f172a");
-    ctx.fillStyle = g; ctx.fillRect(0,0,W,H);
-  }
-  
-  ctx.save();
-  ctx.translate(0, state.camY);
-  ctx.fillStyle="#334155"; ctx.fillRect((W-300)/2, H-100, 300, 20);
-  
-  // TOWER
-  state.tower.forEach(b => {
-    if(b.img) ctx.drawImage(b.img, b.x, b.y, b.w, b.h);
-    else { ctx.fillStyle="#d4af37"; ctx.fillRect(b.x,b.y,b.w,b.h); ctx.strokeStyle="#fff"; ctx.strokeRect(b.x,b.y,b.w,b.h); }
-  });
-  
-  // CURRENT
-  if(state.current && state.phase==='drop') {
-    const b = state.current;
-    if(b.img) ctx.drawImage(b.img, b.x, b.y, b.w, b.h);
-    else { ctx.fillStyle="#fff"; ctx.fillRect(b.x,b.y,b.w,b.h); }
-  }
-  ctx.restore();
+function getTargetY() {
+  return (state.tower.length * 60); // Simple stacking height
 }
 
 function loop() {
-  if(state.running) requestAnimationFrame(loop);
-  update();
-  draw();
+  if(!state.running) return;
+  requestAnimationFrame(loop);
+  
+  if(state.falling && state.falling.phase === 'drop') {
+    let f = state.falling;
+    
+    // Horizontal Move
+    let maxX = (window.innerWidth/2) - (f.w/2);
+    f.x += f.speed * f.dir;
+    if(Math.abs(f.x) > 150) f.dir *= -1; // Bounce bounds
+    f.el.style.transform = `translateX(calc(-50% + ${f.x}px))`;
+    
+    // Vertical Drop (Visual only, Logic handles "hit")
+    // In this simplified view, we just animate X until click
+  }
+  
+  // Camera
+  let camTarget = Math.max(0, (state.tower.length * 60) - (window.innerHeight * 0.4));
+  state.camY += (camTarget - state.camY) * 0.1;
+  towerEl.style.transform = `translateY(${state.camY}px)`;
 }
 
+// CLICK HANDLER
 document.addEventListener("pointerdown", (e) => {
   if(e.target.tagName==="BUTTON" || e.target.tagName==="INPUT") return;
-  if(state.phase==='drop') { state.phase='wait'; showQ(); }
+  if(state.falling && state.falling.phase === 'drop') {
+    state.falling.phase = 'wait';
+    showQuestion();
+  }
 });
 
-function showQ() {
-  const q = CONFIG.qs[state.qIdx];
-  const overlay = document.getElementById("overlay");
-  const area = document.getElementById("ansArea");
-  const imgEl = document.getElementById("qImg");
-  const audioDiv = document.getElementById("audioBox");
-  const tLine = document.getElementById("timerLine");
+function showQuestion() {
+  let q = cfg.qs[state.qIdx];
+  let card = document.getElementById("cardBack");
+  let area = document.getElementById("ansArea");
+  let img = document.getElementById("qImg");
+  let aud = document.getElementById("audioBox");
   
-  document.getElementById("qText").textContent = q.q;
-  document.getElementById("msg").innerHTML = "";
+  document.getElementById("qText").innerText = q.q;
+  document.getElementById("msg").innerText = "";
   area.innerHTML = "";
-  imgEl.style.display = "none";
-  audioDiv.innerHTML = "";
-  tLine.style.display = "none";
+  img.style.display="none"; aud.innerHTML="";
   
+  // Media
   if(q.media) {
-    if(q.media.startsWith("data:audio")) audioDiv.innerHTML = `<audio controls autoplay src="${q.media}" style="width:100%; margin-bottom:15px"></audio>`;
-    else { imgEl.src = q.media; imgEl.style.display = "block"; }
+    if(q.media.startsWith("data:audio")) aud.innerHTML=`<audio controls autoplay src="${q.media}"></audio>`;
+    else { img.src=q.media; img.style.display="block"; }
   }
-
-  if(q.timer && q.timer > 0) {
-    tLine.style.display = "block";
-    document.getElementById("timerFill").style.width = "100%";
-    let timeLeft = q.timer;
-    state.timer = setInterval(() => {
-      timeLeft--;
-      document.getElementById("timerFill").style.width = (timeLeft / q.timer * 100) + "%";
-      if(timeLeft <= 0) { clearInterval(state.timer); fail("Время вышло!"); }
-    }, 1000);
-  }
-
-  overlay.style.display = "flex";
-  setTimeout(()=>document.getElementById("card").classList.add("show"), 10);
-
-  if(q.type==='choice') {
+  
+  card.style.display = "flex";
+  
+  if(q.type === 'choice') {
     q.o.forEach(opt => {
-      const b = document.createElement("button");
-      b.className="ans-btn"; b.textContent=opt;
-      b.onclick = ()=>check(opt);
+      let b = document.createElement("button");
+      b.className = "btn"; b.innerText = opt;
+      b.onclick = () => check(opt);
       area.appendChild(b);
     });
   } else {
-    const i = document.createElement("input");
-    i.className="inp"; i.placeholder="Введите ответ...";
-    const b = document.createElement("button");
-    b.className="main-btn"; b.textContent="ПРОВЕРИТЬ";
-    b.onclick = ()=>check(i.value);
+    let i = document.createElement("input");
+    i.className="inp"; i.placeholder="Ответ...";
+    let b = document.createElement("button");
+    b.className="btn"; b.style.textAlign="center"; b.style.background="#d4af37"; b.style.color="#000"; b.innerText="OK";
+    b.onclick = () => check(i.value);
     area.appendChild(i); area.appendChild(b);
   }
 }
 
 function check(val) {
-  if(state.timer) clearInterval(state.timer);
-  const q = CONFIG.qs[state.qIdx];
-  let ok = false;
-  if(Array.isArray(q.a)) ok = q.a.some(x => x.toLowerCase().trim() === String(val).toLowerCase().trim());
-  else ok = String(q.a).toLowerCase().trim() === String(val).toLowerCase().trim();
-
-  const msg = document.getElementById("msg");
-  if(ok) {
-    msg.style.color="#4ade80"; msg.textContent="ВЕРНО!";
-    setTimeout(()=>{
-      document.getElementById("card").classList.remove("show");
-      document.getElementById("overlay").style.display="none";
-      land();
+  let q = cfg.qs[state.qIdx];
+  let isOk = false;
+  if(Array.isArray(q.a)) isOk = q.a.some(x => x.toLowerCase().trim() == String(val).toLowerCase().trim());
+  else isOk = String(q.a).toLowerCase().trim() == String(val).toLowerCase().trim();
+  
+  let msg = document.getElementById("msg");
+  if(isOk) {
+    msg.style.color="#4ade80"; msg.innerText="ВЕРНО!";
+    setTimeout(() => {
+      document.getElementById("cardBack").style.display="none";
+      landBlock();
     }, 1000);
   } else {
-    msg.style.color="#ef4444"; msg.textContent="ОШИБКА!";
-    setTimeout(()=>{ fail("Башня рухнула!"); }, 1200);
+    msg.style.color="#ef4444"; msg.innerText="ОШИБКА!";
+    setTimeout(() => { failGame(); }, 1000);
   }
 }
 
-function land() {
-  const b = state.current;
-  const prev = state.tower.length ? state.tower[state.tower.length-1] : {x:(W-300)/2, w:300};
-  const l = Math.max(b.x, prev.x);
-  const r = Math.min(b.x+b.w, prev.x+prev.w);
-  const w = r-l;
-  if(w>0) {
-    b.x=l; b.w=w; state.tower.push(b);
-    state.score+=100;
-    document.getElementById("sTxt").textContent=state.score;
-    document.getElementById("hTxt").textContent=state.tower.length;
-    state.qIdx++; spawn();
-  } else fail("Промах!");
+function landBlock() {
+  let f = state.falling;
+  let prev = state.tower.length ? state.tower[state.tower.length-1] : {x:0, w:300}; // Prev center is 0
+  
+  // Simple intersection logic (simplified for stability)
+  let overlap = f.w - Math.abs(f.x - prev.x);
+  
+  if(overlap > 0) {
+    // Success land
+    f.el.style.bottom = (state.tower.length * 60) + "px"; // Stack up
+    f.el.style.position = "absolute"; // Fix position
+    
+    // Visual Sparks
+    makeSparks(window.innerWidth/2 + f.x, window.innerHeight - 100); // Approx pos
+    
+    state.tower.push({el:f.el, x:f.x, w:f.w}); // Store state
+    state.score += 100;
+    document.getElementById("sTxt").innerText = state.score;
+    document.getElementById("hTxt").innerText = state.tower.length;
+    
+    state.falling = null;
+    state.qIdx++;
+    
+    document.getElementById("btnNext").style.display = "inline-block";
+  } else {
+    failGame();
+  }
 }
 
-function fail(txt) {
-  state.running=false;
-  document.getElementById("overlay").style.display="none";
-  document.getElementById("finalScore").textContent=state.score;
-  const end = document.getElementById("endScreen");
-  end.style.display="flex";
-  document.getElementById("endTitle").innerText = "НЕУДАЧА";
+function makeSparks(x, y) {
+  for(let i=0; i<10; i++) {
+    let s = document.createElement("div");
+    s.className="spark";
+    s.style.left = "50%"; s.style.top = "50%"; // Centered relative to screen for now
+    let dx = (Math.random()-0.5)*100 + "px";
+    let dy = (Math.random()-0.5)*100 + "px";
+    s.style.setProperty('--dx', dx);
+    s.style.setProperty('--dy', dy);
+    document.getElementById("tower").appendChild(s); // Append to tower container
+    setTimeout(()=>s.remove(), 800);
+  }
 }
 
-function win() {
-  state.running=false;
-  document.getElementById("overlay").style.display="none";
-  document.getElementById("finalScore").textContent=state.score;
+function failGame() {
+  if(state.falling) state.falling.el.classList.add("burning");
+  setTimeout(() => {
+    document.getElementById("cardBack").style.display="none";
+    document.getElementById("endScreen").style.display="flex";
+    document.getElementById("endTitle").innerText="НЕУДАЧА";
+    document.getElementById("endScore").innerText=state.score;
+  }, 1000);
+}
+
+function winGame() {
   document.getElementById("endScreen").style.display="flex";
-  document.getElementById("endTitle").innerText = "ПОБЕДА!";
+  document.getElementById("endTitle").innerText="ПОБЕДА!";
+  document.getElementById("endScore").innerText=state.score;
 }
 
-init();
 </script>
 </body>
 </html>
@@ -510,118 +467,73 @@ init();
 // ==========================================
 let config = { bgUser: null, qs: [] };
 let editId = null;
-let tempMedia = null; 
+let tempMedia = null;
 
 function init() { renderList(); updatePreview(); }
-
-function uploadBg(inp) {
-  const f = inp.files[0]; if(!f) return;
-  const r = new FileReader();
-  r.onload = e => { 
-    config.bgUser = e.target.result; 
-    document.getElementById("bgLabel").innerText = "ЗАГРУЖЕНО: " + f.name;
-    document.getElementById("bgLabel").style.color = "#d4af37";
-    updatePreview(); 
-  };
-  r.readAsDataURL(f);
-}
-function clearBg() {
-  config.bgUser = null;
-  document.getElementById("bgLabel").innerText = "ЗАГРУЗИТЬ";
-  document.getElementById("bgLabel").style.color = "#aaa";
-  updatePreview();
-}
 
 function updatePreview() {
   const tmpl = document.getElementById("gameTemplate").textContent;
   const html = tmpl.replace("{{CONFIG}}", JSON.stringify(config));
-  // FIX: Force Base tag for local assets in Blob
+  // MAGIC BASE TAG FIX
   const baseUrl = window.location.href.substring(0, window.location.href.lastIndexOf('/') + 1);
   const fixedHtml = html.replace('<head>', `<head><base href="${baseUrl}">`);
-  
   const blob = new Blob([fixedHtml], {type: 'text/html'});
   document.getElementById("previewFrame").src = URL.createObjectURL(blob);
 }
 
-function renderList() {
-  const l = document.getElementById("qList"); l.innerHTML = "";
-  document.getElementById("qCount").textContent = config.qs.length;
-  if(config.qs.length === 0) {
-    l.innerHTML = "<div style='text-align:center;color:#444;font-size:12px;margin-top:20px'>Список пуст</div>";
-    return;
-  }
-  config.qs.forEach((q, i) => {
-    const d = document.createElement("div"); d.className = "q-item";
-    let typeTxt = q.type === 'choice' ? 'ВЫБОР' : 'ВВОД';
-    d.innerHTML = `
-      <div style="display:flex; align-items:center; gap:10px; overflow:hidden">
-        <span class="q-badge">${i+1}</span>
-        <span class="q-type" style="font-size:10px; color:#aaa">${typeTxt}</span>
-        <span class="q-text" style="white-space:nowrap; overflow:hidden; text-overflow:ellipsis; color:#ddd">${q.q}</span>
-      </div>
-      <div>
-        <button class="icon-btn" onclick="editQ(${i})">✏️</button>
-        <button class="icon-btn del" onclick="delQ(${i})">🗑</button>
-      </div>
-    `;
-    l.appendChild(d);
-  });
+// UPLOADERS
+function uploadBg(inp) {
+  const f = inp.files[0]; if(!f) return;
+  const r = new FileReader();
+  r.onload = e => { config.bgUser = e.target.result; document.getElementById("bgStatus").innerText="ЗАГРУЖЕНО"; updatePreview(); };
+  r.readAsDataURL(f);
 }
-
-function openModal() { 
-  editId=null; document.getElementById("modal").style.display="flex"; 
-  document.getElementById("mText").value="";
-  tempMedia = null; document.getElementById("mTimerOn").checked = false;
-  toggleTimer(); renderMediaUI(); renderOpts(); 
-}
-function closeModal() { document.getElementById("modal").style.display="none"; }
-
-function toggleTimer() { document.getElementById("mTimerVal").disabled = !document.getElementById("mTimerOn").checked; }
+function clearBg() { config.bgUser=null; document.getElementById("bgStatus").innerText="ЗАГРУЗИТЬ"; updatePreview(); }
 
 function uploadMedia(inp) {
   const f = inp.files[0]; if(!f) return;
   const r = new FileReader();
-  r.onload = e => { tempMedia = e.target.result; renderMediaUI(); };
+  r.onload = e => { tempMedia = e.target.result; document.getElementById("mMediaStatus").innerText="Файл выбран"; };
   r.readAsDataURL(f);
 }
-function clearMedia() { tempMedia = null; renderMediaUI(); }
+function clearMedia() { tempMedia=null; document.getElementById("mMediaStatus").innerText="Загрузить..."; }
 
-function renderMediaUI() {
-  const img = document.getElementById("mImgPrev");
-  const aud = document.getElementById("mAudioPrev");
-  const btn = document.getElementById("mClearMediaBtn");
-  if(!tempMedia) { img.style.display="none"; aud.style.display="none"; btn.style.display="none"; } 
-  else {
-    btn.style.display="block";
-    if(tempMedia.startsWith("data:image")) { img.src = tempMedia; img.style.display="block"; aud.style.display="none"; } 
-    else { img.style.display="none"; aud.style.display="block"; }
-  }
+// LIST
+function renderList() {
+  const l = document.getElementById("qList"); l.innerHTML="";
+  document.getElementById("qCount").innerText = config.qs.length;
+  if(!config.qs.length) { l.innerHTML="<div style='text-align:center;color:#444;font-size:11px;padding:10px'>Список пуст</div>"; return; }
+  
+  config.qs.forEach((q,i) => {
+    let d = document.createElement("div"); d.className="q-item";
+    d.innerHTML=`<div class="q-txt"><span class="q-badge">${i+1}</span> ${q.q}</div><div><button class="icon-btn" onclick="editQ(${i})">✏️</button><button class="icon-btn del" onclick="delQ(${i})">🗑</button></div>`;
+    l.appendChild(d);
+  });
 }
+
+// MODAL
+function openModal() { 
+  editId=null; document.getElementById("modal").style.display="flex"; 
+  document.getElementById("mText").value=""; tempMedia=null; 
+  document.getElementById("mTimerOn").checked=false; document.getElementById("mTimerVal").disabled=true;
+  clearMedia(); renderOpts(); 
+}
+function closeModal() { document.getElementById("modal").style.display="none"; }
 
 function renderOpts() {
   const t = document.getElementById("mType").value;
   const c = document.getElementById("mOptsArea"); c.innerHTML="";
   if(t==="choice") {
-    c.innerHTML = `
-      <div style="display:flex; justify-content:space-between; margin-bottom:10px">
-        <label>ВАРИАНТЫ (Отметьте верный)</label>
-        <button class="btn-small" style="background:#333; color:#aaa; padding:2px 8px" onclick="addOpt()">+ ДОБАВИТЬ</button>
-      </div>
-      <div id="optsList"></div>
-    `;
+    c.innerHTML = `<div style="display:flex;justify-content:space-between;margin-bottom:5px"><label>Варианты</label><button onclick="addOpt()" style="background:none;color:var(--gold);font-size:10px">+ ДОБАВИТЬ</button></div><div id="optsList"></div>`;
     if(editId===null) { addOpt(); addOpt(); }
-  } else { c.innerHTML=`<label>ПРАВИЛЬНЫЙ ОТВЕТ (ИЛИ НЕСКОЛЬКО ЧЕРЕЗ ЗАПЯТУЮ)</label><input type="text" id="mInp">`; }
+  } else c.innerHTML = `<label>Ответ (текст)</label><input type="text" id="mInp">`;
 }
 
-function addOpt(val="", isOk=false) {
-  const list = document.getElementById("optsList"); if(!list) return;
-  const d = document.createElement("div"); d.className="opt-row";
-  d.innerHTML = `
-    <div class="radio-wrap"><input type="radio" name="ok" class="radio" ${isOk?'checked':''}></div>
-    <input type="text" class="opt-val" value="${val}" placeholder="Ответ" style="margin:0">
-    <button class="icon-btn del" onclick="this.parentElement.remove()">✕</button>
-  `;
-  list.appendChild(d);
+function addOpt(val="", ok=false) {
+  const l = document.getElementById("optsList"); if(!l) return;
+  let d = document.createElement("div"); d.className="opt-row";
+  d.innerHTML=`<input type="radio" name="ok" class="radio" ${ok?'checked':''}><input type="text" class="opt-val" value="${val}"><button class="icon-btn del" onclick="this.parentElement.remove()">✕</button>`;
+  l.appendChild(d);
 }
 
 function editQ(i) {
@@ -629,43 +541,48 @@ function editQ(i) {
   document.getElementById("modal").style.display="flex";
   document.getElementById("mText").value=q.q;
   document.getElementById("mType").value=q.type;
-  if(q.timer) { document.getElementById("mTimerOn").checked=true; document.getElementById("mTimerVal").value=q.timer; } 
-  else document.getElementById("mTimerOn").checked=false;
-  toggleTimer(); tempMedia=q.media||null; renderMediaUI(); renderOpts();
+  if(q.timer) { document.getElementById("mTimerOn").checked=true; document.getElementById("mTimerVal").disabled=false; document.getElementById("mTimerVal").value=q.timer; }
+  tempMedia=q.media; if(tempMedia) document.getElementById("mMediaStatus").innerText="Файл есть";
+  renderOpts();
   if(q.type==='choice') {
     document.getElementById("optsList").innerHTML="";
     q.o.forEach(opt => addOpt(opt, q.a.includes(opt)));
-  } else document.getElementById("mInp").value=q.a.join(", ");
+  } else document.getElementById("mInp").value = q.a.join(", ");
 }
 
+function toggleTimer() { document.getElementById("mTimerVal").disabled = !document.getElementById("mTimerOn").checked; }
+
 function saveQ() {
-  const qTxt = document.getElementById("mText").value;
+  const txt = document.getElementById("mText").value;
   const type = document.getElementById("mType").value;
-  if(!qTxt) return;
-  let o = { type:type, q:qTxt, a:[], media: tempMedia, timer: 0 };
+  if(!txt) return;
+  
+  let o = {type:type, q:txt, a:[], media:tempMedia, timer:0};
   if(document.getElementById("mTimerOn").checked) o.timer = parseInt(document.getElementById("mTimerVal").value)||30;
+  
   if(type==='choice') {
     o.o=[];
     document.querySelectorAll(".opt-row").forEach(r=>{
-      const val = r.querySelector(".opt-val").value;
-      if(val) { o.o.push(val); if(r.querySelector(".radio").checked) o.a.push(val); }
+      let v = r.querySelector(".opt-val").value;
+      if(v) { o.o.push(v); if(r.querySelector(".radio").checked) o.a.push(v); }
     });
-    if(!o.a.length) { alert("Отметьте правильный вариант!"); return; }
+    if(!o.a.length) { alert("Выберите верный ответ!"); return; }
   } else o.a = document.getElementById("mInp").value.split(",").map(x=>x.trim()).filter(Boolean);
+  
   if(editId!==null) config.qs[editId]=o; else config.qs.push(o);
   closeModal(); renderList(); updatePreview();
 }
 
 function delQ(i) { config.qs.splice(i,1); renderList(); updatePreview(); }
+function resetQs() { config.qs=[]; renderList(); updatePreview(); }
 
 function generateCode() {
   const tmpl = document.getElementById("gameTemplate").textContent;
   const html = tmpl.replace("{{CONFIG}}", JSON.stringify(config));
   const b64 = btoa(unescape(encodeURIComponent(html)));
   const embed = `<iframe src="data:text/html;base64,${b64}" width="100%" height="600" style="border:0"></iframe>`;
-  navigator.clipboard.writeText(embed).then(() => {
-    const t = document.getElementById("toast"); t.classList.add("show");
-    setTimeout(()=>t.classList.remove("show"),2000);
+  navigator.clipboard.writeText(embed).then(()=> {
+    const t = document.getElementById("toast"); t.classList.add("show"); setTimeout(()=>t.classList.remove("show"),2000);
   });
 }
 
