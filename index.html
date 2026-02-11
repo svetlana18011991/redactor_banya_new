@@ -824,7 +824,6 @@
         <div class="h">Редактор «Башня» <span class="pill" title="версия файла">v13-20260210-054618</span></div>
         <div class="row" style="margin:0">
           <button class="btn primary" id="btnCopyCode" type="button">📋 Скопировать код (iframe)</button>
-          <button class="btn" id="btnDownloadGame" type="button">⬇ Скачать игру (HTML)</button>
         </div>
       </div>
 
@@ -1014,6 +1013,7 @@
         <div class="row" style="margin-top:10px">
           <button class="btn primary" id="btnCopyFromModal" type="button">📋 Скопировать ссылку</button>
           <button class="btn" id="btnCopyIframe" type="button">📎 Скопировать iframe</button>
+          <button class="btn" id="btnDownloadGame" type="button">⬇ Скачать игру (HTML)</button>
         </div>
       </div>
     </div>
@@ -2306,13 +2306,40 @@
     return `<iframe src="${src}" style="width:100%;height:100%;min-height:720px;border:0;border-radius:18px;overflow:hidden;background:transparent" allow="autoplay; fullscreen" allowfullscreen loading="lazy"></iframe>`;
   }
 
+  
+  // ===== preview payload store (avoid URI Too Long) =====
+  const PREVIEW_CFGKEY = "__tower_preview_cfg__";
+  function cfgHasMedia(cfg){
+    try{
+      return (cfg?.questions || []).some(q => (q && (q.imgDataUrl || q.audioDataUrl)));
+    }catch(e){ return false; }
+  }
+  function storePreviewCfg(cfg){
+    try{
+      localStorage.setItem(PREVIEW_CFGKEY, JSON.stringify(cfg));
+      return PREVIEW_CFGKEY;
+    }catch(e){
+      // if storage fails (quota), fallback to in-memory key (will still try ?game)
+      return "";
+    }
+  }
+
   function updatePreview(previewWithDraft){
     const payload = buildPayload(previewWithDraft);
-    // Если в конфиге есть картинки/аудио, URL легко становится огромным (URI Too Long).
-    // Поэтому для превью храним конфиг в localStorage и передаём короткий ключ.
-    const key = "__tower_preview_cfg__";
-    try{ localStorage.setItem(key, JSON.stringify(payload)); }catch(e){}
-    const src = selfPageUrl() + "?cfgkey=" + encodeURIComponent(key) + "&preview=1#cfgkey=" + encodeURIComponent(key);
+    // Use short cfgkey when payload is big or contains media
+    const jsonStr = JSON.stringify(payload);
+    const useKey = cfgHasMedia(payload) || jsonStr.length > 1800;
+    if(useKey){
+      const key = storePreviewCfg(payload);
+      if(key){
+        const src = selfPageUrl() + "?cfgkey=" + encodeURIComponent(key) + "&preview=1#cfgkey=" + encodeURIComponent(key);
+        $("livePreview").src = src;
+        return;
+      }
+    }
+    // fallback legacy
+    const data = b64urlEncode(jsonStr);
+    const src = selfPageUrl() + "?game=" + data + "&preview=1#game=" + data;
     $("livePreview").src = src;
   }
 
@@ -2493,72 +2520,7 @@ $("btnPreviewDraft").addEventListener("click", ()=>{
     toast(ok ? "iframe скопирован ✅" : "Не удалось скопировать");
   });
 
-
-  // Скачать автономную игру (HTML) — работает у всех, медиа внутри файла
-  $("btnDownloadGame").addEventListener("click", ()=>{
-    try{
-      const payload = buildPayload(false);
-      const htmlText = buildStandaloneGameHtml(payload);
-      const blob = new Blob([htmlText], {type:"text/html;charset=utf-8"});
-      const a = document.createElement("a");
-      const ts = new Date();
-      const pad = (n)=>String(n).padStart(2,"0");
-      const name = `tower_game_${ts.getFullYear()}${pad(ts.getMonth()+1)}${pad(ts.getDate())}_${pad(ts.getHours())}${pad(ts.getMinutes())}.html`;
-      a.href = URL.createObjectURL(blob);
-      a.download = name;
-      document.body.appendChild(a);
-      a.click();
-      setTimeout(()=>{ URL.revokeObjectURL(a.href); a.remove(); }, 800);
-      toast("Файл игры скачан ✅");
-    }catch(e){
-      showErr(e?.stack || e?.message || String(e));
-    }
-  });
-
-  function buildStandaloneGameHtml(payload){
-    const cfg = normalizeCfg(payload);
-
-    const esc = (s)=>String(s||"").replace(/[&<>"']/g, (c)=>({
-      "&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"
-    }[c]));
-
-    const title = esc(cfg.title || "Башня знаний");
-
-    // Берём текущие игровые шаблоны прямо из этого файла (CSS/HTML/JS)
-    const CSS = JSON.stringify(__GAME_CSS__);
-    const HTML = JSON.stringify(__GAME_HTML__);
-    const JS  = JSON.stringify(__GAME_JS__);
-
-    // Важно: берём исходник функции как текст, чтобы вставить в экспортируемый файл
-    const injectSrc = injectCanvasGame.toString();
-
-    return `<!doctype html>
-<html lang="ru">
-<head>
-<meta charset="utf-8"/>
-<meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>${title}</title>
-<style>html,body{height:100%;margin:0;background:#000;}</style>
-</head>
-<body>
-<div id="gameRoot"></div>
-<script>
-(()=>{"use strict";
-const $=(id)=>document.getElementById(id);
-function showErr(msg){try{console.error(msg);}catch(e){}}
-const __GAME_CSS__=${CSS};
-const __GAME_HTML__=${HTML};
-const __GAME_JS__=${JS};
-const injectCanvasGame=${injectSrc};
-const __CFG__=${JSON.stringify(cfg)};
-injectCanvasGame(__CFG__);
-})();
-</script>
-</body>
-</html>`;
-  }
-
-
+  
   // iframe code modal
   function hideCodeModal(){
     if(!$("codeBackdrop")) return;
@@ -2589,6 +2551,37 @@ injectCanvasGame(__CFG__);
   }
 }
 
+
+  // ===== download standalone game (HTML with embedded config + media) =====
+  if ($("btnDownloadGame")) {
+    $("btnDownloadGame").addEventListener("click", ()=>{
+      try{
+        const payload = buildPayload(true); // include draft so user gets what sees
+        const safeJson = JSON.stringify(payload).replace(/</g, "\\u003c");
+        const embed = `<script>window.__EMBEDDED_CFG__=${safeJson};<\/script>\n`;
+
+        // Embed before the main script IIFE (first <script>)
+        const full = "<!doctype html>\n" + document.documentElement.outerHTML;
+        const out = full.replace("<script>\n(() => {", embed + "<script>\n(() => {");
+
+        const blob = new Blob([out], {type:"text/html;charset=utf-8"});
+        const a = document.createElement("a");
+        const ts = new Date();
+        const pad = (n)=> String(n).padStart(2,"0");
+        const name = `tower_game_${ts.getFullYear()}${pad(ts.getMonth()+1)}${pad(ts.getDate())}_${pad(ts.getHours())}${pad(ts.getMinutes())}.html`;
+        a.href = URL.createObjectURL(blob);
+        a.download = name;
+        document.body.appendChild(a);
+        a.click();
+        setTimeout(()=>{ URL.revokeObjectURL(a.href); a.remove(); }, 0);
+        toast("Игра скачана ✅");
+      }catch(e){
+        showErr(e?.stack || e?.message || String(e));
+        toast("Не удалось скачать 😕");
+      }
+    });
+  }
+
 // ===== game-only mode =====
   function bootGameOnly(cfg){
     document.body.setAttribute("data-mode","game");
@@ -2603,19 +2596,23 @@ injectCanvasGame(__CFG__);
   // init (decide mode by hash)
   const qp = parseQueryParams();
   const hp = parseHashParams();
-  const cfgKey = qp.cfgkey || hp.cfgkey;
-  if(cfgKey){
-    try{
-      const rawStr = localStorage.getItem(cfgKey);
-      if(!rawStr) throw new Error("cfgkey not found");
-      const raw = JSON.parse(rawStr);
-      bootGameOnly(normalizeCfg(raw));
-      return;
-    }catch(e){
-      showErr(e?.stack || e?.message || String(e));
-    }
-  }
   const gameParam = qp.game || hp.game;
+  const cfgKeyParam = qp.cfgkey || hp.cfgkey;
+
+  // 0) embedded export (standalone HTML)
+  if (window.__EMBEDDED_CFG__) {
+    try{
+      bootGameOnly(normalizeCfg(window.__EMBEDDED_CFG__));
+    }catch(e){
+      const host = $("gameHost");
+      $("editorRoot").style.display = "none";
+      $("gameRoot").style.display = "block";
+      host.innerHTML = `<div style="padding:16px;color:#ffd6d6;font-weight:900">Не удалось прочитать встроенный конфиг 😕</div>`;
+    }
+    return;
+  }
+
+  // 1) legacy URL param: ?game=... or #game=...
   if(gameParam){
     try{
       const raw = JSON.parse(b64urlDecode(gameParam));
@@ -2625,6 +2622,22 @@ injectCanvasGame(__CFG__);
       $("editorRoot").style.display = "none";
       $("gameRoot").style.display = "block";
       host.innerHTML = `<div style="padding:16px;color:#ffd6d6;font-weight:900">Не удалось прочитать конфиг из iframe 😕</div>`;
+    }
+    return;
+  }
+
+  // 2) preview/local mode: ?cfgkey=... or #cfgkey=...
+  if(cfgKeyParam){
+    try{
+      const rawStr = localStorage.getItem(cfgKeyParam) || sessionStorage.getItem(cfgKeyParam);
+      if(!rawStr) throw new Error("cfgkey not found in storage");
+      const raw = JSON.parse(rawStr);
+      bootGameOnly(normalizeCfg(raw));
+    }catch(e){
+      const host = $("gameHost");
+      $("editorRoot").style.display = "none";
+      $("gameRoot").style.display = "block";
+      host.innerHTML = `<div style="padding:16px;color:#ffd6d6;font-weight:900">Не удалось прочитать конфиг (cfgkey) 😕</div>`;
     }
     return;
   }
@@ -2653,69 +2666,3 @@ injectCanvasGame(__CFG__);
 </script>
 </body>
 </html>
-
-  // Скачать автономную игру (HTML) — работает у всех, медиа внутри файла
-  $("btnDownloadGame").addEventListener("click", ()=>{
-    try{
-      const payload = buildPayload(false);
-      const htmlText = buildStandaloneGameHtml(payload);
-      const blob = new Blob([htmlText], {type:"text/html;charset=utf-8"});
-      const a = document.createElement("a");
-      const ts = new Date();
-      const pad = (n)=>String(n).padStart(2,"0");
-      const name = `tower_game_${ts.getFullYear()}${pad(ts.getMonth()+1)}${pad(ts.getDate())}_${pad(ts.getHours())}${pad(ts.getMinutes())}.html`;
-      a.href = URL.createObjectURL(blob);
-      a.download = name;
-      document.body.appendChild(a);
-      a.click();
-      setTimeout(()=>{ URL.revokeObjectURL(a.href); a.remove(); }, 800);
-      toast("Файл игры скачан ✅");
-    }catch(e){
-      showErr(e?.stack || e?.message || String(e));
-    }
-  });
-
-  function buildStandaloneGameHtml(payload){
-    const cfg = normalizeCfg(payload);
-
-    const esc = (s)=>String(s||"").replace(/[&<>"']/g, (c)=>({
-      "&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"
-    }[c]));
-
-    const title = esc(cfg.title || "Башня знаний");
-
-    // Берём текущие игровые шаблоны прямо из этого файла (CSS/HTML/JS)
-    const CSS = JSON.stringify(__GAME_CSS__);
-    const HTML = JSON.stringify(__GAME_HTML__);
-    const JS  = JSON.stringify(__GAME_JS__);
-
-    // Важно: берём исходник функции как текст, чтобы вставить в экспортируемый файл
-    const injectSrc = injectCanvasGame.toString();
-
-    return `<!doctype html>
-<html lang="ru">
-<head>
-<meta charset="utf-8"/>
-<meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>${title}</title>
-<style>html,body{height:100%;margin:0;background:#000;}</style>
-</head>
-<body>
-<div id="gameRoot"></div>
-<script>
-(()=>{"use strict";
-const $=(id)=>document.getElementById(id);
-function showErr(msg){try{console.error(msg);}catch(e){}}
-const __GAME_CSS__=${CSS};
-const __GAME_HTML__=${HTML};
-const __GAME_JS__=${JS};
-const injectCanvasGame=${injectSrc};
-const __CFG__=${JSON.stringify(cfg)};
-injectCanvasGame(__CFG__);
-})();
-</script>
-</body>
-</html>`;
-  }
-
-
