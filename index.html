@@ -780,17 +780,11 @@
 
         <div class="section">
           <div class="title">Оформление</div>
-
-          <div class="toggle">
-            <input id="chkUseRepoBg" type="checkbox" checked />
-            <div>
-              <div style="font-weight:900">Фон: стандартный или свой</div>
-              <div class="muted">По умолчанию используется стандартный фон.</div>
-            </div>
+<label>Выбрать свой фон</label>
+          <div class="row" style="gap:10px; align-items:center; margin-top:6px">
+            <input id="fileBg" type="file" accept="image/*" />
+            <button id="btnResetBg" type="button" class="btn small">↩ Сбросить фон</button>
           </div>
-
-          <label>Выбрать свой фон</label>
-          <input id="fileBg" type="file" accept="image/*" />
 
           <div class="toggle" data-hide="blocks">
             <input id="chkUseImages" type="checkbox" checked />
@@ -2227,7 +2221,7 @@
 
     return normalizeCfg({
       title: Editor.title || "Башня знаний",
-      useRepoBg: !!Editor.useRepoBg,
+      useRepoBg: true,
       bgDataUrl: Editor.bgDataUrl || "",
       timer: { enabled: !!Editor.timer.enabled, seconds: Number(Editor.timer.seconds || 30) },
       useImages: !!Editor.useImages,
@@ -2255,13 +2249,7 @@
     Editor.title = $("inpTitle").value || "Башня знаний";
     updatePreview(false);
   });
-
-  $("chkUseRepoBg").addEventListener("change", ()=>{
-    Editor.useRepoBg = $("chkUseRepoBg").checked;
-    updatePreview(false);
-  });
-
-  $("fileBg").addEventListener("change", async (e)=>{
+$("fileBg").addEventListener("change", async (e)=>{
     const f = e.target.files?.[0];
     if(!f) return;
     Editor.bgDataUrl = await fileToDataUrl(f);
@@ -2269,7 +2257,13 @@
     updatePreview(false);
   });
 
-  $("chkUseImages").addEventListener("change", ()=>{
+  
+  $("btnResetBg").addEventListener("click", ()=>{
+    Editor.bgDataUrl = "";
+    $("fileBg").value = "";
+    updatePreview(false);
+  });
+$("chkUseImages").addEventListener("change", ()=>{
     Editor.useImages = true; if($("chkUseImages")) $("chkUseImages").checked = true;
     updatePreview(false);
   });
@@ -2482,7 +2476,7 @@ $("btnPreviewDraft").addEventListener("click", ()=>{
   Editor.timer.enabled = $("chkTimer").checked;
   Editor.timer.seconds = Number($("inpSeconds").value || 30);
   Editor.useImages = true; if($("chkUseImages")) $("chkUseImages").checked = true;
-  Editor.useRepoBg = $("chkUseRepoBg").checked;
+  Editor.useRepoBg = true;
 
   renderList();
   updatePreview(false);
