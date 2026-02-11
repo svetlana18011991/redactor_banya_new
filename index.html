@@ -824,6 +824,7 @@
         <div class="h">Редактор «Башня» <span class="pill" title="версия файла">v13-20260210-054618</span></div>
         <div class="row" style="margin:0">
           <button class="btn primary" id="btnCopyCode" type="button">📋 Скопировать код (iframe)</button>
+          <button class="btn" id="btnExportHtml" type="button">⬇ Скачать игру (HTML)</button>
         </div>
       </div>
 
@@ -2298,7 +2299,15 @@
   }
 
   function buildGameUrl(payload){
-    const data = b64urlEncode(JSON.stringify(payload));
+    const jsonStr = JSON.stringify(payload);
+    // If payload is large (e.g., contains base64 media), avoid putting it into the URL query.
+    // Use localStorage with a short key for preview/editor usage.
+    if(jsonStr.length > 6000){
+      const key = "tower_cfg_" + Date.now() + "_" + Math.random().toString(16).slice(2);
+      try{ localStorage.setItem(key, jsonStr); }catch(e){ /* ignore */ }
+      return selfPageUrl() + "?cfgkey=" + encodeURIComponent(key) + "#cfgkey=" + encodeURIComponent(key);
+    }
+    const data = b64urlEncode(jsonStr);
     return selfPageUrl() + "?game=" + data + "#game=" + data;
   }
   function buildIframeFromUrl(src){
@@ -2307,7 +2316,16 @@
 
   function updatePreview(previewWithDraft){
     const payload = buildPayload(previewWithDraft);
-    const data = b64urlEncode(JSON.stringify(payload));
+    const jsonStr = JSON.stringify(payload);
+    // Large configs (with media) break when encoded into the URL (URI Too Long).
+    if(jsonStr.length > 6000){
+      const key = "tower_cfg_" + Date.now() + "_" + Math.random().toString(16).slice(2);
+      try{ localStorage.setItem(key, jsonStr); }catch(e){ /* ignore */ }
+      const src = selfPageUrl() + "?cfgkey=" + encodeURIComponent(key) + "&preview=1#cfgkey=" + encodeURIComponent(key);
+      $("livePreview").src = src;
+      return;
+    }
+    const data = b64urlEncode(jsonStr);
     const src = selfPageUrl() + "?game=" + data + "&preview=1#game=" + data;
     $("livePreview").src = src;
   }
@@ -2482,11 +2500,42 @@ $("btnPreviewDraft").addEventListener("click", ()=>{
 
   $("btnCopyCode").addEventListener("click", async ()=>{
     const payload = buildPayload(false);
+    const jsonStr = JSON.stringify(payload);
     const url = buildGameUrl(payload);
     const iframeCode = buildIframeFromUrl(url);
 
     const ok = await copyToClipboard(iframeCode);
-    toast(ok ? "iframe скопирован ✅" : "Не удалось скопировать");
+    if(ok){
+      toast("iframe скопирован ✅");
+      if(jsonStr.length > 6000){
+        toast("⚠️ В iframe используется cfgkey (localStorage). Для публикации для всех — нажмите «Скачать игру (HTML)».");
+      }
+    }else{
+      toast("Не удалось скопировать");
+    }
+  });
+
+  $("btnExportHtml").addEventListener("click", async ()=>{
+    try{
+      const payload = buildPayload(false);
+      const payloadB64 = b64urlEncode(JSON.stringify(payload));
+      const res = await fetch(selfPageUrl(), {cache:"no-store"});
+      const baseHtml = await res.text();
+      const stamp = new Date();
+      const fname = "tower_game_" + stamp.getFullYear() + String(stamp.getMonth()+1).padStart(2,"0") + String(stamp.getDate()).padStart(2,"0") + "_" + String(stamp.getHours()).padStart(2,"0") + String(stamp.getMinutes()).padStart(2,"0") + ".html";
+      const inject = `<script>window.__EMBED_GAME_B64__=${JSON.stringify(payloadB64)};<\/script>`;
+      const outHtml = baseHtml.replace(/<head(\s[^>]*)?>/i, (m)=> m + "\n  " + inject + "\n");
+      const blob = new Blob([outHtml], {type:"text/html;charset=utf-8"});
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = fname;
+      document.body.appendChild(a);
+      a.click();
+      setTimeout(()=>{ URL.revokeObjectURL(a.href); a.remove(); }, 1500);
+      toast("HTML игры скачан ✅ (загрузите этот файл на GitHub Pages и вставляйте его в Genially)");
+    }catch(e){
+      toast("Не удалось собрать HTML");
+    }
   });
 
   
@@ -2534,8 +2583,14 @@ $("btnPreviewDraft").addEventListener("click", ()=>{
   // init (decide mode by hash)
   const qp = parseQueryParams();
   const hp = parseHashParams();
-  const gameParam = qp.game || hp.game;
-  if(gameParam){
+  const cfgKey = qp.cfgkey || hp.cfgkey;
+  const embeddedB64 = (typeof window !== "undefined" && window.__EMBED_GAME_B64__) ? String(window.__EMBED_GAME_B64__) : "";
+  const embeddedJSON = (typeof window !== "undefined" && window.__EMBED_GAME_JSON__) ? window.__EMBED_GAME_JSON__ : null;
+  const gameParam = embeddedB64 || qp.game || hp.game;
+
+  if(embeddedJSON){
+    try{ bootGameOnly(normalizeCfg(embeddedJSON)); }catch(e){}
+  } else if(gameParam){
     try{
       const raw = JSON.parse(b64urlDecode(gameParam));
       bootGameOnly(normalizeCfg(raw));
@@ -2543,30 +2598,18 @@ $("btnPreviewDraft").addEventListener("click", ()=>{
       const host = $("gameHost");
       $("editorRoot").style.display = "none";
       $("gameRoot").style.display = "block";
-      host.innerHTML = `<div style="padding:16px;color:#ffd6d6;font-weight:900">Не удалось прочитать конфиг из iframe 😕</div>`;
+      host.innerHTML = `<div style="padding:22px;color:#fff;font-family:system-ui">Ошибка запуска игры. Проверьте конфигурацию.</div>`;
     }
-    return;
+  } else if(cfgKey){
+    try{
+      const js = localStorage.getItem(cfgKey);
+      if(js){
+        const raw = JSON.parse(js);
+        bootGameOnly(normalizeCfg(raw));
+      }
+    }catch(e){}
   }
-
-  // editor init
-  Editor.title = $("inpTitle").value || "Башня знаний";
-  Editor.timer.enabled = $("chkTimer").checked;
-  Editor.timer.seconds = Number($("inpSeconds").value || 30);
-  Editor.useImages = true; if($("chkUseImages")) $("chkUseImages").checked = true;
-  Editor.useRepoBg = true;
-
-  renderList();
-  updatePreview(false);
-
-  // Hide export section (we copy iframe from top button; no need to show this block)
-  try{
-    const titles = Array.from(document.querySelectorAll(".section .title"));
-    const t = titles.find(x=>x.textContent.trim()==="Экспорт в Genially");
-    if(t){
-      const sec = t.closest(".section");
-      if(sec) sec.style.display="none";
-    }
-  }catch(e){}
+catch(e){}
 
 })();
 </script>
