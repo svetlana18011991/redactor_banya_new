@@ -754,7 +754,67 @@
       background: rgba(0,0,0,.24);
     }
 
-  </style>
+  
+    /* ===== Question modal: prettier media icons + neon orange accents ===== */
+    .promptWithIcons{
+      display:flex;
+      gap:10px;
+      align-items:stretch;
+    }
+    .promptWithIcons textarea{flex:1; min-height:110px}
+    .qSideIcons{
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+      padding-top:2px;
+    }
+    .qIconBtn{
+      width:44px;
+      height:44px;
+      border-radius:14px;
+      border:1px solid rgba(255,150,0,.38);
+      background:linear-gradient(180deg, rgba(255,170,0,.18), rgba(255,170,0,.06));
+      box-shadow:
+        0 0 0 1px rgba(0,0,0,.25) inset,
+        0 8px 22px rgba(0,0,0,.45),
+        0 0 18px rgba(255,140,0,.20);
+      color:#fff;
+      font-size:20px;
+      line-height:1;
+      cursor:pointer;
+      transition:transform .15s ease, box-shadow .2s ease, border-color .2s ease, filter .2s ease;
+      user-select:none;
+    }
+    .qIconBtn:hover{
+      transform:translateY(-1px);
+      box-shadow:
+        0 0 0 1px rgba(0,0,0,.22) inset,
+        0 10px 26px rgba(0,0,0,.50),
+        0 0 26px rgba(255,140,0,.30);
+      border-color:rgba(255,170,0,.55);
+      filter:saturate(1.12);
+    }
+    .qIconBtn:active{transform:translateY(0)}
+    .hiddenFile{display:none !important;}
+
+    /* Neon orange accents for the whole question modal window */
+    .modal{
+      box-shadow:
+        0 30px 80px rgba(0,0,0,.55),
+        0 0 0 1px rgba(255,150,0,.22),
+        0 0 32px rgba(255,130,0,.14);
+    }
+    .modal .choiceBlock{
+      border:1px solid rgba(255,150,0,.18);
+      box-shadow: 0 0 18px rgba(255,130,0,.10) inset;
+    }
+    .modal input:focus, .modal textarea:focus, .modal select:focus{
+      outline:none;
+      border-color: rgba(255,170,0,.55) !important;
+      box-shadow: 0 0 0 3px rgba(255,150,0,.18) !important;
+    }
+
+</style>
 </head>
 
 <body>
@@ -883,7 +943,13 @@
         </select>
 
         <label>Вопрос</label>
-        <textarea id="inpPrompt" placeholder="Введите вопрос..."></textarea>
+        <div class="promptWithIcons">
+          <textarea id="inpPrompt" placeholder="Введите вопрос..."></textarea>
+          <div class="qSideIcons" aria-label="Медиа к вопросу">
+            <button class="qIconBtn" id="btnPickQImage" type="button" title="Загрузить картинку">🖼</button>
+            <button class="qIconBtn" id="btnPickQAudio" type="button" title="Загрузить мелодию/звук">🎵</button>
+          </div>
+        </div>
 
         <div class="choiceBlock" style="margin-top:10px">
           <div style="font-weight:900">Медиа и таймер (для этого вопроса)</div>
@@ -896,12 +962,14 @@
             </div>
             <div>
               <label>Картинка к вопросу (опционально)</label>
-              <input id="fileQImage" type="file" accept="image/*" />
+              <input id="fileQImage" class="hiddenFile" type="file" accept="image/*" />
+              <div class="muted" style="margin-top:6px">Нажми 🖼 рядом с вопросом, чтобы выбрать файл.</div>
             </div>
           </div>
 
           <label>Мелодия/звук к вопросу (опционально)</label>
-          <input id="fileQAudio" type="file" accept="audio/*" />
+          <input id="fileQAudio" class="hiddenFile" type="file" accept="audio/*" />
+          <div class="muted" style="margin-top:6px">Нажми 🎵 рядом с вопросом, чтобы выбрать файл.</div>
 
           <div id="qMediaPreview" class="muted" style="margin-top:10px"></div>
         </div>
@@ -2336,7 +2404,16 @@ $("chkUseImages").addEventListener("change", ()=>{
 
   
   // per-question media uploads
-  if ($("fileQImage")) {
+  
+  // Media icon buttons (beside the question text)
+  if ($("btnPickQImage") && $("fileQImage")) {
+    $("btnPickQImage").addEventListener("click", ()=> $("fileQImage").click());
+  }
+  if ($("btnPickQAudio") && $("fileQAudio")) {
+    $("btnPickQAudio").addEventListener("click", ()=> $("fileQAudio").click());
+  }
+
+if ($("fileQImage")) {
     $("fileQImage").addEventListener("change", async (e)=>{
       const f = e.target.files?.[0];
       if(!f) return;
