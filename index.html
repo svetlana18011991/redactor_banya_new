@@ -410,6 +410,12 @@
       border-color: rgba(57,255,118,.22);
       box-shadow: 0 0 18px rgba(57,255,118,.14);
     }
+    .timerBadge{ display:flex; align-items:center; gap:8px; }
+    .qTimerSvg{ width:22px; height:22px; transform: rotate(-90deg); }
+    .qTimerBg{ fill:none; stroke: rgba(255,255,255,.18); stroke-width:4; }
+    .qTimerProg{ fill:none; stroke: rgba(57,255,118,.85); stroke-width:4; stroke-linecap:round; stroke-dasharray: 100; stroke-dashoffset: 100; }
+    .timerBadge.qPulse{ animation: qPulse 0.85s ease-in-out infinite; }
+    @keyframes qPulse{ 0%,100%{ transform: scale(1); } 50%{ transform: scale(1.06); } }
     .progressWrap{
       width:260px; max-width:60vw;
       height:12px;
@@ -1329,7 +1335,13 @@
 
     <div class="rightPack">
       <div class="pillGame" data-role="pillRemain">Осталось: 9</div>
-      <div class="pillGame timerBadge" data-role="pillTimer" style="display:none">⏳ 00:30</div>
+      <div class="pillGame timerBadge" data-role="pillTimer" style="display:none">
+        <svg class="qTimerSvg" viewBox="0 0 40 40" aria-hidden="true">
+          <circle class="qTimerBg" cx="20" cy="20" r="16"></circle>
+          <circle class="qTimerProg" cx="20" cy="20" r="16"></circle>
+        </svg>
+        <span class="qTimerText" data-role="timerText">30</span>
+      </div>
       <div class="pillGame" data-role="pillScore">💎 Счёт: 0</div>
       <div class="progressWrap"><div class="progressBar" data-role="bar"></div></div>
     </div>
@@ -2301,7 +2313,16 @@
   }
 
   function buildGameUrl(payload){
-    const data = b64urlEncode(JSON.stringify(payload));
+    const jsonStr = JSON.stringify(payload);
+    const useKey = cfgHasMedia(payload) || jsonStr.length > 1800;
+    if(useKey){
+      // store under unique key so multiple games can coexist
+      const key = storeExportCfg(payload);
+      if(key){
+        return selfPageUrl() + "?cfgkey=" + encodeURIComponent(key) + "#cfgkey=" + encodeURIComponent(key);
+      }
+    }
+    const data = b64urlEncode(jsonStr);
     return selfPageUrl() + "?game=" + data + "#game=" + data;
   }
   function buildIframeFromUrl(src){
@@ -2322,6 +2343,29 @@
       return PREVIEW_CFGKEY;
     }catch(e){
       // if storage fails (quota), fallback to in-memory key (will still try ?game)
+      return "";
+    }
+  }
+
+  function hashKey(str){
+    // small deterministic hash (djb2)
+    let h = 5381;
+    for(let i=0;i<str.length;i++){
+      h = ((h << 5) + h) + str.charCodeAt(i);
+      h |= 0;
+    }
+    return (h >>> 0).toString(36);
+  }
+
+  function storeExportCfg(cfg){
+    try{
+      const json = JSON.stringify(cfg);
+      const key = "__tower_cfg__" + hashKey(json);
+      localStorage.setItem(key, json);
+      // also mirror in sessionStorage (some embeds restrict localStorage)
+      try{ sessionStorage.setItem(key, json); }catch(e){}
+      return key;
+    }catch(e){
       return "";
     }
   }
@@ -2667,6 +2711,6 @@ $("btnPreviewDraft").addEventListener("click", ()=>{
 })();
 </script>
 
-  <div class="versionTag">V3</div>
+  <div class="versionTag">V4</div>
 </body>
 </html>
