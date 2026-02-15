@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Башня — Editor + Game (один файл) [v13-20260210-054618]</title>
+  <title>Башня — Editor + Game (один файл) [v14-fix2]</title>
 
   <style>
     html, body{height:100%}
@@ -814,10 +814,31 @@
       box-shadow: 0 0 0 3px rgba(255,150,0,.18) !important;
     }
 
-</style>
+
+    /* Patch version badge */
+    #__patchVerBadge{
+      position:fixed;
+      top:10px;
+      right:10px;
+      z-index:99999;
+      font: 800 12px/1 system-ui, -apple-system, Segoe UI, Roboto, Arial;
+      color: rgba(255,255,255,.92);
+      background: rgba(0,0,0,.45);
+      border: 1px solid rgba(255,255,255,.16);
+      padding: 6px 8px;
+      border-radius: 10px;
+      backdrop-filter: blur(10px);
+      box-shadow: 0 10px 28px rgba(0,0,0,.35);
+      user-select:none;
+      pointer-events:none;
+    }
+
+  </style>
 </head>
 
 <body>
+<div id="__patchVerBadge">v14-fix2</div>
+
   <div class="app" id="editorRoot">
     <div class="panel settings">
       <div class="panel-header">
@@ -2299,20 +2320,33 @@
   }
 
   function buildGameUrl(payload){
-    const data = b64urlEncode(JSON.stringify(payload));
+    // Важно: с картинками/аудио конфиг становится огромным (base64) и URL может обрезаться.
+    // В результате в игре остаётся только кусок конфига => QUESTIONS.length становится 1 => вопросы "зацикливаются".
+    // Решение: если конфиг большой/с медиа — кладём его в storage и передаём короткий cfgkey в URL.
+    const jsonStr = JSON.stringify(payload);
 
-    // ВАЖНО:
-    // Если в конфиге есть dataURL (картинки/аудио), строка ?game=... становится очень длинной.
-    // Некоторые браузеры/встраивания (iframe/Genially) режут URL по длине и отсекают часть после '?...'
-    // вместе с #game=..., из‑за чего игра не может прочитать конфиг и "зацикливается" на первом вопросе.
-    //
-    // Решение: для больших конфигов (и особенно с медиа) используем ТОЛЬКО hash (#game=...).
-    // Hash обычно выдерживает большие строки и не ломается от ограничений query string.
-    const hashOnly = (typeof cfgHasMedia === "function" && cfgHasMedia(payload)) || data.length > 1800;
+    const useKey = (typeof cfgHasMedia === "function" && cfgHasMedia(payload)) || jsonStr.length > 1800;
 
-    if(hashOnly){
-      return selfPageUrl() + "#game=" + data;
+    if(useKey){
+      // уникальный ключ, чтобы не перетирать старые экспорты
+      const key = "__tower_cfg_" + Date.now().toString(36) + "_" + Math.random().toString(36).slice(2,8) + "__";
+      try{
+        localStorage.setItem(key, jsonStr);
+      }catch(e){
+        try{ sessionStorage.setItem(key, jsonStr); }catch(e2){}
+      }
+      // если storage недоступен/квота — упадём обратно на URL (как раньше)
+      try{
+        const ok = (localStorage.getItem(key) || sessionStorage.getItem(key));
+        if(ok){
+          const enc = encodeURIComponent(key);
+          return selfPageUrl() + "?cfgkey=" + enc + "#cfgkey=" + enc;
+        }
+      }catch(e){}
     }
+
+    // legacy (работает для небольших конфигов)
+    const data = b64urlEncode(jsonStr);
     return selfPageUrl() + "?game=" + data + "#game=" + data;
   }
   function buildIframeFromUrl(src){
