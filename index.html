@@ -2550,8 +2550,7 @@ $("btnPreviewDraft").addEventListener("click", ()=>{
 
       // Шаблон страницы + встроенный конфиг (без ограничения длины URL)
       // ВАЖНО: в строках ниже нет "живых" переносов — только \n
-      let full = "<!doctype html>
-" + document.documentElement.outerHTML;
+      let full = "<!doctype html>\n" + document.documentElement.outerHTML;
 
       // Вставляем embed перед главным IIFE-скриптом (первый "<script>\n(() => {")
       full = full.replace("<script>\n(() => {", embed + "<script>\n(() => {");
@@ -2707,6 +2706,6 @@ $("btnPreviewDraft").addEventListener("click", ()=>{
 
 })();
 </script>
-<div id="verBadge" style="position:fixed;top:10px;right:10px;z-index:9999;background:rgba(0,0,0,.45);border:1px solid rgba(255,255,255,.18);color:#fff;padding:6px 10px;border-radius:999px;font:600 12px/1 system-ui;backdrop-filter:blur(6px)">версия 15</div>
+<div id="verBadge" style="position:fixed;top:10px;right:10px;z-index:9999;background:rgba(0,0,0,.45);border:1px solid rgba(255,255,255,.18);color:#fff;padding:6px 10px;border-radius:999px;font:600 12px/1 system-ui;backdrop-filter:blur(6px)">версия 16</div>
 </body>
 </html>
