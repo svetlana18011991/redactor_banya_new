@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Башня — Editor + Game (один файл) [v13-20260210-054618]</title>
+  <title>Башня — Editor + Game (один файл) [v22-20260215-srcdocfix]</title>
 
   <style>
     html, body{height:100%}
@@ -821,7 +821,7 @@
   <div class="app" id="editorRoot">
     <div class="panel settings">
       <div class="panel-header">
-        <div class="h">Редактор «Башня» <span class="pill" title="версия файла">v21-20260215-srcdoc</span></div>
+        <div class="h">Редактор «Башня» <span class="pill" title="версия файла">v22-20260215-srcdocfix</span></div>
         <div class="row" style="margin:0">
           <button class="btn primary" id="btnCopyCode" type="button">📋 Скопировать код (iframe)</button>
         </div>
@@ -2259,40 +2259,30 @@
     if(previewWithDraft && Editor.draft){
       const d = deepClone(Editor.draft);
       questions = questions.slice();
-
-      // ВАЖНО: черновик должен подменять именно редактируемый вопрос,
-      // иначе при наличии медиа превью начинает показывать "первый" вопрос снова.
-      let insertAt = questions.length; // по умолчанию — как новый (в конец)
-      if(Editor.editingId){
-        const idx = questions.findIndex((q, i)=> {
-          // в Editor.questions есть id, а в payload мы уже маппили id не сохраняем,
-          // поэтому ищем по исходному списку:
-          return Editor.questions[i] && Editor.questions[i].id === Editor.editingId;
-        });
-        if(idx >= 0) insertAt = idx;
+      if(d.type === "choice"){
+        const mapped = {
+        type:"choice",
+        prompt:d.prompt||"",
+        options:(d.options||[]).slice(),
+        correctIndex:Number(d.correctIndex||0),
+        seconds: (d.seconds==null || d.seconds==="") ? null : Number(d.seconds),
+        imgDataUrl: d.imgDataUrl||"",
+        audioDataUrl: d.audioDataUrl||""
+      };
+        if(questions.length === 0) questions.push(mapped);
+        else questions[0] = mapped;
+      } else {
+        const mapped = {
+        type:"text",
+        prompt:d.prompt||"",
+        accepts:(d.accepts||[]).slice(),
+        seconds: (d.seconds==null || d.seconds==="") ? null : Number(d.seconds),
+        imgDataUrl: d.imgDataUrl||"",
+        audioDataUrl: d.audioDataUrl||""
+      };
+        if(questions.length === 0) questions.push(mapped);
+        else questions[0] = mapped;
       }
-
-      const mapped = (d.type === "choice")
-        ? {
-            type:"choice",
-            prompt:d.prompt||"",
-            options:(d.options||[]).slice(),
-            correctIndex:Number(d.correctIndex||0),
-            seconds: (d.seconds==null || d.seconds==="") ? null : Number(d.seconds),
-            imgDataUrl: d.imgDataUrl||"",
-            audioDataUrl: d.audioDataUrl||""
-          }
-        : {
-            type:"text",
-            prompt:d.prompt||"",
-            accepts:(d.accepts||[]).slice(),
-            seconds: (d.seconds==null || d.seconds==="") ? null : Number(d.seconds),
-            imgDataUrl: d.imgDataUrl||"",
-            audioDataUrl: d.audioDataUrl||""
-          };
-
-      if(insertAt >= questions.length) questions.push(mapped);
-      else questions[insertAt] = mapped;
     }
 
     // можно меньше 9 — игра зациклит вопросы
@@ -2315,8 +2305,8 @@
   function buildIframeFromUrl(src){
     return `<iframe src="${src}" style="width:100%;height:100%;min-height:720px;border:0;border-radius:18px;overflow:hidden;background:transparent" allow="autoplay; fullscreen" allowfullscreen loading="lazy"></iframe>`;
   }
-  function escapeForAttr(s){
-    // for srcdoc="..."
+  function escapeForSrcdocAttr(s){
+    // Escapes HTML for usage inside srcdoc="..."
     return String(s)
       .replace(/&/g,"&amp;")
       .replace(/"/g,"&quot;")
@@ -2324,26 +2314,12 @@
       .replace(/>/g,"&gt;");
   }
   function buildIframeFromSrcdoc(html){
-    const esc = escapeForAttr(html);
+    const esc = escapeForSrcdocAttr(html);
     return `<iframe srcdoc="${esc}" style="width:100%;height:100%;min-height:720px;border:0;border-radius:18px;overflow:hidden;background:transparent" allow="autoplay; fullscreen" allowfullscreen loading="lazy"></iframe>`;
   }
-  function buildSrcdocHtml(payload){
-    const safeJson = JSON.stringify(payload).replace(/</g,"\u003c");
-    const embed = `<script>window.__EMBEDDED_CFG__=${safeJson};<\/script>
-`;
-    let full = "<!doctype html>
-" + document.documentElement.outerHTML;
-    // вставляем в <head> чтобы успело до инициализации
-    if(full.includes("</head>")){
-      full = full.replace("</head>", embed + "</head>");
-    }else if(full.includes("<body")){
-      full = full.replace(/<body([^>]*)>/i, (m,a)=> `<body${a}>` + embed);
-    }else{
-      full = embed + full;
-    }
-    return full;
-  }
-// ===== preview payload store (avoid URI Too Long) =====
+
+  
+  // ===== preview payload store (avoid URI Too Long) =====
   const PREVIEW_CFGKEY = "__tower_preview_cfg__";
   function cfgHasMedia(cfg){
     try{
@@ -2360,13 +2336,24 @@
     }
   }
 
+  function buildSrcdocHtml(payload){
+    const safeJson = JSON.stringify(payload).replace(/</g,"\\u003c");
+    const inject = "<script>window.__EMBEDDED_CFG__=" + safeJson + ";<\\/script>\n";
+    let full = "<!doctype html>\n" + document.documentElement.outerHTML;
+    // inject right after <body ...>
+    full = full.replace(/<body([^>]*)>/i, function(_, attrs){
+      return "<body" + attrs + ">\n" + inject;
+    });
+    return full;
+  }
+
   function updatePreview(previewWithDraft){
     const payload = buildPayload(previewWithDraft);
     const jsonStr = JSON.stringify(payload);
+    const needSrcdoc = cfgHasMedia(payload) || jsonStr.length > 1800;
+
     const frame = $("livePreview");
     if(!frame) return;
-
-    const needSrcdoc = cfgHasMedia(payload) || jsonStr.length > 1800;
 
     if(needSrcdoc){
       frame.removeAttribute("src");
@@ -2374,10 +2361,17 @@
       return;
     }
 
-    // маленький конфиг — быстрый режим через URL (как раньше)
-    const url = buildGameUrl(payload, true);
+    // small config: keep legacy URL (fast)
+    const data = b64urlEncode(jsonStr);
+    const src = selfPageUrl() + "?game=" + data + "&preview=1#game=" + data;
     frame.srcdoc = "";
-    frame.src = url;
+    frame.src = src;
+  }
+    }
+    // fallback legacy
+    const data = b64urlEncode(jsonStr);
+    const src = selfPageUrl() + "?game=" + data + "&preview=1#game=" + data;
+    $("livePreview").src = src;
   }
 
   // ==== bindings ====
@@ -2553,13 +2547,19 @@ $("btnPreviewDraft").addEventListener("click", ()=>{
     const jsonStr = JSON.stringify(payload);
     const needSrcdoc = cfgHasMedia(payload) || jsonStr.length > 1800;
 
-    const iframeCode = needSrcdoc
-      ? buildIframeFromSrcdoc(buildSrcdocHtml(payload))
-      : buildIframeFromUrl(buildGameUrl(payload));
+    let iframeCode = "";
+    if(needSrcdoc){
+      const html = buildSrcdocHtml(payload);
+      iframeCode = buildIframeFromSrcdoc(html);
+    }else{
+      const url = buildGameUrl(payload);
+      iframeCode = buildIframeFromUrl(url);
+    }
 
     const ok = await copyToClipboard(iframeCode);
-    toast(ok ? (needSrcdoc ? "iframe (srcdoc) скопирован ✅" : "iframe скопирован ✅") : "Не удалось скопировать");
+    toast(ok ? "iframe скопирован ✅" : "Не удалось скопировать");
   });
+
 // iframe code modal
   function hideCodeModal(){
     if(!$("codeBackdrop")) return;
