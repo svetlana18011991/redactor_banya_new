@@ -821,7 +821,7 @@
   <div class="app" id="editorRoot">
     <div class="panel settings">
       <div class="panel-header">
-        <div class="h">Редактор «Башня» <span class="pill" title="версия файла">v20-20260215-mediafix</span></div>
+        <div class="h">Редактор «Башня» <span class="pill" title="версия файла">v21-20260215-srcdoc</span></div>
         <div class="row" style="margin:0">
           <button class="btn primary" id="btnCopyCode" type="button">📋 Скопировать код (iframe)</button>
         </div>
@@ -2315,9 +2315,35 @@
   function buildIframeFromUrl(src){
     return `<iframe src="${src}" style="width:100%;height:100%;min-height:720px;border:0;border-radius:18px;overflow:hidden;background:transparent" allow="autoplay; fullscreen" allowfullscreen loading="lazy"></iframe>`;
   }
-
-  
-  // ===== preview payload store (avoid URI Too Long) =====
+  function escapeForAttr(s){
+    // for srcdoc="..."
+    return String(s)
+      .replace(/&/g,"&amp;")
+      .replace(/"/g,"&quot;")
+      .replace(/</g,"&lt;")
+      .replace(/>/g,"&gt;");
+  }
+  function buildIframeFromSrcdoc(html){
+    const esc = escapeForAttr(html);
+    return `<iframe srcdoc="${esc}" style="width:100%;height:100%;min-height:720px;border:0;border-radius:18px;overflow:hidden;background:transparent" allow="autoplay; fullscreen" allowfullscreen loading="lazy"></iframe>`;
+  }
+  function buildSrcdocHtml(payload){
+    const safeJson = JSON.stringify(payload).replace(/</g,"\u003c");
+    const embed = `<script>window.__EMBEDDED_CFG__=${safeJson};<\/script>
+`;
+    let full = "<!doctype html>
+" + document.documentElement.outerHTML;
+    // вставляем в <head> чтобы успело до инициализации
+    if(full.includes("</head>")){
+      full = full.replace("</head>", embed + "</head>");
+    }else if(full.includes("<body")){
+      full = full.replace(/<body([^>]*)>/i, (m,a)=> `<body${a}>` + embed);
+    }else{
+      full = embed + full;
+    }
+    return full;
+  }
+// ===== preview payload store (avoid URI Too Long) =====
   const PREVIEW_CFGKEY = "__tower_preview_cfg__";
   function cfgHasMedia(cfg){
     try{
@@ -2336,21 +2362,22 @@
 
   function updatePreview(previewWithDraft){
     const payload = buildPayload(previewWithDraft);
-    // Use short cfgkey when payload is big or contains media
     const jsonStr = JSON.stringify(payload);
-    const useKey = cfgHasMedia(payload) || jsonStr.length > 1800;
-    if(useKey){
-      const key = storePreviewCfg(payload);
-      if(key){
-        const src = selfPageUrl() + "?cfgkey=" + encodeURIComponent(key) + "&preview=1#cfgkey=" + encodeURIComponent(key);
-        $("livePreview").src = src;
-        return;
-      }
+    const frame = $("livePreview");
+    if(!frame) return;
+
+    const needSrcdoc = cfgHasMedia(payload) || jsonStr.length > 1800;
+
+    if(needSrcdoc){
+      frame.removeAttribute("src");
+      frame.srcdoc = buildSrcdocHtml(payload);
+      return;
     }
-    // fallback legacy
-    const data = b64urlEncode(jsonStr);
-    const src = selfPageUrl() + "?game=" + data + "&preview=1#game=" + data;
-    $("livePreview").src = src;
+
+    // маленький конфиг — быстрый режим через URL (как раньше)
+    const url = buildGameUrl(payload, true);
+    frame.srcdoc = "";
+    frame.src = url;
   }
 
   // ==== bindings ====
@@ -2523,15 +2550,17 @@ $("btnPreviewDraft").addEventListener("click", ()=>{
 
   $("btnCopyCode").addEventListener("click", async ()=>{
     const payload = buildPayload(false);
-    const url = buildGameUrl(payload);
-    const iframeCode = buildIframeFromUrl(url);
+    const jsonStr = JSON.stringify(payload);
+    const needSrcdoc = cfgHasMedia(payload) || jsonStr.length > 1800;
+
+    const iframeCode = needSrcdoc
+      ? buildIframeFromSrcdoc(buildSrcdocHtml(payload))
+      : buildIframeFromUrl(buildGameUrl(payload));
 
     const ok = await copyToClipboard(iframeCode);
-    toast(ok ? "iframe скопирован ✅" : "Не удалось скопировать");
+    toast(ok ? (needSrcdoc ? "iframe (srcdoc) скопирован ✅" : "iframe скопирован ✅") : "Не удалось скопировать");
   });
-
-  
-  // iframe code modal
+// iframe code modal
   function hideCodeModal(){
     if(!$("codeBackdrop")) return;
     $("codeBackdrop").style.display = "none";
