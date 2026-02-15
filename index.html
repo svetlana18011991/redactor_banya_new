@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Башня — Editor + Game (один файл) [v31-20260216-postmsg]</title>
+  <title>Башня — Editor + Game (один файл) [v32-20260216-recvfix]</title>
 
   <style>
     html, body{height:100%}
@@ -821,7 +821,7 @@
   <div class="app" id="editorRoot">
     <div class="panel settings">
       <div class="panel-header">
-        <div class="h">Редактор «Башня» <span class="pill" title="версия файла">v13-20260210-054618</span></div>
+        <div class="h">Редактор «Башня» <span class="pill" title="версия файла">v32-20260216-recvfix</span></div>
         <div class="row" style="margin:0">
           <button class="btn primary" id="btnCopyCode" type="button">📋 Скопировать код (iframe)</button>
         </div>
@@ -2270,17 +2270,7 @@
         audioDataUrl: d.audioDataUrl||""
       };
         if(questions.length === 0) questions.push(mapped);
-        else{
-        // ✅ В превью черновик должен заменять редактируемый вопрос, а не первый.
-        const editId = Editor.editingId;
-        if(editId){
-          const idx = questions.findIndex(q=>q.id===editId);
-          if(idx>=0) questions[idx] = mapped;
-          else questions.push(mapped); // новый вопрос
-        }else{
-          questions.push(mapped); // страховка: если нет editingId, добавим в конец
-        }
-      }
+        else questions[0] = mapped;
       } else {
         const mapped = {
         type:"text",
@@ -2291,17 +2281,7 @@
         audioDataUrl: d.audioDataUrl||""
       };
         if(questions.length === 0) questions.push(mapped);
-        else{
-        // ✅ В превью черновик должен заменять редактируемый вопрос, а не первый.
-        const editId = Editor.editingId;
-        if(editId){
-          const idx = questions.findIndex(q=>q.id===editId);
-          if(idx>=0) questions[idx] = mapped;
-          else questions.push(mapped); // новый вопрос
-        }else{
-          questions.push(mapped); // страховка: если нет editingId, добавим в конец
-        }
-      }
+        else questions[0] = mapped;
       }
     }
 
@@ -2346,30 +2326,75 @@
 
   function updatePreview(previewWithDraft){
     const payload = buildPayload(previewWithDraft);
+
+    // If there is media (image/audio), we MUST not serialize into URL/hash.
+    // Use a receiver iframe (?recv=1) and send cfg via postMessage.
     const jsonStr = JSON.stringify(payload);
     const hasMedia = cfgHasMedia(payload);
-    const big = jsonStr.length > 1800;
+    const tooBig = jsonStr.length > 1800;
 
-    // Small configs without media -> legacy URL (fast)
-    if(!hasMedia && !big){
-      const data = b64urlEncode(jsonStr);
-      const src = selfPageUrl() + "?game=" + data + "&preview=1#game=" + data;
-      $("livePreview").src = src;
+    const frame = $("livePreview");
+    if(hasMedia){
+      const recvSrc = selfPageUrl() + "?recv=1&preview=1";
+      // Load receiver if needed
+      if(!frame.dataset.recv || frame.dataset.recv !== "1"){
+        frame.dataset.recv = "1";
+        frame.src = recvSrc;
+      }else{
+        // if already in recv mode but navigated somewhere else
+        if(!String(frame.src||"").includes("recv=1")) frame.src = recvSrc;
+      }
+
+      // Send when receiver says READY; also retry a few times
+      const safeCfg = JSON.parse(JSON.stringify(payload)); // remove any non-cloneables
+      let sent = false;
+
+      const sendCfg = ()=>{
+        if(sent) return;
+        try{
+          if(frame.contentWindow){
+            frame.contentWindow.postMessage({type:"CFG", cfg: safeCfg}, "*");
+            sent = true;
+          }
+        }catch(e){}
+      };
+
+      const onReady = (ev)=>{
+        if(ev && ev.data && ev.data.type === "READY"){
+          window.removeEventListener("message", onReady);
+          sendCfg();
+        }
+      };
+      window.addEventListener("message", onReady);
+
+      // If READY was missed, try sending shortly after
+      setTimeout(sendCfg, 120);
+      setTimeout(sendCfg, 350);
+      setTimeout(sendCfg, 800);
       return;
     }
 
-    // ✅ Media / big config -> always use postMessage receiver (no storage limits, no truncation)
-    const frame = $("livePreview");
-    const recvSrc = selfPageUrl() + "?recv=1&preview=1";
-    // force reload receiver when switching from URL preview
-    if(frame.getAttribute("src") !== recvSrc){
-      frame.src = recvSrc;
-      frame.onload = ()=>{
-        try{ frame.contentWindow?.postMessage({type:"CFG", payload}, "*"); }catch(e){}
-      };
-    }else{
-      try{ frame.contentWindow?.postMessage({type:"CFG", payload}, "*"); }catch(e){}
+    // No media: cfgkey for long text, otherwise legacy URL.
+    if(tooBig){
+      const key = storePreviewCfg(payload);
+      if(key){
+        const src = selfPageUrl() + "?cfgkey=" + encodeURIComponent(key) + "&preview=1#cfgkey=" + encodeURIComponent(key);
+        frame.dataset.recv = "0";
+        frame.src = src;
+        return;
+      }
     }
+
+    const data = b64urlEncode(jsonStr);
+    const src = selfPageUrl() + "?game=" + data + "&preview=1#game=" + data;
+    frame.dataset.recv = "0";
+    frame.src = src;
+  }
+    }
+    // fallback legacy
+    const data = b64urlEncode(jsonStr);
+    const src = selfPageUrl() + "?game=" + data + "&preview=1#game=" + data;
+    $("livePreview").src = src;
   }
 
   // ==== bindings ====
@@ -2628,6 +2653,40 @@ $("btnPreviewDraft").addEventListener("click", ()=>{
   const gameParam = qp.game || hp.game;
   const cfgKeyParam = qp.cfgkey || hp.cfgkey;
 
+  // 0.5) receiver mode for large configs (media) via postMessage: ?recv=1 or #recv=1
+  const recvMode = (String(qp.recv||"") === "1") || (String(hp.recv||"") === "1");
+  if (recvMode){
+    // Show only the game container; wait for config from parent
+    document.body.setAttribute("data-mode","recv");
+    if ($("editorRoot")) $("editorRoot").style.display = "none";
+    if ($("modalBackdrop")) $("modalBackdrop").style.display = "none";
+    if ($("codeBackdrop")) $("codeBackdrop").style.display = "none";
+    if ($("gameRoot")) $("gameRoot").style.display = "block";
+    const host = $("gameHost");
+    if (host){
+      host.innerHTML = `<div style="padding:16px;color:#cfe3ff;font-weight:900">Ждём конфиг…</div>`;
+    }
+
+    const onMsg = (ev)=>{
+      const d = ev && ev.data;
+      if (!d) return;
+      if (d.type === "CFG" && d.cfg){
+        try{
+          window.removeEventListener("message", onMsg);
+          bootGameOnly(normalizeCfg(d.cfg));
+        }catch(e){
+          if (host) host.innerHTML = `<div style="padding:16px;color:#ffd6d6;font-weight:900">Не удалось прочитать конфиг 😕</div>`;
+        }
+      }
+    };
+    window.addEventListener("message", onMsg);
+
+    // Handshake: tell parent we are ready to receive
+    try{ window.parent && window.parent.postMessage({type:"READY"}, "*"); }catch(e){}
+    return;
+  }
+
+
   // 0) embedded export (standalone HTML)
   if (window.__EMBEDDED_CFG__) {
     try{
@@ -2671,29 +2730,7 @@ $("btnPreviewDraft").addEventListener("click", ()=>{
     return;
   }
 
-  
-  // ✅ Preview receiver mode: no URL/storage limits (works with big base64 media)
-  if(qp.recv || hp.recv){
-    try{
-      $("editorRoot").style.display = "none";
-      $("gameRoot").style.display = "block";
-    }catch(e){}
-    const host = $("gameHost");
-    if(host) host.innerHTML = `<div style="padding:16px;color:#eaf0ff;font-weight:900">Жду конфиг для превью…</div>`;
-    window.addEventListener("message", (ev)=>{
-      try{
-        const msg = ev.data;
-        if(!msg || msg.type !== "CFG") return;
-        const cfg = normalizeCfg(msg.payload);
-        bootGameOnly(cfg);
-      }catch(e){
-        if(host) host.innerHTML = `<div style="padding:16px;color:#ffd6d6;font-weight:900">Ошибка конфига 😕</div>`;
-      }
-    });
-    return;
-  }
-
-// editor init
+  // editor init
   Editor.title = $("inpTitle").value || "Башня знаний";
   Editor.timer.enabled = $("chkTimer").checked;
   Editor.timer.seconds = Number($("inpSeconds").value || 30);
@@ -2715,6 +2752,5 @@ $("btnPreviewDraft").addEventListener("click", ()=>{
 
 })();
 </script>
-<div id="verBadge" style="position:fixed;top:10px;right:10px;z-index:9999;background:rgba(0,0,0,.45);border:1px solid rgba(255,255,255,.18);color:#fff;padding:6px 10px;border-radius:999px;font:600 12px/1 system-ui;backdrop-filter:blur(6px)">версия 31</div>
 </body>
 </html>
