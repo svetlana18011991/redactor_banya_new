@@ -2356,21 +2356,42 @@
   }
 function updatePreview(previewWithDraft){
     const payload = buildPayload(previewWithDraft);
-    // Use short cfgkey when payload is big or contains media
     const jsonStr = JSON.stringify(payload);
-    const useKey = cfgHasMedia(payload) || jsonStr.length > 1800;
+
+    const frame = $("livePreview");
+    if(!frame) return;
+
+    // ✅ Главное: если есть медиа или большой конфиг — используем srcdoc (никаких лимитов URL/Storage)
+    const needSrcdoc = cfgHasMedia(payload) || jsonStr.length > 1800;
+
+    if(needSrcdoc){
+      const safeJson = jsonStr.replace(/</g, "\\u003c");
+      const embed = `<script>window.__EMBEDDED_CFG__=${safeJson};<\/script>\n`;
+      let full = "<!doctype html>\n" + document.documentElement.outerHTML;
+      full = full.replace("<script>\n(() => {", embed + "<script>\n(() => {");
+      // Важно: srcdoc требует экранирования — используем уже существующий buildIframeFromSrcdoc
+      // но для livePreview iframe удобнее прямо назначить srcdoc.
+      frame.removeAttribute("src");
+      frame.srcdoc = full;
+      return;
+    }
+
+    // Иначе — быстрый режим через короткий cfgkey или legacy game=
+    const useKey = jsonStr.length > 1400;
     if(useKey){
       const key = storePreviewCfg(payload);
       if(key){
         const src = selfPageUrl() + "?cfgkey=" + encodeURIComponent(key) + "&preview=1#cfgkey=" + encodeURIComponent(key);
-        $("livePreview").src = src;
+        frame.srcdoc = "";
+        frame.src = src;
         return;
       }
     }
-    // fallback legacy
+
     const data = b64urlEncode(jsonStr);
-    const src = selfPageUrl() + "?game=" + data + "&preview=1#game=" + data;
-    $("livePreview").src = src;
+    const srcUrl = selfPageUrl() + "?game=" + data + "&preview=1#game=" + data;
+    frame.srcdoc = "";
+    frame.src = srcUrl;
   }
 
   // ==== bindings ====
@@ -2706,6 +2727,6 @@ $("btnPreviewDraft").addEventListener("click", ()=>{
 
 })();
 </script>
-<div id="verBadge" style="position:fixed;top:10px;right:10px;z-index:9999;background:rgba(0,0,0,.45);border:1px solid rgba(255,255,255,.18);color:#fff;padding:6px 10px;border-radius:999px;font:600 12px/1 system-ui;backdrop-filter:blur(6px)">версия 16</div>
+<div id="verBadge" style="position:fixed;top:10px;right:10px;z-index:9999;background:rgba(0,0,0,.45);border:1px solid rgba(255,255,255,.18);color:#fff;padding:6px 10px;border-radius:999px;font:600 12px/1 system-ui;backdrop-filter:blur(6px)">версия 17</div>
 </body>
 </html>
