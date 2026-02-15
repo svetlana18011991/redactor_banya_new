@@ -2548,10 +2548,10 @@ $("btnPreviewDraft").addEventListener("click", ()=>{
       const embed = `<script>window.__EMBEDDED_CFG__=${safeJson};<\/script>
 `;
 
-      // Берём текущую страницу как шаблон игры и вклеиваем конфиг внутрь.
-      // Это убирает проблему "слишком длинной ссылки" при медиа (base64).
-      let full = "<!doctype html>
-" + document.documentElement.outerHTML;
+      // Шаблон страницы + встроенный конфиг (без ограничения длины URL)
+      let full = `<!doctype html
+${document.documentElement.outerHTML}`;
+
       // Вставляем embed перед главным IIFE-скриптом (первый <script>
 (() => {)
       full = full.replace("<script>
@@ -2709,6 +2709,6 @@ $("btnPreviewDraft").addEventListener("click", ()=>{
 
 })();
 </script>
-<div id="verBadge" style="position:fixed;top:10px;right:10px;z-index:9999;background:rgba(0,0,0,.45);border:1px solid rgba(255,255,255,.18);color:#fff;padding:6px 10px;border-radius:999px;font:600 12px/1 system-ui;backdrop-filter:blur(6px)">версия 13</div>
+<div id="verBadge" style="position:fixed;top:10px;right:10px;z-index:9999;background:rgba(0,0,0,.45);border:1px solid rgba(255,255,255,.18);color:#fff;padding:6px 10px;border-radius:999px;font:600 12px/1 system-ui;backdrop-filter:blur(6px)">версия 14</div>
 </body>
 </html>
