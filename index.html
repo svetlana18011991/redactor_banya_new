@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Башня — Editor + Game (один файл) [v29-20260216-srcdoc]</title>
+  <title>Башня — Editor + Game (один файл) [v30-20260216-fix]</title>
 
   <style>
     html, body{height:100%}
@@ -2270,7 +2270,17 @@
         audioDataUrl: d.audioDataUrl||""
       };
         if(questions.length === 0) questions.push(mapped);
-        else questions[0] = mapped;
+        else{
+        // ✅ В превью черновик должен заменять редактируемый вопрос, а не первый.
+        const editId = Editor.editingId;
+        if(editId){
+          const idx = questions.findIndex(q=>q.id===editId);
+          if(idx>=0) questions[idx] = mapped;
+          else questions.push(mapped); // новый вопрос
+        }else{
+          questions.push(mapped); // страховка: если нет editingId, добавим в конец
+        }
+      }
       } else {
         const mapped = {
         type:"text",
@@ -2281,7 +2291,17 @@
         audioDataUrl: d.audioDataUrl||""
       };
         if(questions.length === 0) questions.push(mapped);
-        else questions[0] = mapped;
+        else{
+        // ✅ В превью черновик должен заменять редактируемый вопрос, а не первый.
+        const editId = Editor.editingId;
+        if(editId){
+          const idx = questions.findIndex(q=>q.id===editId);
+          if(idx>=0) questions[idx] = mapped;
+          else questions.push(mapped); // новый вопрос
+        }else{
+          questions.push(mapped); // страховка: если нет editingId, добавим в конец
+        }
+      }
       }
     }
 
@@ -2324,55 +2344,39 @@
     }
   }
 
-  function buildPreviewSrcdoc(payload){
-    // build full HTML for iframe preview without URL params (safe for big media)
-    // prevent </script> break
-    const cfgJson = JSON.stringify(payload).replace(/<\/script/gi, "<\\/script");
-    return `<!doctype html>
-<html lang="ru">
-<head>
-<meta charset="utf-8"/>
-<meta name="viewport" content="width=device-width,initial-scale=1"/>
-<style>${__GAME_CSS__}</style>
-</head>
-<body style="margin:0">
-<div id="gameRoot">${__GAME_HTML__}</div>
-
-<script id="__CFG__" type="application/json">${cfgJson}</script>
-<script>
-(function(){
-  function readCfg(){
-    try{
-      const el = document.getElementById("__CFG__");
-      return el ? JSON.parse(el.textContent||"{}") : {};
-    }catch(e){ return {}; }
-  }
-  // expose for debug
-  window.__tower_cfg = readCfg();
-})();
-</script>
-
-<script>
-${__GAME_JS__}
-</script>
-
-<script>
-// auto-start in preview mode
-try{
-  const startLayer = document.getElementById("startLayer");
-  if(startLayer) startLayer.style.display="none";
-  setTimeout(()=>{ const playBtn=document.getElementById("playBtn"); if(playBtn) playBtn.click(); }, 60);
-}catch(e){}
-</script>
-</body>
-</html>`;
-  }
-
   function updatePreview(previewWithDraft){
     const payload = buildPayload(previewWithDraft);
-    const iframe = $("livePreview");
-    iframe.removeAttribute("src");
-    iframe.srcdoc = buildPreviewSrcdoc(payload);
+    const jsonStr = JSON.stringify(payload);
+    const hasMedia = cfgHasMedia(payload);
+    const big = jsonStr.length > 1800;
+
+    // Small configs -> legacy URL (fast)
+    if(!hasMedia && !big){
+      const data = b64urlEncode(jsonStr);
+      const src = selfPageUrl() + "?game=" + data + "&preview=1#game=" + data;
+      $("livePreview").src = src;
+      return;
+    }
+
+    // Try cfgkey (storage) first
+    const key = storePreviewCfg(payload);
+    if(key){
+      const src = selfPageUrl() + "?cfgkey=" + encodeURIComponent(key) + "&preview=1#cfgkey=" + encodeURIComponent(key);
+      $("livePreview").src = src;
+      return;
+    }
+
+    // Storage failed (QuotaExceeded) -> postMessage receiver (no limits)
+    const frame = $("livePreview");
+    const recvSrc = selfPageUrl() + "?recv=1&preview=1";
+    if(frame.getAttribute("src") !== recvSrc){
+      frame.src = recvSrc;
+      frame.onload = ()=>{
+        try{ frame.contentWindow?.postMessage({type:"CFG", payload}, "*"); }catch(e){}
+      };
+    }else{
+      try{ frame.contentWindow?.postMessage({type:"CFG", payload}, "*"); }catch(e){}
+    }
   }
 
   // ==== bindings ====
@@ -2674,7 +2678,29 @@ $("btnPreviewDraft").addEventListener("click", ()=>{
     return;
   }
 
-  // editor init
+  
+  // ✅ Preview receiver mode: no URL/storage limits (works with big base64 media)
+  if(qp.recv || hp.recv){
+    try{
+      $("editorRoot").style.display = "none";
+      $("gameRoot").style.display = "block";
+    }catch(e){}
+    const host = $("gameHost");
+    if(host) host.innerHTML = `<div style="padding:16px;color:#eaf0ff;font-weight:900">Жду конфиг для превью…</div>`;
+    window.addEventListener("message", (ev)=>{
+      try{
+        const msg = ev.data;
+        if(!msg || msg.type !== "CFG") return;
+        const cfg = normalizeCfg(msg.payload);
+        bootGameOnly(cfg);
+      }catch(e){
+        if(host) host.innerHTML = `<div style="padding:16px;color:#ffd6d6;font-weight:900">Ошибка конфига 😕</div>`;
+      }
+    });
+    return;
+  }
+
+// editor init
   Editor.title = $("inpTitle").value || "Башня знаний";
   Editor.timer.enabled = $("chkTimer").checked;
   Editor.timer.seconds = Number($("inpSeconds").value || 30);
@@ -2696,5 +2722,6 @@ $("btnPreviewDraft").addEventListener("click", ()=>{
 
 })();
 </script>
+<div id="verBadge" style="position:fixed;top:10px;right:10px;z-index:9999;background:rgba(0,0,0,.45);border:1px solid rgba(255,255,255,.18);color:#fff;padding:6px 10px;border-radius:999px;font:600 12px/1 system-ui;backdrop-filter:blur(6px)">версия 30</div>
 </body>
 </html>
