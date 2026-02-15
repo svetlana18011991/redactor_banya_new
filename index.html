@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Башня — Editor + Game (один файл) [v13-20260210-054618]</title>
+  <title>Башня — Editor + Game (один файл) [версия 1]</title>
 
   <style>
     html, body{height:100%}
@@ -821,7 +821,7 @@
   <div class="app" id="editorRoot">
     <div class="panel settings">
       <div class="panel-header">
-        <div class="h">Редактор «Башня» <span class="pill" title="версия файла">v13-20260210-054618</span></div>
+        <div class="h">Редактор «Башня» <span class="pill" title="версия файла">версия 1</span></div>
         <div class="row" style="margin:0">
           <button class="btn primary" id="btnCopyCode" type="button">📋 Скопировать код (iframe)</button>
         </div>
@@ -2279,20 +2279,19 @@
 
       questions = questions.slice();
 
-      // Показываем черновик в превью корректно:
-      // - если редактируем существующий вопрос → подменяем его по id
-      // - если это новый вопрос → добавляем в начало (не затирая другие)
+      // Если редактируем существующий вопрос — подменяем именно его.
       if(Editor.editingId){
         const idx = Editor.questions.findIndex(x=>x.id === Editor.editingId);
         if(idx >= 0 && idx < questions.length){
           questions[idx] = mapped;
         } else {
+          // если по какой-то причине не нашли — показываем черновик первым
           questions.unshift(mapped);
         }
       } else {
+        // новый вопрос — показываем черновик первым, не затирая существующие
         questions.unshift(mapped);
       }
-    }
     }
 
     // можно меньше 9 — игра зациклит вопросы
@@ -2459,7 +2458,7 @@ if ($("fileQImage")) {
       const f = e.target.files?.[0];
       if(!f) return;
       try{
-        if(!Editor.draft){ toast("Открой вопрос (модалку), чтобы прикрепить медиа"); e.target.value=""; return; }
+        if(!Editor.draft){ toast("Открой вопрос и попробуй снова"); e.target.value=""; return; }
         Editor.draft.imgDataUrl = await fileToDataUrl(f);
         if($("qMediaPreview")){
           const parts=[];
@@ -2467,8 +2466,9 @@ if ($("fileQImage")) {
           if(Editor.draft.audioDataUrl) parts.push("🎵 звук добавлен");
           $("qMediaPreview").textContent = parts.length? parts.join(" • "): "Пока ничего не прикреплено.";
         }
+        e.target.value = "";
         toast("Картинка добавлена");
-      }catch(err){ toast("Не удалось загрузить картинку"); }
+      }catch(err){ e.target.value = ""; toast("Не удалось загрузить картинку"); }
     });
   }
   if ($("fileQAudio")) {
@@ -2476,7 +2476,7 @@ if ($("fileQImage")) {
       const f = e.target.files?.[0];
       if(!f) return;
       try{
-        if(!Editor.draft){ toast("Открой вопрос (модалку), чтобы прикрепить медиа"); e.target.value=""; return; }
+        if(!Editor.draft){ toast("Открой вопрос и попробуй снова"); e.target.value=""; return; }
         Editor.draft.audioDataUrl = await fileToDataUrl(f);
         if($("qMediaPreview")){
           const parts=[];
@@ -2484,8 +2484,9 @@ if ($("fileQImage")) {
           if(Editor.draft.audioDataUrl) parts.push("🎵 звук добавлен");
           $("qMediaPreview").textContent = parts.length? parts.join(" • "): "Пока ничего не прикреплено.";
         }
+        e.target.value = "";
         toast("Звук добавлен");
-      }catch(err){ toast("Не удалось загрузить звук"); }
+      }catch(err){ e.target.value = ""; toast("Не удалось загрузить звук"); }
     });
   }
 
