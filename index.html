@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Башня — Editor + Game (один файл) [v30-20260216-fix]</title>
+  <title>Башня — Editor + Game (один файл) [v31-20260216-postmsg]</title>
 
   <style>
     html, body{height:100%}
@@ -2350,7 +2350,7 @@
     const hasMedia = cfgHasMedia(payload);
     const big = jsonStr.length > 1800;
 
-    // Small configs -> legacy URL (fast)
+    // Small configs without media -> legacy URL (fast)
     if(!hasMedia && !big){
       const data = b64urlEncode(jsonStr);
       const src = selfPageUrl() + "?game=" + data + "&preview=1#game=" + data;
@@ -2358,17 +2358,10 @@
       return;
     }
 
-    // Try cfgkey (storage) first
-    const key = storePreviewCfg(payload);
-    if(key){
-      const src = selfPageUrl() + "?cfgkey=" + encodeURIComponent(key) + "&preview=1#cfgkey=" + encodeURIComponent(key);
-      $("livePreview").src = src;
-      return;
-    }
-
-    // Storage failed (QuotaExceeded) -> postMessage receiver (no limits)
+    // ✅ Media / big config -> always use postMessage receiver (no storage limits, no truncation)
     const frame = $("livePreview");
     const recvSrc = selfPageUrl() + "?recv=1&preview=1";
+    // force reload receiver when switching from URL preview
     if(frame.getAttribute("src") !== recvSrc){
       frame.src = recvSrc;
       frame.onload = ()=>{
@@ -2722,6 +2715,6 @@ $("btnPreviewDraft").addEventListener("click", ()=>{
 
 })();
 </script>
-<div id="verBadge" style="position:fixed;top:10px;right:10px;z-index:9999;background:rgba(0,0,0,.45);border:1px solid rgba(255,255,255,.18);color:#fff;padding:6px 10px;border-radius:999px;font:600 12px/1 system-ui;backdrop-filter:blur(6px)">версия 30</div>
+<div id="verBadge" style="position:fixed;top:10px;right:10px;z-index:9999;background:rgba(0,0,0,.45);border:1px solid rgba(255,255,255,.18);color:#fff;padding:6px 10px;border-radius:999px;font:600 12px/1 system-ui;backdrop-filter:blur(6px)">версия 31</div>
 </body>
 </html>
