@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Башня — Editor + Game (один файл) [версия 1]</title>
+  <title>Башня — Editor + Game (один файл) [версия 2]</title>
 
   <style>
     html, body{height:100%}
@@ -710,7 +710,7 @@
     .bigMsg .h{font-weight:1000; font-size:18px}
     .bigMsg .p{color:rgba(255,255,255,.85); margin-top:6px; line-height:1.35}
   
-    /* ===== Premium gold/blue polish (v12) ===== */
+    /* ===== Premium gold/blue polish (v22) ===== */
     .panel{
       border-color: rgba(214,177,74,.22);
       box-shadow: 0 18px 60px rgba(0,0,0,.50);
@@ -821,7 +821,7 @@
   <div class="app" id="editorRoot">
     <div class="panel settings">
       <div class="panel-header">
-        <div class="h">Редактор «Башня» <span class="pill" title="версия файла">версия 1</span></div>
+        <div class="h">Редактор «Башня» <span class="pill" title="версия файла">версия 2</span></div>
         <div class="row" style="margin:0">
           <button class="btn primary" id="btnCopyCode" type="button">📋 Скопировать код (iframe)</button>
         </div>
@@ -2257,12 +2257,8 @@
     });
 
     if(previewWithDraft && Editor.draft){
-      const draftTargetIndex = (Editor.editingId ? Editor.questions.findIndex(q=>q.id===Editor.editingId) : -1);
-
       const d = deepClone(Editor.draft);
-      questions = questions.slice();
-      if(d.type === "choice"){
-        const mapped = {
+      const mapped = (d.type === "choice") ? {
         type:"choice",
         prompt:d.prompt||"",
         options:(d.options||[]).slice(),
@@ -2270,12 +2266,7 @@
         seconds: (d.seconds==null || d.seconds==="") ? null : Number(d.seconds),
         imgDataUrl: d.imgDataUrl||"",
         audioDataUrl: d.audioDataUrl||""
-      };
-        if(questions.length === 0) questions.push(mapped);
-        else if(draftTargetIndex >= 0) questions[draftTargetIndex] = mapped;
-        else questions.unshift(mapped);
-      } else {
-        const mapped = {
+      } : {
         type:"text",
         prompt:d.prompt||"",
         accepts:(d.accepts||[]).slice(),
@@ -2283,13 +2274,29 @@
         imgDataUrl: d.imgDataUrl||"",
         audioDataUrl: d.audioDataUrl||""
       };
-        if(questions.length === 0) questions.push(mapped);
-        else if(draftTargetIndex >= 0) questions[draftTargetIndex] = mapped;
-        else questions.unshift(mapped);
+
+      questions = questions.slice();
+
+      // ВАЖНО: не подменяем "первый вопрос" всегда.
+      // 1) Если редактируем существующий вопрос — подменяем его по editingId (в своём месте)
+      if(Editor.editingId){
+        const idx = Editor.questions.findIndex(x=>x.id === Editor.editingId);
+        if(idx >= 0 && idx < questions.length){
+          questions[idx] = mapped;
+        } else if(questions.length === 0){
+          questions.push(mapped);
+        } else {
+          // если id не найден (редко) — добавим в конец
+          questions.push(mapped);
+        }
+      } else {
+        // 2) Если это "предпросмотр из списка" или "черновик нового" — добавим в начало, не ломая существующие
+        questions.unshift(mapped);
+        questions = questions.slice(0,9);
       }
     }
 
-    // можно меньше 9 — игра зациклит вопросы
+    // можно меньше 9 — игра зациклит вопросы — игра зациклит вопросы
 
 
     return normalizeCfg({
@@ -2451,9 +2458,14 @@ $("chkUseImages").addEventListener("change", ()=>{
 if ($("fileQImage")) {
     $("fileQImage").addEventListener("change", async (e)=>{
       const f = e.target.files?.[0];
+      // allow selecting same file again later
+      e.target.value = "";
       if(!f) return;
+      if(!Editor.draft){
+        toast("Открой вопрос и попробуй снова");
+        return;
+      }
       try{
-        if(!Editor.draft){ toast("Открой вопрос и попробуй снова"); e.target.value=""; return; }
         Editor.draft.imgDataUrl = await fileToDataUrl(f);
         if($("qMediaPreview")){
           const parts=[];
@@ -2462,17 +2474,20 @@ if ($("fileQImage")) {
           $("qMediaPreview").textContent = parts.length? parts.join(" • "): "Пока ничего не прикреплено.";
         }
         toast("Картинка добавлена");
-        e.target.value="";
-      }
-      catch(err){ toast("Не удалось загрузить картинку"); }
+      }catch(err){ toast("Не удалось загрузить картинку"); }
     });
   }
   if ($("fileQAudio")) {
     $("fileQAudio").addEventListener("change", async (e)=>{
       const f = e.target.files?.[0];
+      // allow selecting same file again later
+      e.target.value = "";
       if(!f) return;
+      if(!Editor.draft){
+        toast("Открой вопрос и попробуй снова");
+        return;
+      }
       try{
-        if(!Editor.draft){ toast("Открой вопрос и попробуй снова"); e.target.value=""; return; }
         Editor.draft.audioDataUrl = await fileToDataUrl(f);
         if($("qMediaPreview")){
           const parts=[];
@@ -2481,9 +2496,7 @@ if ($("fileQImage")) {
           $("qMediaPreview").textContent = parts.length? parts.join(" • "): "Пока ничего не прикреплено.";
         }
         toast("Звук добавлен");
-        e.target.value="";
-      }
-      catch(err){ toast("Не удалось загрузить звук"); }
+      }catch(err){ toast("Не удалось загрузить звук"); }
     });
   }
 
