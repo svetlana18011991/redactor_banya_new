@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Башня — Editor + Game (один файл) [v26-20260215-srcdocfix]</title>
+  <title>Башня — Editor + Game (один файл) [v27-20260215-postmsg]</title>
 
   <style>
     html, body{height:100%}
@@ -821,7 +821,7 @@
   <div class="app" id="editorRoot">
     <div class="panel settings">
       <div class="panel-header">
-        <div class="h">Редактор «Башня» <span class="pill" title="версия файла">v26-20260215-srcdocfix</span></div>
+        <div class="h">Редактор «Башня» <span class="pill" title="версия файла">v27-20260215-postmsg</span></div>
         <div class="row" style="margin:0">
           <button class="btn primary" id="btnCopyCode" type="button">📋 Скопировать код (iframe)</button>
         </div>
@@ -1176,7 +1176,7 @@
     // Auto-start if this is preview iframe
     try{
       const qp = new URLSearchParams(location.search);
-      if(qp.get("preview")==="1" || window.__SRC_PREVIEW__===1){
+      if(qp.get("preview")==="1"){
         const startLayer = document.getElementById("startLayer");
         const playBtn = document.getElementById("playBtn");
         if(startLayer) startLayer.style.display="none";
@@ -2306,28 +2306,6 @@
     return `<iframe src="${src}" style="width:100%;height:100%;min-height:720px;border:0;border-radius:18px;overflow:hidden;background:transparent" allow="autoplay; fullscreen" allowfullscreen loading="lazy"></iframe>`;
   }
 
-  function escapeForSrcdocAttr(s){
-    return String(s)
-      .replace(/&/g,"&amp;")
-      .replace(/"/g,"&quot;")
-      .replace(/</g,"&lt;")
-      .replace(/>/g,"&gt;");
-  }
-  function buildIframeFromSrcdoc(html){
-    const esc = escapeForSrcdocAttr(html);
-    return `<iframe srcdoc="${esc}" style="width:100%;height:100%;min-height:720px;border:0;border-radius:18px;overflow:hidden;background:transparent" allow="autoplay; fullscreen" allowfullscreen loading="lazy"></iframe>`;
-  }
-  function buildSrcdocHtml(payload){
-    const safeJson = JSON.stringify(payload).replace(/</g,"\\u003c");
-    // ВАЖНО: ставим флаг preview, чтобы игра автозапускалась как при ?preview=1
-    const embed = `<script>window.__SRC_PREVIEW__=1;window.__EMBEDDED_CFG__=${safeJson};<\\/script>`;
-    let full = "<!doctype html>\n" + document.documentElement.outerHTML;
-    // Вставляем сразу после <body ...>
-    full = full.replace(/<body([^>]*)>/i, `<body$1>${embed}`);
-    return full;
-  }
-
-
   
   // ===== preview payload store (avoid URI Too Long) =====
   const PREVIEW_CFGKEY = "__tower_preview_cfg__";
@@ -2349,21 +2327,36 @@
   function updatePreview(previewWithDraft){
     const payload = buildPayload(previewWithDraft);
     const jsonStr = JSON.stringify(payload);
-    const frame = $("livePreview");
-    if(!frame) return;
+    const hasMedia = cfgHasMedia(payload);
+    const big = jsonStr.length > 1800;
 
-    // ✅ При медиа/большом конфиге используем srcdoc (никаких лимитов URL/storage)
-    if(cfgHasMedia(payload) || jsonStr.length > 1800){
-      frame.removeAttribute("src");
-      frame.srcdoc = buildSrcdocHtml(payload);
+    // If big/media -> try cfgkey first (fast), but if storage can't fit, fall back to postMessage receiver
+    if(hasMedia || big){
+      const key = storePreviewCfg(payload);
+      if(key){
+        const src = selfPageUrl() + "?cfgkey=" + encodeURIComponent(key) + "&preview=1#cfgkey=" + encodeURIComponent(key);
+        $("livePreview").src = src;
+        return;
+      }
+
+      // storage failed (QuotaExceeded) -> use postMessage, no size limits
+      const frame = $("livePreview");
+      const recvSrc = selfPageUrl() + "?recv=1&preview=1";
+      if(frame.getAttribute("src") !== recvSrc){
+        frame.src = recvSrc;
+        frame.onload = ()=>{
+          try{ frame.contentWindow?.postMessage({type:"CFG", payload}, "*"); }catch(e){}
+        };
+      }else{
+        try{ frame.contentWindow?.postMessage({type:"CFG", payload}, "*"); }catch(e){}
+      }
       return;
     }
 
-    // маленький конфиг — быстрый режим через URL
+    // legacy small payload via URL
     const data = b64urlEncode(jsonStr);
     const src = selfPageUrl() + "?game=" + data + "&preview=1#game=" + data;
-    frame.srcdoc = "";
-    frame.src = src;
+    $("livePreview").src = src;
   }
 
   // ==== bindings ====
@@ -2535,25 +2528,40 @@ $("btnPreviewDraft").addEventListener("click", ()=>{
   });
 
   $("btnCopyCode").addEventListener("click", async ()=>{
-    try{
-      const payload = buildPayload(true);
-      const jsonStr = JSON.stringify(payload);
+    // For media/big configs: use srcdoc iframe (no URL limit, no storage dependency)
+    const payload = buildPayload(true);
+    const jsonStr = JSON.stringify(payload);
+    const needSrcdoc = cfgHasMedia(payload) || jsonStr.length > 1800;
 
-      let iframeCode = "";
-      if(cfgHasMedia(payload) || jsonStr.length > 1800){
-        const full = buildSrcdocHtml(payload);
-        iframeCode = buildIframeFromSrcdoc(full);
-      }else{
-        const data = b64urlEncode(jsonStr);
-        const src = selfPageUrl() + "?game=" + data + "#game=" + data;
-        iframeCode = buildIframeFromUrl(src);
-      }
-      const ok = await copyToClipboard(iframeCode);
-      toast(ok ? "iframe скопирован ✅" : "Не удалось скопировать");
-    }catch(e){
-      toast("Ошибка: " + (e?.message || e));
+    if(needSrcdoc){
+      const safeJson = jsonStr.replace(/</g, "\\u003c");
+      const embed = `<script>window.__EMBEDDED_CFG__=${safeJson};<\/script>\n`;
+
+      // Build full HTML with embedded cfg (inject right after <body ...>)
+      let full = "<!doctype html>\n" + document.documentElement.outerHTML;
+      full = full.replace(/<body([^>]*)>/i, (m, attrs)=> `<body${attrs}>` + embed);
+
+      // Escape for srcdoc attribute
+      const esc = full
+        .replace(/&/g,"&amp;")
+        .replace(/"/g,"&quot;")
+        .replace(/</g,"&lt;")
+        .replace(/>/g,"&gt;");
+
+      const iframe = `<iframe srcdoc="${esc}" style="width:100%;height:100%;min-height:720px;border:0;border-radius:18px;overflow:hidden;background:transparent" allow="autoplay; fullscreen" allowfullscreen></iframe>`;
+      const ok = await copyToClipboard(iframe);
+      toast(ok ? "iframe (srcdoc) скопирован ✅" : "Не удалось скопировать");
+      return;
     }
+
+    // Small configs: keep old short code
+    const data = b64urlEncode(JSON.stringify(buildPayload(true)));
+    const url = selfPageUrl() + "?game=" + data;
+    const iframe = buildIframeFromUrl(url);
+    const ok = await copyToClipboard(iframe);
+    toast(ok ? "iframe скопирован ✅" : "Не удалось скопировать");
   });
+
 // iframe code modal
   function hideCodeModal(){
     if(!$("codeBackdrop")) return;
@@ -2675,7 +2683,31 @@ $("btnPreviewDraft").addEventListener("click", ()=>{
     return;
   }
 
-  // editor init
+  
+  // 3) receive config via postMessage (preview without URL/storage limits)
+  // Use: load this page with ?recv=1 (or #recv=1) inside an iframe, then postMessage({type:"CFG", payload:{...}})
+  if(qp.recv || hp.recv){
+    // show game host and wait for cfg
+    $("editorRoot").style.display = "none";
+    $("gameRoot").style.display = "block";
+    document.body.setAttribute("data-mode","game");
+    document.body.classList.add("gameOnly");
+    const host = $("gameHost");
+    host.innerHTML = `<div style="padding:16px;color:#eaf0ff;font-weight:900">Жду конфиг для превью…</div>`;
+    window.addEventListener("message", (ev)=>{
+      try{
+        const msg = ev.data;
+        if(!msg || msg.type !== "CFG") return;
+        const cfg = normalizeCfg(msg.payload);
+        bootGameOnly(cfg);
+      }catch(e){
+        host.innerHTML = `<div style="padding:16px;color:#ffd6d6;font-weight:900">Ошибка конфига 😕</div>`;
+      }
+    });
+    return;
+  }
+
+// editor init
   Editor.title = $("inpTitle").value || "Башня знаний";
   Editor.timer.enabled = $("chkTimer").checked;
   Editor.timer.seconds = Number($("inpSeconds").value || 30);
@@ -2697,5 +2729,6 @@ $("btnPreviewDraft").addEventListener("click", ()=>{
 
 })();
 </script>
+<div id="verBadge" style="position:fixed;top:10px;right:10px;z-index:9999;background:rgba(0,0,0,.45);border:1px solid rgba(255,255,255,.18);color:#fff;padding:6px 10px;border-radius:999px;font:600 12px/1 system-ui;backdrop-filter:blur(6px)">версия 27</div>
 </body>
 </html>
