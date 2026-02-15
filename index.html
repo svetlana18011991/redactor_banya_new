@@ -2300,6 +2300,19 @@
 
   function buildGameUrl(payload){
     const data = b64urlEncode(JSON.stringify(payload));
+
+    // ВАЖНО:
+    // Если в конфиге есть dataURL (картинки/аудио), строка ?game=... становится очень длинной.
+    // Некоторые браузеры/встраивания (iframe/Genially) режут URL по длине и отсекают часть после '?...'
+    // вместе с #game=..., из‑за чего игра не может прочитать конфиг и "зацикливается" на первом вопросе.
+    //
+    // Решение: для больших конфигов (и особенно с медиа) используем ТОЛЬКО hash (#game=...).
+    // Hash обычно выдерживает большие строки и не ломается от ограничений query string.
+    const hashOnly = (typeof cfgHasMedia === "function" && cfgHasMedia(payload)) || data.length > 1800;
+
+    if(hashOnly){
+      return selfPageUrl() + "#game=" + data;
+    }
     return selfPageUrl() + "?game=" + data + "#game=" + data;
   }
   function buildIframeFromUrl(src){
