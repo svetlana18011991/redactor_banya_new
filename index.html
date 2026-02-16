@@ -951,18 +951,18 @@
         </div>
         
         <div class="choiceBlock" style="margin-top:10px">
-          <div style="font-weight:900">Медиа (ссылки)</div>
-          <div class="muted">Вставьте прямую ссылку (URL) на картинку или аудиофайл.</div>
+          <div style="font-weight:900">Медиа (встраивание)</div>
+          <div class="muted">Картинки будут сжаты автоматически. Для аудио — строгий лимит 150 КБ.</div>
           
           <div class="answerRow">
-            <span style="font-size:20px; line-height:1; cursor:help;" title="Ссылка на картинку">🖼️</span>
-            <input id="inpQImage" type="text" placeholder="https://.../image.jpg" />
+            <span style="font-size:20px; line-height:1; cursor:help;" title="Загрузить картинку">🖼️</span>
+            <input id="inpQImageFile" type="file" accept="image/*" />
             <button class="btn small danger" id="btnClearImage" type="button" title="Удалить картинку">✖</button>
           </div>
           
           <div class="answerRow">
-            <span style="font-size:20px; line-height:1; cursor:help;" title="Ссылка на аудио">🎵</span>
-            <input id="inpQAudio" type="text" placeholder="https://.../audio.mp3" />
+            <span style="font-size:20px; line-height:1; cursor:help;" title="Загрузить аудио">🎵</span>
+            <input id="inpQAudioFile" type="file" accept="audio/*" />
             <button class="btn small danger" id="btnClearAudio" type="button" title="Удалить аудио">✖</button>
           </div>
         </div>
@@ -1146,6 +1146,42 @@
       r.onload = ()=>resolve(String(r.result || ""));
       r.onerror = reject;
       r.readAsDataURL(file);
+    });
+  }
+  
+  // Функции для работы с медиа
+  function compressImage(file, maxSize = 400, quality = 0.6) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const img = new Image();
+        img.onload = () => {
+          let w = img.width; let h = img.height;
+          if (w > maxSize || h > maxSize) {
+            if (w > h) { h = Math.round((h * maxSize) / w); w = maxSize; }
+            else { w = Math.round((w * maxSize) / h); h = maxSize; }
+          }
+          const cvs = document.createElement('canvas');
+          cvs.width = w; cvs.height = h;
+          const ctx = cvs.getContext('2d');
+          ctx.drawImage(img, 0, 0, w, h);
+          resolve(cvs.toDataURL('image/jpeg', quality));
+        };
+        img.onerror = reject;
+        img.src = e.target.result;
+      };
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+  }
+
+  function readAudioFile(file, maxKb = 150) {
+    return new Promise((resolve, reject) => {
+      if (file.size > maxKb * 1024) return reject(`Файл слишком большой! Лимит ${maxKb} КБ.`);
+      const reader = new FileReader();
+      reader.onload = (e) => resolve(e.target.result);
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
     });
   }
 
@@ -1456,8 +1492,9 @@
     
     if(!("image" in Editor.draft)) Editor.draft.image = "";
     if(!("audio" in Editor.draft)) Editor.draft.audio = "";
-    if($("inpQImage")) $("inpQImage").value = Editor.draft.image;
-    if($("inpQAudio")) $("inpQAudio").value = Editor.draft.audio;
+    
+    if($("inpQImageFile")) $("inpQImageFile").value = "";
+    if($("inpQAudioFile")) $("inpQAudioFile").value = "";
     
     syncModalType();
     if($("selType").value === "choice") renderChoiceUI();
@@ -1481,8 +1518,7 @@
       q.seconds = Math.round(s);
     }
     
-    q.image = $("inpQImage") ? $("inpQImage").value.trim() : "";
-    q.audio = $("inpQAudio") ? $("inpQAudio").value.trim() : "";
+    // q.image и q.audio обновляются напрямую при загрузке файлов, поэтому здесь их просто оставляем
 
     if(q.type === "choice"){
       q.options = (q.options || []).map(x=>String(x||""));
@@ -1602,8 +1638,39 @@
     else { q.accepts = q.accepts || [""]; renderTextUI(); }
   });
   
-  if($("btnClearImage")) $("btnClearImage").addEventListener("click", () => { $("inpQImage").value = ""; });
-  if($("btnClearAudio")) $("btnClearAudio").addEventListener("click", () => { $("inpQAudio").value = ""; });
+  // Медиа: загрузка и удаление
+  if($("inpQImageFile")) {
+    $("inpQImageFile").addEventListener("change", async (e) => {
+      const f = e.target.files[0]; if(!f) return;
+      try {
+        if(Editor.draft) Editor.draft.image = await compressImage(f, 400, 0.6);
+        toast("Картинка сжата и добавлена ✅");
+      } catch (err) { toast("Ошибка сжатия: " + err); }
+    });
+  }
+  if($("inpQAudioFile")) {
+    $("inpQAudioFile").addEventListener("change", async (e) => {
+      const f = e.target.files[0]; if(!f) return;
+      try {
+        if(Editor.draft) Editor.draft.audio = await readAudioFile(f, 150);
+        toast("Аудио добавлено ✅");
+      } catch (err) { toast(err); $("inpQAudioFile").value = ""; }
+    });
+  }
+  if($("btnClearImage")) {
+    $("btnClearImage").addEventListener("click", () => {
+      if(Editor.draft) Editor.draft.image = "";
+      $("inpQImageFile").value = "";
+      toast("Картинка удалена ✖");
+    });
+  }
+  if($("btnClearAudio")) {
+    $("btnClearAudio").addEventListener("click", () => {
+      if(Editor.draft) Editor.draft.audio = "";
+      $("inpQAudioFile").value = "";
+      toast("Аудио удалено ✖");
+    });
+  }
   
   $("btnAddChoice").addEventListener("click", ()=>{ const q = Editor.draft; if(!q) return; q.options = q.options || ["",""]; q.options.push(""); renderChoiceUI(); });
   $("btnAddText").addEventListener("click", ()=>{ const q = Editor.draft; if(!q) return; q.accepts = q.accepts || [""]; q.accepts.push(""); renderTextUI(); });
