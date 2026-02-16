@@ -43,7 +43,7 @@
       max-width: 1540px;
       margin: 0 auto;
     }
-    @media (max-width: 1020px){
+    @media (max-width: 820px){
       .app{grid-template-columns:1fr}
     }
 
@@ -821,7 +821,7 @@
   <div class="app" id="editorRoot">
     <div class="panel settings">
       <div class="panel-header">
-        <div class="h">Редактор «Башня» <span class="pill" title="версия файла">v13-20260210-054618</span></div>
+        <div class="h">Редактор «Башня»</div>
         <div class="row" style="margin:0">
           <button class="btn primary" id="btnCopyCode" type="button">📋 Скопировать код (iframe)</button>
         </div>
@@ -841,7 +841,7 @@
         <div class="section">
   <div class="title">LaTeX</div>
   <label class="check"><input id="chkUseLatex" type="checkbox" /> Использовать LaTeX</label>
-  <div class="muted">При включении можно писать формулы в вопросах и вариантах: \(a^2+b^2=c^2\), \[rac{1}{2}\].</div>
+  <div class="muted">При включении можно писать формулы в вопросах и вариантах: \(a^2+b^2=c^2\), \[\frac{1}{2}\].</div>
 </div>
 
 <div class="section">
@@ -851,13 +851,7 @@
             <input id="fileBg" type="file" accept="image/*" />
             <button id="btnResetBg" type="button" class="btn small">↩ Сбросить фон</button>
           </div>
-
-          <div class="toggle" data-hide="blocks">
-            <input id="chkUseImages" type="checkbox" checked />
-            <div>
-              <div style="font-weight:900">Блоки: стандартные</div>
-              <div class="muted"></div>
-            </div>
+        </div>
           </div>
         </div>
 
@@ -2304,8 +2298,18 @@
   // ==== bindings ====
   $("inpTitle").addEventListener("input", ()=>{
     Editor.title = $("inpTitle").value || "Башня знаний";
+  Editor.useLatex = !!($("chkUseLatex") && $("chkUseLatex").checked);
     updatePreview(false);
   });
+
+  const chkLatex = $("chkUseLatex");
+  if(chkLatex){
+    chkLatex.addEventListener("change", ()=>{
+      Editor.useLatex = chkLatex.checked;
+      updatePreview(false);
+    });
+  }
+
 $("fileBg").addEventListener("change", async (e)=>{
     const f = e.target.files?.[0];
     if(!f) return;
@@ -2319,16 +2323,6 @@ $("fileBg").addEventListener("change", async (e)=>{
     Editor.bgDataUrl = "";
     $("fileBg").value = "";
     updatePreview(false);
-  });
-$("chkUseImages").addEventListener("change", ()=>{
-    Editor.useImages = true; if($("chkUseImages")) $("chkUseImages").checked = true;
-    if($("chkUseLatex")) $("chkUseLatex").checked = !!Editor.useLatex;
-    updatePreview(false);
-
-  $("chkUseLatex").addEventListener("change", ()=>{
-    Editor.useLatex = $("chkUseLatex").checked;
-    updatePreview(false);
-  });
   });
 
   $("chkTimer").addEventListener("change", ()=>{
@@ -2562,9 +2556,7 @@ $("chkUseImages").addEventListener("change", ()=>{
   // editor init
   Editor.title = $("inpTitle").value || "Башня знаний";
   Editor.timer.enabled = $("chkTimer").checked;
-  Editor.timer.seconds = Number($("inpSeconds").value || 30);
-  Editor.useImages = true; if($("chkUseImages")) $("chkUseImages").checked = true;
-  Editor.useRepoBg = true;
+  Editor.timer.seconds = Number($("inpSeconds").value || 30);  Editor.useRepoBg = true;
 
   renderList();
   updatePreview(false);
