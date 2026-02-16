@@ -3,12 +3,26 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Башня — Editor + Game (один файл) [v1-20260217-0037]</title>
+  <title>Башня — Editor + Game (один файл) [v2-20260217-0051]</title>
 
   <!-- KaTeX (LaTeX rendering) -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
   <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
   <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script>
+  <script>
+  // v2: latex toggle rerenders editor & preview
+  window.addEventListener("DOMContentLoaded", ()=>{
+    const c=document.getElementById("chkLatex");
+    if(c){
+      c.addEventListener("change", ()=>{
+        try{
+          if(typeof window.renderEditor === "function") window.renderEditor();
+          if(typeof window.updatePreview === "function") window.updatePreview();
+        }catch(e){}
+      });
+    }
+  });
+  </script>
 
   <style>
     html, body{height:100%}
@@ -833,7 +847,7 @@
   <div class="app" id="editorRoot">
     <div class="panel settings">
       <div class="panel-header">
-        <div class="h">Редактор «Башня» <span class="pill" id="buildVersion">v1-20260217-0037</span> <span class="pill" title="версия файла">v1-20260217-0037</span></div>
+        <div class="h">Редактор «Башня» <span class="pill" id="buildVersion">v2-20260217-0051</span> <span class="pill" title="версия файла">v2-20260217-0051</span></div>
         <div class="row" style="margin:0">
           <button class="btn primary" id="btnCopyCode" type="button">📋 Скопировать код (iframe)</button>
         </div>
@@ -1037,7 +1051,7 @@
 
 
 <script>
-  console.log("Editor build v1-20260217-0037");
+  console.log("Editor build v2-20260217-0051");
 
 function isLatexEnabled(){
   try{
@@ -2702,13 +2716,7 @@ $("btnPreviewDraft").addEventListener("click", ()=>{
     }
   }catch(e){}
 
-})();
+})(); 
 
-<script>
-  window.addEventListener("DOMContentLoaded", ()=>{
-    const c=document.getElementById("chkLatex");
-    if(c){ c.addEventListener("change", ()=>{ try{ if(window.renderEditor) renderEditor(); if(window.updatePreview) updatePreview(); }catch(e){} }); }
-  });
-</script>
 </body>
 </html>
