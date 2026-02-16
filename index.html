@@ -838,6 +838,18 @@
       box-shadow: 0 0 0 3px rgba(255,150,0,.18) !important;
     }
 
+
+/* v1 modal scroll + bottom buttons */
+.modal{
+  max-height: calc(100vh - 40px);
+  overflow-y: auto;
+}
+.modal-foot{
+  position: static !important;
+  width: 100%;
+  justify-content: center;
+}
+
 </style>
 
   <!-- KaTeX (for optional LaTeX rendering) -->
@@ -991,13 +1003,7 @@
             </div>
           </div>
           </div>
-
-          <label>Мелодия/звук к вопросу (опционально)</label>
-          <input id="fileQAudio" class="hiddenFile" type="file" accept="audio/*" />
-          <div class="muted" style="margin-top:6px">Нажми 🎵 рядом с вопросом, чтобы выбрать файл.</div>
-
-          <div id="qMediaPreview" class="muted" style="margin-top:10px"></div>
-        </div>
+</div>
 
 
         <div id="choiceWrap" class="choiceBlock">
@@ -2241,11 +2247,9 @@ function clamp(n,a,b){ return Math.max(a, Math.min(b,n)); }
     if(!("imgDataUrl" in Editor.draft)) Editor.draft.imgDataUrl = "";
     if(!("audioDataUrl" in Editor.draft)) Editor.draft.audioDataUrl = "";
     if($("inpQSeconds")) $("inpQSeconds").value = (Editor.draft.seconds ?? "");
-    if($("qMediaPreview")) {
       const parts=[];
       if(Editor.draft.imgDataUrl) parts.push("🖼 картинка добавлена");
       if(Editor.draft.audioDataUrl) parts.push("🎵 звук добавлен");
-      $("qMediaPreview").textContent = parts.length? parts.join(" • "): "Пока ничего не прикреплено.";
     }
     syncModalType();
     if($("selType").value === "choice") renderChoiceUI();
@@ -2488,52 +2492,6 @@ $("chkUseImages").addEventListener("change", ()=>{
     q.accepts.push("");
     renderTextUI();
   });
-
-  
-  // per-question media uploads
-  
-  // Media icon buttons (beside the question text)
-  if ($("btnPickQImage") && $("fileQImage")) {
-    $("btnPickQImage").addEventListener("click", ()=> $("fileQImage").click());
-  }
-  if ($("btnPickQAudio") && $("fileQAudio")) {
-    $("btnPickQAudio").addEventListener("click", ()=> $("fileQAudio").click());
-  }
-
-if ($("fileQImage")) {
-    $("fileQImage").addEventListener("change", async (e)=>{
-      const f = e.target.files?.[0];
-      if(!f) return;
-      try{
-        Editor.draft = Editor.draft || {};
-        Editor.draft.imgDataUrl = await fileToDataUrl(f);
-        if($("qMediaPreview")){
-          const parts=[];
-          if(Editor.draft.imgDataUrl) parts.push("🖼 картинка добавлена");
-          if(Editor.draft.audioDataUrl) parts.push("🎵 звук добавлен");
-          $("qMediaPreview").textContent = parts.length? parts.join(" • "): "Пока ничего не прикреплено.";
-        }
-        toast("Картинка добавлена");
-      }catch(err){ toast("Не удалось загрузить картинку"); }
-    });
-  }
-  if ($("fileQAudio")) {
-    $("fileQAudio").addEventListener("change", async (e)=>{
-      const f = e.target.files?.[0];
-      if(!f) return;
-      try{
-        Editor.draft = Editor.draft || {};
-        Editor.draft.audioDataUrl = await fileToDataUrl(f);
-        if($("qMediaPreview")){
-          const parts=[];
-          if(Editor.draft.imgDataUrl) parts.push("🖼 картинка добавлена");
-          if(Editor.draft.audioDataUrl) parts.push("🎵 звук добавлен");
-          $("qMediaPreview").textContent = parts.length? parts.join(" • "): "Пока ничего не прикреплено.";
-        }
-        toast("Звук добавлен");
-      }catch(err){ toast("Не удалось загрузить звук"); }
-    });
-  }
 
 $("btnPreviewDraft").addEventListener("click", ()=>{
     getDraftFromModal();
