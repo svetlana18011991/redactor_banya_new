@@ -937,15 +937,6 @@
           </div>
         </div>
 
-        <div class="section">
-          <div class="title" data-hide="exportTitle">Экспорт в Genially</div>
-          <div class="muted">
-            Нажми <b>«📋 Скопировать iframe»</b> — в буфере будет короткий код вида:
-            <div style="margin-top:8px; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size:12px; color:rgba(255,255,255,.86)">
-              .../index.html?game=...
-            </div>
-          </div>
-        </div>
 
       </div>
     </div>
@@ -1987,16 +1978,12 @@ function clamp(n,a,b){ return Math.max(a, Math.min(b,n)); }
       const rawSecs = (q && ("seconds" in q)) ? q.seconds : null;
       const nSecs = (rawSecs==null || rawSecs==="") ? null : Number(rawSecs);
       const seconds = (Number.isFinite(nSecs) && nSecs>0) ? Math.max(1, Math.min(600, Math.round(nSecs))) : null;
-      const imgDataUrl = String(q?.imgDataUrl || "");
-      const audioDataUrl = String(q?.audioDataUrl || "");
       if(q?.type === "text"){
         return {
           type:"text",
           prompt:String(q.prompt||""),
           accepts:(Array.isArray(q.accepts)?q.accepts:[]).map(x=>String(x||"")),
-          seconds,
-          imgDataUrl,
-          audioDataUrl
+          seconds
         };
       }
       return {
@@ -2004,9 +1991,7 @@ function clamp(n,a,b){ return Math.max(a, Math.min(b,n)); }
         prompt:String(q?.prompt||""),
         options:(Array.isArray(q?.options)?q.options:[]).map(x=>String(x||"")),
         correctIndex:Number(q?.correctIndex||0),
-        seconds,
-        imgDataUrl,
-        audioDataUrl
+        seconds
       };
     });
 
@@ -2234,8 +2219,6 @@ function clamp(n,a,b){ return Math.max(a, Math.min(b,n)); }
         options: ["",""],
         correctIndex: 0,
         seconds: null,
-        imgDataUrl: "",
-        audioDataUrl: ""
       };
       Editor.editingId = null;
       $("modalTitle").textContent = "Добавить вопрос";
@@ -2244,12 +2227,7 @@ function clamp(n,a,b){ return Math.max(a, Math.min(b,n)); }
     $("selType").value = Editor.draft.type || "choice";
     $("inpPrompt").value = Editor.draft.prompt || "";
     if(!("seconds" in Editor.draft)) Editor.draft.seconds = null;
-    if(!("imgDataUrl" in Editor.draft)) Editor.draft.imgDataUrl = "";
-    if(!("audioDataUrl" in Editor.draft)) Editor.draft.audioDataUrl = "";
     if($("inpQSeconds")) $("inpQSeconds").value = (Editor.draft.seconds ?? "");
-      const parts=[];
-      if(Editor.draft.imgDataUrl) parts.push("🖼 картинка добавлена");
-      if(Editor.draft.audioDataUrl) parts.push("🎵 звук добавлен");
     }
     syncModalType();
     if($("selType").value === "choice") renderChoiceUI();
@@ -2304,9 +2282,9 @@ function clamp(n,a,b){ return Math.max(a, Math.min(b,n)); }
   function buildPayload(previewWithDraft){
     let questions = Editor.questions.map(q=>{
       if(q.type === "choice"){
-        return { type:"choice", prompt:q.prompt||"", options:(q.options||[]).slice(), correctIndex:Number(q.correctIndex||0), seconds:(q.seconds??null), imgDataUrl:(q.imgDataUrl||""), audioDataUrl:(q.audioDataUrl||"") };
+        return { type:"choice", prompt:q.prompt||"", options:(q.options||[]).slice(), correctIndex:Number(q.correctIndex||0), seconds:(q.seconds??null) };
       }
-      return { type:"text", prompt:q.prompt||"", accepts:(q.accepts||[]).slice(), seconds:(q.seconds??null), imgDataUrl:(q.imgDataUrl||""), audioDataUrl:(q.audioDataUrl||"") };
+      return { type:"text", prompt:q.prompt||"", accepts:(q.accepts||[]).slice(), seconds:(q.seconds??null) };
     });
 
     if(previewWithDraft && Editor.draft){
@@ -2319,9 +2297,7 @@ function clamp(n,a,b){ return Math.max(a, Math.min(b,n)); }
         options:(d.options||[]).slice(),
         correctIndex:Number(d.correctIndex||0),
         seconds: (d.seconds==null || d.seconds==="") ? null : Number(d.seconds),
-        imgDataUrl: d.imgDataUrl||"",
-        audioDataUrl: d.audioDataUrl||""
-      };
+              };
         if(questions.length === 0) questions.push(mapped);
         else questions[0] = mapped;
       } else {
@@ -2330,9 +2306,7 @@ function clamp(n,a,b){ return Math.max(a, Math.min(b,n)); }
         prompt:d.prompt||"",
         accepts:(d.accepts||[]).slice(),
         seconds: (d.seconds==null || d.seconds==="") ? null : Number(d.seconds),
-        imgDataUrl: d.imgDataUrl||"",
-        audioDataUrl: d.audioDataUrl||""
-      };
+              };
         if(questions.length === 0) questions.push(mapped);
         else questions[0] = mapped;
       }
@@ -2365,7 +2339,7 @@ function clamp(n,a,b){ return Math.max(a, Math.min(b,n)); }
   const PREVIEW_CFGKEY = "__tower_preview_cfg__";
   function cfgHasMedia(cfg){
     try{
-      return (cfg?.questions || []).some(q => (q && (q.imgDataUrl || q.audioDataUrl)));
+      return false;
     }catch(e){ return false; }
   }
   function storePreviewCfg(cfg){
