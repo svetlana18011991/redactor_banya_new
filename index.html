@@ -76,6 +76,12 @@
       padding:14px;
     }
 
+    /* Кастомный скроллбар для настроек */
+    .settings .panel-body::-webkit-scrollbar { width: 8px; }
+    .settings .panel-body::-webkit-scrollbar-track { background: rgba(0,0,0,0.1); border-radius: 4px; }
+    .settings .panel-body::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 4px; }
+    .settings .panel-body::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.3); }
+
     [data-section="timer"]{display:none !important}
     [data-hide="blocks"]{display:none !important}
 
@@ -285,6 +291,9 @@
 
     .modal{
       width:min(820px, 100%);
+      max-height: calc(100vh - 40px);
+      display: flex;
+      flex-direction: column;
       border-radius:20px;
       border:1px solid rgba(255,255,255,.14);
       background:linear-gradient(180deg, rgba(255,255,255,.10), rgba(255,255,255,.05));
@@ -298,9 +307,22 @@
       justify-content:space-between;
       gap:10px;
       border-bottom:1px solid rgba(255,255,255,.10);
+      flex-shrink: 0;
     }
     .modal-head .h{font-weight:950}
-    .modal-body{padding:14px}
+    .modal-body{
+      padding:14px;
+      overflow-y: auto;
+      flex: 1;
+      min-height: 0;
+    }
+    
+    /* Кастомный скроллбар для модального окна */
+    .modal-body::-webkit-scrollbar { width: 8px; }
+    .modal-body::-webkit-scrollbar-track { background: rgba(0,0,0,0.1); border-radius: 4px; }
+    .modal-body::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 4px; }
+    .modal-body::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.3); }
+
     .modal-foot{
       padding:12px 14px;
       border-top:1px solid rgba(255,255,255,.10);
@@ -308,6 +330,7 @@
       gap:10px;
       justify-content:flex-end;
       flex-wrap:wrap;
+      flex-shrink: 0;
     }
 
     .choiceBlock{
