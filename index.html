@@ -814,34 +814,136 @@
       box-shadow: 0 0 0 3px rgba(255,150,0,.18) !important;
     }
 
-    /* Версия */
-    #versionTag{
-      position:fixed; right:12px; bottom:12px; z-index:9999;
-      padding:6px 10px; border-radius:999px;
-      background:rgba(0,0,0,.45); border:1px solid rgba(255,255,255,.12);
-      color:#eaf0ff; font-weight:800; font-size:12px; letter-spacing:.2px;
-      box-shadow: 0 10px 26px rgba(0,0,0,.35);
-      backdrop-filter: blur(8px);
+    /* Медиа-элементы в модальном окне */
+    .mediaRow{
+      display:flex;
+      gap:10px;
+      margin-top:10px;
+      align-items:flex-start;
     }
-
-    /* Медиа в модалке вопроса */
-    .mediaRow{display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin-top:10px}
-    .iconBtn{display:inline-flex; align-items:center; gap:8px; padding:10px 12px;
-      border-radius:14px; border:1px solid var(--border); background:rgba(255,255,255,.06);
-      color:var(--text); cursor:pointer; font-weight:900}
-    .iconBtn:hover{background:rgba(255,255,255,.10)}
-    .iconBtn.danger{border-color:rgba(255,77,77,.35)}
-    .iconBtn.danger:hover{background:rgba(255,77,77,.10)}
-    .mediaHint{color:var(--muted); font-size:12px}
-    .mediaPreview{display:flex; align-items:center; gap:10px}
-    .thumb{width:54px; height:54px; object-fit:cover; border-radius:14px; border:1px solid var(--border); box-shadow: var(--shadow2)}
-    .badgeMini{padding:6px 10px; border-radius:999px; border:1px solid var(--border); background:rgba(255,255,255,.06); color:var(--text); font-weight:800; font-size:12px}
-
-  </style>
+    .mediaRow > div{
+      flex:1;
+      min-width:0;
+    }
+    .mediaBox{
+      border:1px dashed rgba(255,255,255,.22);
+      border-radius:14px;
+      padding:10px;
+      background:rgba(0,0,0,.18);
+      position:relative;
+      min-height:120px;
+      display:flex;
+      flex-direction:column;
+      gap:8px;
+    }
+    .mediaBox.hasMedia{
+      border-style:solid;
+      border-color:rgba(214,177,74,.30);
+      background:rgba(214,177,74,.08);
+    }
+    .mediaLabel{
+      font-size:12px;
+      font-weight:900;
+      color:rgba(255,255,255,.86);
+      display:flex;
+      align-items:center;
+      gap:6px;
+    }
+    .mediaPreview{
+      flex:1;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      position:relative;
+      min-height:80px;
+    }
+    .mediaPreview img{
+      max-width:100%;
+      max-height:150px;
+      border-radius:10px;
+      object-fit:contain;
+    }
+    .mediaPreview audio{
+      width:100%;
+    }
+    .mediaFileName{
+      font-size:11px;
+      color:var(--muted);
+      text-align:center;
+      overflow:hidden;
+      text-overflow:ellipsis;
+      white-space:nowrap;
+    }
+    .mediaBtn{
+      padding:8px 10px;
+      border-radius:10px;
+      border:1px solid rgba(255,255,255,.14);
+      background:rgba(255,255,255,.06);
+      color:var(--text);
+      cursor:pointer;
+      font-weight:900;
+      font-size:12px;
+      transition:all .15s ease;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      gap:6px;
+    }
+    .mediaBtn:hover{
+      background:rgba(255,255,255,.10);
+      border-color:rgba(255,255,255,.24);
+    }
+    .mediaBtn.danger{
+      border-color:rgba(255,77,77,.35);
+      background:rgba(255,77,77,.08);
+    }
+    .mediaBtn.danger:hover{
+      background:rgba(255,77,77,.15);
+    }
+    .mediaIndicators{
+      display:flex;
+      gap:4px;
+      font-size:14px;
+    }
+    /* Медиа в карточке вопроса */
+    .qMediaContainer{
+      margin-bottom:14px;
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+    }
+    .qImage{
+      max-width:100%;
+      max-height:200px;
+      border-radius:12px;
+      object-fit:contain;
+    }
+    .qAudioControl{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      padding:10px;
+      border-radius:12px;
+      background:rgba(0,0,0,.25);
+      border:1px solid rgba(255,255,255,.14);
+    }
+    .qAudioBtn{
+      padding:8px 12px;
+      border-radius:10px;
+      background:rgba(255,255,255,.10);
+      border:1px solid rgba(255,255,255,.20);
+      color:var(--text);
+      cursor:pointer;
+      font-size:16px;
+      transition:all .15s ease;
+    }
+    .qAudioBtn:hover{
+      background:rgba(255,255,255,.15);
+    }
+</style>
 </head>
 
 <body>
-  <div id="versionTag">версия 4</div>
   <div class="app" id="editorRoot">
     <div class="panel settings">
       <div class="panel-header">
@@ -965,25 +1067,33 @@
         <label>Вопрос</label>
         <textarea id="inpPrompt" placeholder="Введите вопрос..."></textarea>
 
-        <div class="mediaRow" id="qMediaRow">
-          <input id="fileQImage" type="file" accept="image/*" style="display:none" />
-          <input id="fileQAudio" type="file" accept="audio/*" style="display:none" />
-
-          <button type="button" class="iconBtn" id="btnPickQImage" title="Добавить изображение">🖼️ Картинка</button>
-          <button type="button" class="iconBtn danger" id="btnClearQImage" title="Сбросить изображение">✖</button>
-
-          <button type="button" class="iconBtn" id="btnPickQAudio" title="Добавить мелодию">🎵 Мелодия</button>
-          <button type="button" class="iconBtn danger" id="btnClearQAudio" title="Сбросить мелодию">✖</button>
-
-          <div class="mediaPreview" id="qMediaPreview" style="margin-left:auto">
-            <img id="qImgThumb" class="thumb" alt="preview" style="display:none" />
-            <span id="qAudioBadge" class="badgeMini" style="display:none"></span>
+        <!-- Медиа-элементы -->
+        <div class="mediaRow">
+          <div>
+            <div class="mediaBox" id="imageBox">
+              <div class="mediaLabel">🖼️ Изображение</div>
+              <div class="mediaPreview" id="imagePreview">
+                <div style="color:var(--muted);font-size:11px;text-align:center">Нажмите кнопку ниже</div>
+              </div>
+              <input type="file" id="fileImage" accept="image/*" style="display:none" />
+              <button class="mediaBtn" id="btnAddImage" type="button">📁 Выбрать</button>
+              <button class="mediaBtn danger" id="btnRemoveImage" type="button" style="display:none">❌ Удалить</button>
+            </div>
           </div>
-
-          <div class="mediaHint" style="flex-basis:100%">
-            Картинка и мелодия сохраняются вместе с вопросом. В игре мелодия проигрывается по кнопке ▶/⏸.
+          <div>
+            <div class="mediaBox" id="audioBox">
+              <div class="mediaLabel">🎵 Мелодия</div>
+              <div class="mediaPreview" id="audioPreview">
+                <div style="color:var(--muted);font-size:11px;text-align:center">Нажмите кнопку ниже</div>
+              </div>
+              <input type="file" id="fileAudio" accept="audio/mp3,audio/mpeg" style="display:none" />
+              <button class="mediaBtn" id="btnAddAudio" type="button">📁 Выбрать</button>
+              <button class="mediaBtn danger" id="btnRemoveAudio" type="button" style="display:none">❌ Удалить</button>
+            </div>
           </div>
         </div>
+
+
 
         <div class="choiceBlock" style="margin-top:10px">
           <div style="font-weight:900">Таймер для этого вопроса</div>
@@ -1065,8 +1175,8 @@
   const $ = (id)=>document.getElementById(id);
 
   const __GAME_CSS__ = "\n    :root{\n      --hud-bg: rgba(10, 12, 18, .55);\n      --panel-bg: rgba(20, 22, 30, .78);\n      --panel-stroke: rgba(255,255,255,.12);\n      --text: rgba(255,255,255,.92);\n      --muted: rgba(255,255,255,.72);\n      --good: rgba(120, 255, 170, .95);\n      --bad: rgba(255, 120, 140, .95);\n      --shadow: 0 18px 60px rgba(0,0,0,.35);\n    }\n    html,body{height:100%;margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;color:var(--text);overflow:hidden;background:#000;}\n    #wrap{position:relative;width:100%;height:100%;}\n    canvas{width:100%;height:100%;display:block;}\n\n    #hud{\n      position:absolute; left:12px; right:12px; top:12px;\n      display:flex; gap:12px; align-items:center;\n      pointer-events:none;\n      z-index: 3;\n    }\n    .pill{\n      background:var(--hud-bg);\n      border:1px solid rgba(255,255,255,.10);\n      border-radius:999px;\n      padding:10px 14px;\n      box-shadow:var(--shadow);\n      backdrop-filter: blur(10px);\n      display:flex; gap:10px; align-items:center;\n      white-space:nowrap;\n    }\n    #progressWrap{\n      flex:1;\n      background:var(--hud-bg);\n      border:1px solid rgba(255,255,255,.10);\n      border-radius:999px;\n      padding:10px 14px;\n      box-shadow:var(--shadow);\n      backdrop-filter: blur(10px);\n      display:flex; align-items:center; gap:10px;\n      min-width:160px;\n      pointer-events:none;\n    }\n    #bar{\n      height:10px; flex:1;\n      background:rgba(255,255,255,.12);\n      border-radius:999px;\n      overflow:hidden;\n      border:1px solid rgba(255,255,255,.10);\n    }\n    #bar>div{\n      height:100%; width:0%;\n      background: linear-gradient(90deg, rgba(120,190,255,.9), rgba(120,255,170,.85));\n      border-radius:999px;\n    }\n\n    #scorePill{ margin-left:auto; }\n    #scoreNum{ font-weight:900; letter-spacing:.2px; }\n    #leftPill{ gap:12px; }\n    #remainNum{ font-weight:900; }\n\n    #nextBtn{\n      position:absolute;\n      left:50%;\n      bottom:88px;\n      transform: translateX(160px);\n      pointer-events:auto;\n      border-radius:16px;\n      padding:12px 14px;\n      border:1px solid rgba(120,190,255,.35);\n      background: rgba(120,190,255,.22);\n      color: var(--text);\n      font-weight: 900;\n      cursor:pointer;\n      box-shadow: var(--shadow);\n      backdrop-filter: blur(10px);\n      transition: transform .08s ease, filter .12s ease, opacity .12s ease;\n      user-select:none;\n      z-index: 4;\n    }\n    #nextBtn:active{ transform: translateX(160px) scale(.99); }\n    #nextBtn[disabled]{ opacity:.45; cursor:not-allowed; filter:saturate(.7); }\n\n    #overlay{\n      position:absolute; inset:0;\n      display:none; align-items:center; justify-content:center;\n      background: rgba(0,0,0,.25);\n      backdrop-filter: blur(6px);\n      z-index: 5;\n    }\n    #card{\n      width:min(640px, calc(100% - 24px));\n      background:var(--panel-bg);\n      border:1px solid var(--panel-stroke);\n      border-radius:18px;\n      box-shadow:var(--shadow);\n      padding:18px 18px 14px;\n\n      transform: translateY(10px) scale(.96);\n      opacity: 0;\n      transition: transform .18s ease, opacity .18s ease;\n      will-change: transform, opacity;\n    }\n    #overlay.show #card{\n      transform: translateY(0) scale(1);\n      opacity: 1;\n    }\n\n    #cardHeader{\n      display:flex; align-items:flex-start; justify-content:space-between;\n      gap:12px; margin-bottom:12px;\n    }\n    #title{ font-size:16px; color:var(--muted); letter-spacing:.2px; }\n    #q{ font-size:20px; line-height:1.25; margin-top:6px; }\n    #badge{\n      border-radius:999px; padding:6px 10px;\n      border:1px solid rgba(255,255,255,.12);\n      color:var(--muted); font-size:12px; white-space:nowrap;\n    }\n    #answers{ display:flex; flex-direction:column; gap:10px; margin-top:14px; }\n    .btn{\n      width:100%; text-align:left;\n      background:rgba(255,255,255,.08);\n      border:1px solid rgba(255,255,255,.12);\n      border-radius:14px;\n      padding:12px 12px;\n      color:var(--text);\n      cursor:pointer;\n      transition: transform .08s ease, background .12s ease;\n    }\n    .btn:hover{ background:rgba(255,255,255,.11); }\n    .btn:active{ transform:scale(.99); }\n\n    #inputRow{ display:none; gap:10px; align-items:center; margin-top:12px; }\n    #ansInput{\n      flex:1;\n      background:rgba(255,255,255,.07);\n      border:1px solid rgba(255,255,255,.14);\n      border-radius:14px;\n      padding:12px 12px;\n      color:var(--text);\n      outline:none;\n      font-size:16px;\n    }\n    #submit{\n      background:rgba(120,190,255,.20);\n      border:1px solid rgba(120,190,255,.35);\n      border-radius:14px;\n      padding:12px 14px;\n      cursor:pointer;\n      color:var(--text);\n      font-weight:800;\n    }\n    #submit:hover{ background:rgba(120,190,255,.26); }\n\n    #msg{ margin-top:12px; min-height:18px; font-size:14px; color:var(--muted); }\n    #hint{ margin-top:10px; font-size:12px; color:rgba(255,255,255,.55); }\n\n    #start{\n      position:absolute; inset:0;\n      display:flex; align-items:center; justify-content:center;\n      background: radial-gradient(1200px 800px at 50% 45%, rgba(0,0,0,.15), rgba(0,0,0,.55));\n      backdrop-filter: blur(3px);\n      z-index: 6;\n    }\n    #startCard{\n      width:min(700px, calc(100% - 24px));\n      background: rgba(20, 22, 30, .75);\n      border: 1px solid rgba(255,255,255,.12);\n      border-radius: 18px;\n      box-shadow: var(--shadow);\n      padding: 18px;\n    }\n    #startCard h1{ margin:0 0 8px 0; font-size:24px; }\n    #startCard p{ margin:0 0 14px 0; color: var(--muted); line-height:1.35; }\n    #play{\n      display:inline-flex; gap:10px; align-items:center;\n      padding:12px 14px;\n      border-radius:14px;\n      border:1px solid rgba(120,190,255,.35);\n      background: rgba(120,190,255,.22);\n      color: var(--text);\n      font-weight:900;\n      cursor:pointer;\n    }\n    #play:hover{ background: rgba(120,190,255,.28); }\n\n    #err{\n      display:none;\n      margin-top:12px;\n      padding:12px;\n      border-radius:14px;\n      border:1px solid rgba(255,120,140,.35);\n      background: rgba(255,120,140,.12);\n      color: rgba(255,235,238,.95);\n      font-size:13px;\n      line-height:1.35;\n    }\n    #err ul{ margin:8px 0 0 18px; }\n    code{background:rgba(255,255,255,.08); padding:2px 6px; border-radius:8px; border:1px solid rgba(255,255,255,.12);}\n\n    #finish{\n      position:absolute; inset:0;\n      display:none; align-items:center; justify-content:center;\n      background: rgba(0,0,0,.35);\n      backdrop-filter: blur(8px);\n      z-index: 7;\n    }\n    #finishCard{\n      width:min(720px, calc(100% - 24px));\n      border-radius:20px;\n      border:1px solid rgba(255,255,255,.14);\n      background: rgba(18, 20, 28, .75);\n      box-shadow: var(--shadow);\n      padding: 18px 18px 16px;\n      text-align:center;\n    }\n    #finishTitle{\n      font-size:30px; font-weight:1000; letter-spacing:.3px;\n      margin: 4px 0 8px;\n      background: linear-gradient(90deg, rgba(120,190,255,.95), rgba(120,255,170,.95));\n      -webkit-background-clip:text;\n      background-clip:text;\n      color:transparent;\n    }\n    #finishText{\n      color: rgba(255,255,255,.82);\n      font-size:18px;\n      margin: 0 0 10px;\n    }\n    #stats{\n      display:flex;\n      justify-content:center;\n      gap:12px;\n      flex-wrap:wrap;\n      margin: 10px 0 14px;\n    }\n    .stat{\n      background: rgba(255,255,255,.07);\n      border: 1px solid rgba(255,255,255,.12);\n      border-radius: 14px;\n      padding: 10px 12px;\n      min-width: 160px;\n      text-align:left;\n    }\n    .stat b{ font-size:18px; }\n    .stat div{ color: rgba(255,255,255,.70); font-size:12px; margin-top:4px; }\n    #restart{\n      display:inline-flex; gap:10px; align-items:center;\n      padding:12px 14px;\n      border-radius:14px;\n      border:1px solid rgba(120,190,255,.35);\n      background: rgba(120,190,255,.22);\n      color: var(--text);\n      font-weight:900;\n      cursor:pointer;\n    }\n    #restart:hover{ background: rgba(120,190,255,.28); }\n  \n/* per-question timer badge */\n.qTimer{\n  padding:8px 10px;\n  border-radius:999px;\n  border:1px solid rgba(242,211,122,.35);\n  background: rgba(0,0,0,.35);\n  color: rgba(255,255,255,.95);\n  font-weight:900;\n  font-size:12px;\n  box-shadow: 0 10px 30px rgba(0,0,0,.35);\n  backdrop-filter: blur(10px);\n}\n";
-  const __GAME_HTML__ = "<div id=\"wrap\">\n  <canvas id=\"c\"></canvas>\n\n  <div id=\"hud\">\n    <div class=\"pill\" id=\"leftPill\">\n      Башня: <b id=\"heightTxt\">0</b>\n      <span style=\"opacity:.5\">|</span>\n      Осталось: <b id=\"remainNum\">9</b>\n    </div>\n\n    <div id=\"progressWrap\">\n      Прогресс\n      <div id=\"bar\"><div></div></div>\n      <span id=\"pct\">0%</span>\n    </div>\n\n    <div class=\"pill\" id=\"scorePill\">Счёт: <b id=\"scoreNum\">0</b></div>\n  </div>\n\n  <button id=\"nextBtn\" disabled>Далее →</button>\n\n  <div id=\"overlay\" role=\"dialog\" aria-modal=\"true\">\n    <div id=\"card\">\n      <div id=\"cardHeader\">\n        <div>\n          <div id=\"title\">Вопрос</div>\n          <div id=\"q\">...</div>\n          <div id=\"qMedia\" style=\"margin-top:10px\"></div>\n        </div>\n        <div style=\"display:flex;flex-direction:column;align-items:flex-end;gap:8px\">\n          <div id=\"badge\">1 / 9</div>\n          <div id=\"qTimerBadge\" class=\"qTimer\" style=\"display:none\">⏳ 10</div>\n        </div>\n      </div>\n\n      <div id=\"answers\"></div>\n\n      <div id=\"inputRow\">\n        <input id=\"ansInput\" type=\"text\" placeholder=\"Введите ответ...\" autocomplete=\"off\" />\n        <button id=\"submit\">ОК</button>\n      </div>\n\n      <div id=\"msg\"></div>\n      <div id=\"hint\">Верно → блок опускается и становится этажом (+100). Неверно → обугливание, взрыв и исчезает.</div>\n    </div>\n  </div>\n\n  <div id=\"start\">\n    <div id=\"startCard\">\n      <h1>Башня знаний</h1>\n      <p>\n        Первый блок падает сам. Дальше — нажимай <b>Далее</b>.\n        Когда блок остановится — ответь на вопрос.\n        <br/>Верно → блок опускается и становится этажом (+100).\n        <br/>Неверно → блок обугливается, взрывается и исчезает.\n      </p>\n      <button id=\"play\">▶ Начать</button>\n      <div id=\"err\">\n        <b>Не получилось загрузить файлы.</b> Убедись, что они лежат рядом с <code>index.html</code> и имена совпадают.\n        <ul id=\"errList\"></ul>\n      </div>\n    </div>\n  </div>\n\n  <div id=\"finish\">\n    <div id=\"finishCard\">\n      <div id=\"finishTitle\">Молодец!</div>\n      <div id=\"finishText\">Тобой заработано: <b id=\"finishScore\">0</b> баллов</div>\n\n      <div id=\"stats\">\n        <div class=\"stat\"><b id=\"stCorrect\">0</b><div>правильных ответов</div></div>\n        <div class=\"stat\"><b id=\"stWrong\">0</b><div>неправильных ответов</div></div>\n        <div class=\"stat\"><b id=\"stHeight\">0</b><div>блоков в башне</div></div>\n      </div>\n\n      <button id=\"restart\">↻ Сыграть ещё раз</button>\n    </div>\n  </div>\n</div>";
-  const __GAME_JS__ = "function thudSound(){try{const ctx=window.__audioCtx||(window.__audioCtx=new (window.AudioContext||window.webkitAudioContext)());const o=ctx.createOscillator();const g=ctx.createGain();o.type='sine';o.frequency.setValueAtTime(120,ctx.currentTime);o.frequency.exponentialRampToValueAtTime(55,ctx.currentTime+0.10);g.gain.setValueAtTime(0.0001,ctx.currentTime);g.gain.exponentialRampToValueAtTime(0.22,ctx.currentTime+0.015);g.gain.exponentialRampToValueAtTime(0.0001,ctx.currentTime+0.18);o.connect(g);g.connect(ctx.destination);o.start();o.stop(ctx.currentTime+0.20);}catch(e){}}\n\n/** ФАЙЛЫ */\nconst BG_FILE = \"1.png\";\nconst BLOCK_FILES = [\"3.png\",\"4.png\",\"5.png\",\"6.png\",\"7.png\",\"8.png\",\"9.png\",\"10.png\",\"11.png\"];\n\n/** ОЧКИ */\nconst SCORE_PER_BLOCK = 100;\n\n/* QUESTIONS injected from cfg */\nlet QUESTIONS = [];\n\n/** Динамика */\nconst FALL_SPEED = 620;\nconst DROP_SPEED = 900;\n\n/** Эффекты */\nconst SHAKE_ON_BOOM = 18;\nconst SHAKE_ON_LAND = 7;\n\n/** Прогресс */\nconst TARGET_BLOCKS_FOR_100 = 9;\n\n/** Влезание */\nconst SAFE_TOP_MARGIN = 86;\nconst SAFE_BOTTOM_MARGIN = 100;\nconst DESIRED_TOWER_WIDTH = () => Math.min(window.innerWidth * 0.38, 360);\n\n/** TRIM/PROFILE */\nconst TRIM_ALPHA_MIN = 34;\nconst PROFILE_ALPHA_MIN = 22;\nconst CENTROID_ALPHA_MIN = 24;\n\n/** Пружинящий bounce */\nconst LAND_BOUNCE_UP = 10; // px вверх\nconst LAND_BOUNCE_TIME = 0.10;  // сек\n\nconst canvas = document.getElementById(\"c\");\nconst ctx = canvas.getContext(\"2d\");\n\nconst overlay = document.getElementById(\"overlay\");\nconst qEl = document.getElementById(\"q\");\nconst badgeEl = document.getElementById(\"badge\");\nconst answersEl = document.getElementById(\"answers\");\nconst qMediaEl = document.getElementById(\"qMedia\");\n\nlet qAudio = null;\nlet qAudioBtn = null;\n\nconst inputRow = document.getElementById(\"inputRow\");\nconst ansInput = document.getElementById(\"ansInput\");\nconst submitBtn = document.getElementById(\"submit\");\nconst msgEl = document.getElementById(\"msg\");\n\nconst startLayer = document.getElementById(\"start\");\nconst playBtn = document.getElementById(\"play\");\n\nconst finishLayer = document.getElementById(\"finish\");\nconst finishScoreEl = document.getElementById(\"finishScore\");\nconst stCorrect = document.getElementById(\"stCorrect\");\nconst stWrong = document.getElementById(\"stWrong\");\nconst stHeight = document.getElementById(\"stHeight\");\nconst restartBtn = document.getElementById(\"restart\");\n\nconst errBox = document.getElementById(\"err\");\nconst errList = document.getElementById(\"errList\");\n\nconst heightTxt = document.getElementById(\"heightTxt\");\nconst remainNum = document.getElementById(\"remainNum\");\nconst pctTxt = document.getElementById(\"pct\");\nconst barFill = document.querySelector(\"#bar > div\");\n\nconst scoreNum = document.getElementById(\"scoreNum\");\nconst nextBtn = document.getElementById(\"nextBtn\");\n\nlet W=0,H=0,DPR=1;\nfunction resize(){\n  DPR = Math.max(1, Math.floor(window.devicePixelRatio || 1));\n  W = Math.floor(window.innerWidth);\n  H = Math.floor(window.innerHeight);\n  canvas.width = W * DPR;\n  canvas.height = H * DPR;\n  ctx.setTransform(DPR,0,0,DPR,0,0);\n}\nwindow.addEventListener(\"resize\", resize);\nresize();\n\n/** Audio */\nlet audioCtx=null;\nfunction ensureAudio(){ if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)(); }\nfunction playBoom(){\n  ensureAudio();\n  const t = audioCtx.currentTime;\n\n  const osc = audioCtx.createOscillator();\n  const gain = audioCtx.createGain();\n  osc.type=\"sawtooth\";\n  osc.frequency.setValueAtTime(120,t);\n  osc.frequency.exponentialRampToValueAtTime(38,t+0.22);\n  gain.gain.setValueAtTime(0.0001,t);\n  gain.gain.exponentialRampToValueAtTime(0.50,t+0.02);\n  gain.gain.exponentialRampToValueAtTime(0.0001,t+0.34);\n\n  const noiseBuf = audioCtx.createBuffer(1, audioCtx.sampleRate*0.30, audioCtx.sampleRate);\n  const data = noiseBuf.getChannelData(0);\n  for(let i=0;i<data.length;i++) data[i]=(Math.random()*2-1)*0.95;\n  const noise = audioCtx.createBufferSource(); noise.buffer=noiseBuf;\n  const nGain = audioCtx.createGain();\n  nGain.gain.setValueAtTime(0.0001,t);\n  nGain.gain.exponentialRampToValueAtTime(0.40,t+0.01);\n  nGain.gain.exponentialRampToValueAtTime(0.0001,t+0.30);\n\n  const filter = audioCtx.createBiquadFilter();\n  filter.type=\"lowpass\";\n  filter.frequency.setValueAtTime(1700,t);\n  filter.frequency.exponentialRampToValueAtTime(320,t+0.26);\n\n  osc.connect(gain).connect(audioCtx.destination);\n  noise.connect(filter).connect(nGain).connect(audioCtx.destination);\n\n  osc.start(t); osc.stop(t+0.36);\n  noise.start(t); noise.stop(t+0.32);\n}\nfunction playGood(){\n  ensureAudio();\n  const t = audioCtx.currentTime;\n  const osc = audioCtx.createOscillator();\n  const gain = audioCtx.createGain();\n  osc.type=\"triangle\";\n  osc.frequency.setValueAtTime(420,t);\n  osc.frequency.exponentialRampToValueAtTime(780,t+0.12);\n  gain.gain.setValueAtTime(0.0001,t);\n  gain.gain.exponentialRampToValueAtTime(0.20,t+0.02);\n  gain.gain.exponentialRampToValueAtTime(0.0001,t+0.18);\n  osc.connect(gain).connect(audioCtx.destination);\n  osc.start(t); osc.stop(t+0.2);\n}\n\n/** Assets */\nfunction assetUrl(file){ return new URL(file, new URL(\".\", window.location.href)).toString(); }\nfunction loadImage(url){\n  return new Promise((resolve, reject)=>{\n    const img=new Image();\n    img.onload=()=>resolve(img);\n    img.onerror=()=>reject(new Error(url));\n    img.src=url;\n  });\n}\n\n/** Профили */\nfunction buildTopBottomProfiles(imageData, w, h){\n  const d = imageData.data;\n  const top = new Array(w).fill(h);\n  const bottom = new Array(w).fill(-1);\n\n  for(let x=0;x<w;x++){\n    for(let y=0;y<h;y++){\n      const a = d[(y*w + x)*4 + 3];\n      if(a >= PROFILE_ALPHA_MIN){ top[x]=y; break; }\n    }\n    for(let y=h-1;y>=0;y--){\n      const a = d[(y*w + x)*4 + 3];\n      if(a >= PROFILE_ALPHA_MIN){ bottom[x]=y; break; }\n    }\n    if(bottom[x] < 0){ bottom[x] = h-1; }\n    if(top[x] >= h){ top[x] = 0; }\n  }\n  return { top, bottom };\n}\n\nfunction trimAndCentroidAndProfiles(img){\n  const c=document.createElement(\"canvas\");\n  c.width=img.width; c.height=img.height;\n  const g=c.getContext(\"2d\");\n  g.drawImage(img,0,0);\n\n  const im=g.getImageData(0,0,c.width,c.height);\n  const d=im.data;\n\n  let minX=c.width, minY=c.height, maxX=-1, maxY=-1;\n  let sumA=0, sumX=0, sumY=0;\n\n  for(let y=0;y<c.height;y++){\n    for(let x=0;x<c.width;x++){\n      const a = d[(y*c.width + x)*4 + 3];\n      if(a >= TRIM_ALPHA_MIN){\n        if(x<minX) minX=x;\n        if(y<minY) minY=y;\n        if(x>maxX) maxX=x;\n        if(y>maxY) maxY=y;\n      }\n      if(a >= CENTROID_ALPHA_MIN){\n        const wgt=a;\n        sumA += wgt;\n        sumX += x*wgt;\n        sumY += y*wgt;\n      }\n    }\n  }\n\n  if(maxX<0 || maxY<0){\n    return Promise.resolve({ img, w: img.width, h: img.height, cx: img.width/2, cy: img.height/2, top:null, bottom:null });\n  }\n\n  const w = (maxX-minX+1);\n  const h = (maxY-minY+1);\n\n  const outC=document.createElement(\"canvas\");\n  outC.width=w; outC.height=h;\n  const og=outC.getContext(\"2d\");\n  og.drawImage(c, minX, minY, w, h, 0, 0, w, h);\n\n  const cropped = og.getImageData(0,0,w,h);\n  const { top, bottom } = buildTopBottomProfiles(cropped, w, h);\n\n  let cx=w/2, cy=h/2;\n  if(sumA>0){\n    cx = (sumX/sumA) - minX;\n    cy = (sumY/sumA) - minY;\n  }\n\n  const out=new Image();\n  out.src=outC.toDataURL(\"image/png\");\n  return new Promise((res,rej)=>{\n    out.onload=()=>res({ img: out, w, h, cx, cy, top, bottom });\n    out.onerror=rej;\n  });\n}\n\n/** State */\nconst state = {\n  running:false,\n  bg:null,\n  blocks:[],\n  towerScale:1,\n  tower:[],\n  current:null,\n  particles:[], smokes:[], rings:[], sparks:[], flash:0,\n  cameraShake:0, cameraX:0, cameraY:0,\n  towerOffsetY:0, towerOffsetV:0,\n  questionIndex:0, waitingAnswer:false, dropping:false,\n  blockIndex:0, readyForNext:false, finished:false,\n  score:0, scoreFloats:[], correct:0, wrong:0,\n  landingBounce: null,\n};\n\n/** HUD helpers */\nfunction setNextEnabled(on){\n  state.readyForNext = on;\n  nextBtn.disabled = !on;\n}\nfunction updateRemain(){\n  const remain = Math.max(0, 9 - state.questionIndex);\n  remainNum.textContent = String(remain);\n}\n\nfunction groundY(){\n  return H - 70 + state.towerOffsetY;\n}\nfunction alignedXForIdx(idx){\n  const b = state.blocks[idx];\n  const cxScaled = b.cx * state.towerScale;\n  return (W/2) - cxScaled;\n}\nfunction blockSize(idx){\n  const b = state.blocks[idx];\n  return { w: b.w*state.towerScale, h: b.h*state.towerScale };\n}\nfunction computeTowerScale(blocks){\n  const maxW = Math.max(...blocks.map(b => b.w));\n  const totalH = blocks.reduce((s,b)=>s+b.h,0);\n  const scaleByWidth = DESIRED_TOWER_WIDTH() / maxW;\n  const availableH = Math.max(220, H - SAFE_TOP_MARGIN - SAFE_BOTTOM_MARGIN);\n  const scaleByHeight = availableH / totalH;\n  return Math.min(scaleByWidth, scaleByHeight);\n}\n\nfunction computeStackY(upper, lower){\n  const su = state.towerScale;\n  const upperMeta = state.blocks[upper.idx];\n  const lowerMeta = state.blocks[lower.idx];\n\n  const overlapLeft = Math.max(upper.x, lower.x);\n  const overlapRight = Math.min(upper.x + upper.w, lower.x + lower.w);\n\n  if(overlapRight <= overlapLeft + 2){\n    return Math.round(lower.y - upper.h);\n  }\n\n  let yMaxAllowed = Infinity;\n  const step = 2;\n\n  for(let wx = overlapLeft; wx <= overlapRight; wx += step){\n    const xu = Math.floor((wx - upper.x) / su);\n    const xl = Math.floor((wx - lower.x) / su);\n    if(xu < 0 || xu >= upperMeta.w) continue;\n    if(xl < 0 || xl >= lowerMeta.w) continue;\n\n    const bu = upperMeta.bottom[xu];\n    const tl = lowerMeta.top[xl];\n\n    const allowed = lower.y + tl*su - bu*su;\n    if(allowed < yMaxAllowed) yMaxAllowed = allowed;\n  }\n  return Math.round(yMaxAllowed) - 1;\n}\n\nfunction spawnBlock(){\n  if(state.finished) return;\n  if(state.blockIndex >= 9){ finishGame(); return; }\n\n  const idx = state.blockIndex;\n  const {w,h} = blockSize(idx);\n\n  state.current = { idx, w,h, x: alignedXForIdx(idx), y: -h - 30, char:0 };\n  state.dropping=false;\n  state.waitingAnswer=false;\n  state.landingBounce=null;\n  setNextEnabled(false);\n}\n\nfunction addScorePop(x,y, text){\n  state.scoreFloats.push({ x, y, vx: (Math.random()*2-1)*30, vy: -160 - Math.random()*60, life: 0.85, age: 0, text });\n}\n\nfunction sparksAtSeam(x, y){\n  for(let i=0;i<18;i++){\n    const a = (-Math.PI/2) + (Math.random()*Math.PI*0.9 - Math.PI*0.45);\n    const sp = 220 + Math.random()*360;\n    state.sparks.push({\n      x: x + (Math.random()*40 - 20),\n      y: y + (Math.random()*6 - 3),\n      vx: Math.cos(a)*sp,\n      vy: Math.sin(a)*sp - (40+Math.random()*60),\n      life: 0.45 + Math.random()*0.2,\n      age: 0\n    });\n  }\n}\n\nfunction dustAt(x,y){\n  for(let i=0;i<10;i++){\n    const a=Math.random()*Math.PI*2;\n    const sp=30+Math.random()*110;\n    state.smokes.push({\n      x:x + (Math.random()*18-9),\n      y:y + (Math.random()*10-5),\n      vx:Math.cos(a)*sp,\n      vy:Math.sin(a)*sp - (30+Math.random()*40),\n      life:0.55+Math.random()*0.35,\n      age:0,\n      rad: 10+Math.random()*14\n    });\n  }\n}\n\nfunction settleCurrentBlock(){\n  const b = state.current;\n  let yFinal;\n  if(state.tower.length===0){\n    yFinal = Math.round(groundY() - b.h);\n  } else {\n    const lower = state.tower[state.tower.length - 1];\n    yFinal = computeStackY(b, lower);\n  }\n\n  const yUp = Math.max(-200, yFinal - LAND_BOUNCE_UP);\n  state.landingBounce = { fromY: yUp, toY: yFinal, age: 0, dur: LAND_BOUNCE_TIME };\n  b.x = Math.round(b.x);\n  b.y = yUp;\n}\n\nfunction finalizeLand(){\n  try{ thudSound(); }catch(e){}\n  const b = state.current;\n  if(!b) return;\n\n  const seamY = b.y + b.h;\n  sparksAtSeam(W/2, seamY);\n\n  state.tower.push({\n    x: Math.round(b.x), y: Math.round(b.y),\n    w: b.w, h: b.h, idx: b.idx,\n    squash:1.0, squashV:0.0\n  });\n\n  state.score += SCORE_PER_BLOCK;\n  scoreNum.textContent = String(state.score);\n  addScorePop(W/2 + 70, b.y + 30, `+${SCORE_PER_BLOCK}`);\n\n  dustAt(W/2, seamY);\n  state.cameraShake = Math.max(state.cameraShake, SHAKE_ON_LAND);\n  state.towerOffsetV -= 120;\n  state.current = null;\n}\n\nfunction boomAt(block){\n  const cx = block.x + block.w/2;\n  const cy = block.y + block.h/2;\n\n  state.flash = Math.min(1, state.flash + 0.95);\n  state.rings.push({ x:cx, y:cy, r:10, vr: 900, life:0.45, age:0 });\n\n  for(let i=0;i<44;i++){\n    const a=Math.random()*Math.PI*2;\n    const sp=160+Math.random()*720;\n    state.particles.push({\n      x:cx,y:cy, vx:Math.cos(a)*sp, vy:Math.sin(a)*sp-(260+Math.random()*360),\n      life:0.55+Math.random()*0.35, age:0, r:2+Math.random()*4\n    });\n  }\n\n  for(let i=0;i<14;i++){\n    const a=Math.random()*Math.PI*2;\n    const sp=50+Math.random()*210;\n    state.smokes.push({\n      x:cx,y:cy, vx:Math.cos(a)*sp, vy:Math.sin(a)*sp-(90+Math.random()*120),\n      life:1.1+Math.random()*0.8, age:0, rad: 22+Math.random()*26\n    });\n  }\n\n  state.cameraShake = Math.max(state.cameraShake, SHAKE_ON_BOOM);\n  playBoom();\n}\n\nfunction finishGame(){\n  state.finished = true;\n  setNextEnabled(false);\n  finishScoreEl.textContent = String(state.score);\n  stCorrect.textContent = String(state.correct);\n  stWrong.textContent = String(state.wrong);\n  stHeight.textContent = String(state.tower.length);\n  finishLayer.style.display=\"flex\";\n}\n\nrestartBtn.addEventListener(\"click\", async ()=>{\n  finishLayer.style.display=\"none\";\n  startLayer.style.display=\"flex\";\n});\n\nfunction showOverlayAnimated(){\n  overlay.style.display=\"flex\";\n  requestAnimationFrame(()=> overlay.classList.add(\"show\"));\n}\nfunction hideOverlayAnimated(){\n  overlay.classList.remove(\"show\");\n  setTimeout(()=>{ overlay.style.display=\"none\"; }, 140);\n}\n\nfunction update(dt){\n  if(!state.running) return;\n  updateRemain();\n\n  if(state.cameraShake>0){\n    state.cameraShake=Math.max(0, state.cameraShake - dt*22);\n    const s=state.cameraShake;\n    state.cameraX=(Math.random()*2-1)*s; state.cameraY=(Math.random()*2-1)*s;\n  } else {\n    state.cameraX=0; state.cameraY=0;\n  }\n  state.flash = Math.max(0, state.flash - dt*3.8);\n\n  {\n    const k=55, damp=10;\n    const a = -k*(state.towerOffsetY) - damp*state.towerOffsetV;\n    state.towerOffsetV += a*dt;\n    state.towerOffsetY += state.towerOffsetV*dt;\n    state.towerOffsetY = Math.max(-10, Math.min(10, state.towerOffsetY));\n  }\n\n  for(const b of state.tower){\n    const k=40, damp=8;\n    const a=-k*(b.squash-1)-damp*b.squashV;\n    b.squashV += a*dt; b.squash  += b.squashV*dt;\n    b.squash = Math.max(0.88, Math.min(1.08, b.squash));\n  }\n\n  for(const p of state.particles){ p.age += dt; p.vy += 980*dt; p.x += p.vx*dt; p.y += p.vy*dt; }\n  state.particles = state.particles.filter(p => p.age < p.life);\n\n  for(const s of state.smokes){ s.age += dt; s.vy += 120*dt; s.x += s.vx*dt; s.y += s.vy*dt; }\n  state.smokes = state.smokes.filter(s => s.age < s.life);\n\n  for(const r of state.rings){ r.age += dt; r.r += r.vr*dt; }\n  state.rings = state.rings.filter(r => r.age < r.life);\n\n  for(const sp of state.sparks){ sp.age += dt; sp.vy += 980*dt; sp.x += sp.vx*dt; sp.y += sp.vy*dt; sp.vx *= (1 - dt*1.8); }\n  state.sparks = state.sparks.filter(s => s.age < s.life);\n\n  for(const f of state.scoreFloats){ f.age += dt; f.vy += 260*dt; f.x += f.vx*dt; f.y += f.vy*dt; }\n  state.scoreFloats = state.scoreFloats.filter(f => f.age < f.life);\n\n  if(state.landingBounce && state.current){\n    const bb = state.landingBounce;\n    bb.age += dt;\n    const t = Math.min(1, bb.age / bb.dur);\n    const ease = 1 - Math.pow(1 - t, 3);\n    state.current.y = Math.round(bb.fromY + (bb.toY - bb.fromY)*ease);\n\n    if(state.tower.length>0){\n      const last = state.tower[state.tower.length-1];\n      last.squashV += 14 * dt;\n    }\n\n    if(t >= 1){\n      state.landingBounce = null;\n      finalizeLand();\n      setNextEnabled(true);\n    }\n  }\n\n  if(state.current && !state.landingBounce){\n    const b = state.current;\n    if(state.waitingAnswer){\n    } else if(state.dropping){\n      let yTarget;\n      if(state.tower.length===0){ yTarget = groundY() - b.h; }\n      else { const lower = state.tower[state.tower.length - 1]; yTarget = computeStackY(b, lower); }\n\n      b.y += DROP_SPEED*dt;\n      if(b.y >= yTarget){\n        b.y = yTarget;\n        settleCurrentBlock();\n      }\n    } else {\n      const topY = (state.tower.length===0 ? groundY() : state.tower[state.tower.length-1].y);\n      const stopY = Math.max(80, topY - b.h - 18);\n      b.y += FALL_SPEED*dt;\n      if(b.y>=stopY){\n        b.y=stopY;\n        state.waitingAnswer=true;\n        showQuestion();\n      }\n    }\n  }\n\n  heightTxt.textContent = String(state.tower.length);\n  const pct = Math.max(0, Math.min(100, Math.round((state.tower.length / TARGET_BLOCKS_FOR_100)*100)));\n  pctTxt.textContent = pct + \"%\";\n  barFill.style.width = pct + \"%\";\n}\n\nfunction drawBackground(){\n  if(state.bg){\n    const img=state.bg;\n    const scale=Math.max(W/img.width,H/img.height);\n    const dw=img.width*scale, dh=img.height*scale;\n    ctx.drawImage(img,(W-dw)/2,(H-dh)/2,dw,dh);\n  } else {\n    ctx.fillStyle=\"#0b0f18\"; ctx.fillRect(0,0,W,H);\n  }\n  const grd=ctx.createRadialGradient(W*0.5,H*0.45,60, W*0.5,H*0.5, Math.max(W,H)*0.7);\n  grd.addColorStop(0,\"rgba(0,0,0,0)\");\n  grd.addColorStop(1,\"rgba(0,0,0,0.45)\");\n  ctx.fillStyle=grd; ctx.fillRect(0,0,W,H);\n\n  ctx.fillStyle=\"rgba(0,0,0,.35)\";\n  ctx.fillRect(0,H-70,W,70);\n}\n\nfunction drawBlock(o, glow=false, squash=1.0, char=0){\n  const img = state.blocks[o.idx].img;\n  ctx.save();\n  ctx.shadowColor = glow ? \"rgba(120,190,255,.35)\" : \"rgba(0,0,0,.45)\";\n  ctx.shadowBlur  = glow ? 18 : 14;\n\n  const cx = o.x + o.w/2;\n  const cy = o.y + o.h;\n  const sx = 1 + (1 - squash) * 0.35;\n  const sy = squash;\n\n  ctx.translate(cx, cy);\n  ctx.scale(sx, sy);\n  ctx.translate(-cx, -cy);\n\n  ctx.drawImage(img, o.x, o.y, o.w, o.h);\n\n  if(char > 0){\n    ctx.globalCompositeOperation = \"source-atop\";\n    ctx.fillStyle = `rgba(0,0,0,${0.70*char})`;\n    ctx.fillRect(o.x-2, o.y-2, o.w+4, o.h+4);\n    ctx.globalCompositeOperation = \"screen\";\n    ctx.fillStyle = `rgba(255,120,60,${0.10*char})`;\n    ctx.fillRect(o.x-2, o.y-2, o.w+4, o.h+4);\n    ctx.globalCompositeOperation = \"source-over\";\n  }\n  ctx.restore();\n}\n\nfunction drawScorePops(){\n  for(const f of state.scoreFloats){\n    const t = f.age / f.life;\n    const a = Math.max(0, 1 - t);\n    const s = 1 + (1 - a) * 0.15;\n    ctx.save();\n    ctx.globalAlpha = a;\n    ctx.translate(f.x, f.y);\n    ctx.scale(s, s);\n    ctx.font = \"900 22px system-ui, -apple-system, Segoe UI, Roboto, Arial\";\n    ctx.lineWidth = 5;\n    ctx.strokeStyle = \"rgba(0,0,0,.35)\";\n    ctx.strokeText(f.text, 0, 0);\n    ctx.fillStyle = \"rgba(120,255,170,.95)\";\n    ctx.fillText(f.text, 0, 0);\n    ctx.restore();\n  }\n}\n\nfunction draw(){\n  ctx.clearRect(0,0,W,H);\n  ctx.save();\n  ctx.translate(state.cameraX, state.cameraY);\n  drawBackground();\n\n  for(const b of state.tower){ drawBlock(b, false, b.squash, 0); }\n  if(state.current){ drawBlock(state.current, true, 1.0, state.current.char || 0); }\n\n  for(const s of state.smokes){\n    const t = s.age / s.life; const a = (1 - t) * 0.35;\n    const r = s.rad * (1 + t*1.25);\n    ctx.fillStyle = `rgba(20,20,20,${a})`; ctx.beginPath(); ctx.arc(s.x, s.y, r, 0, Math.PI*2); ctx.fill();\n  }\n  for(const r of state.rings){\n    const t = r.age / r.life; const a = (1 - t) * 0.55;\n    ctx.strokeStyle = `rgba(255,255,255,${a})`; ctx.lineWidth = 3; ctx.beginPath(); ctx.arc(r.x, r.y, r.r, 0, Math.PI*2); ctx.stroke();\n  }\n  for(const sp of state.sparks){\n    const t = sp.age / sp.life; const a = Math.max(0, 1 - t);\n    ctx.strokeStyle = `rgba(255, 220, 140, ${0.9*a})`; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(sp.x, sp.y); ctx.lineTo(sp.x - sp.vx*0.012, sp.y - sp.vy*0.012); ctx.stroke();\n  }\n  for(const p of state.particles){\n    const a = 1 - (p.age/p.life);\n    ctx.fillStyle = `rgba(255, 200, 120, ${0.78*a})`; ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI*2); ctx.fill();\n  }\n  drawScorePops();\n\n  if(state.flash>0){\n    ctx.fillStyle = `rgba(255,255,255,${state.flash*0.22})`; ctx.fillRect(0,0,W,H);\n  }\n  ctx.restore();\n  requestAnimationFrame(draw);\n}\n\nlet lastT=0;\nfunction loop(t){\n  if(!lastT) lastT=t;\n  const dt=Math.min(0.033,(t-lastT)/1000);\n  lastT=t;\n  update(dt);\n  requestAnimationFrame(loop);\n}\n\nfunction normalizeAnswer(s){ return String(s??\"\").trim().toLowerCase(); }\n\nfunction setAudioBtnState(btn, isPlaying){ if(!btn) return; btn.textContent = isPlaying ? \"⏸ Пауза\" : \"▶ Мелодия\"; }\n\nfunction showQuestion(){\n  const qi = state.questionIndex;\n  const q = QUESTIONS[(QUESTIONS.length? (qi % QUESTIONS.length):0)];\n\n  msgEl.textContent=\"\";\n  answersEl.innerHTML=\"\";\n  inputRow.style.display=\"none\";\n  answersEl.style.display=\"flex\";\n\n  qEl.textContent=q.q;\n  badgeEl.textContent=`${qi+1} / 9`;\n\n  // медиа для вопроса\n  if(qMediaEl) qMediaEl.innerHTML=\"\";\n  if(qAudio){\n    try{ qAudio.pause(); }catch(e){}\n    qAudio = null;\n    qAudioBtn = null;\n  }\n  const mm = q && q.media ? q.media : null;\n  if(qMediaEl && mm){\n    if(mm.imageDataUrl){\n      const img=document.createElement(\"img\");\n      img.src=mm.imageDataUrl;\n      img.style.maxWidth=\"100%\";\n      img.style.borderRadius=\"12px\";\n      img.style.boxShadow=\"0 10px 30px rgba(0,0,0,.35)\";\n      qMediaEl.appendChild(img);\n    }\n    if(mm.audioDataUrl){\n      const row=document.createElement(\"div\");\n      row.style.display=\"flex\";\n      row.style.gap=\"10px\";\n      row.style.alignItems=\"center\";\n      row.style.marginTop=\"10px\";\n      const btn=document.createElement(\"button\");\n      btn.className=\"btn\";\n      setAudioBtnState(btn,false);\n      qAudioBtn = btn;\n      qAudio = new Audio(mm.audioDataUrl);\n      qAudio.preload=\"auto\";\n      btn.addEventListener(\"click\", async ()=>{\n        try{\n          if(!qAudio) return;\n          if(qAudio.paused){\n            await qAudio.play();\n            setAudioBtnState(btn,true);\n          } else {\n            qAudio.pause();\n            setAudioBtnState(btn,false);\n          }\n        }catch(e){ /* ignore */ }\n      });\n      qAudio.addEventListener(\"ended\", ()=> setAudioBtnState(btn,false));\n      row.appendChild(btn);\n      if(mm.audioName){\n        const lab=document.createElement(\"div\");\n        lab.textContent = mm.audioName;\n        lab.style.opacity=\".85\";\n        lab.style.fontSize=\"13px\";\n        row.appendChild(lab);\n      }\n      qMediaEl.appendChild(row);\n    }\n  }\n\n  if(q.type===\"choice\"){\n    for(const opt of q.options){\n      const btn=document.createElement(\"button\");\n      btn.className=\"btn\";\n      btn.textContent=opt;\n      btn.addEventListener(\"click\", ()=>checkAnswer(opt));\n      answersEl.appendChild(btn);\n    }\n  } else {\n    answersEl.style.display=\"none\";\n    inputRow.style.display=\"flex\";\n    ansInput.value=\"\";\n  }\n\n  showOverlayAnimated();\n  setTimeout(()=>{ if(q.type===\"input\") ansInput.focus(); }, 50);\n\n  try{\n    if(window.__qTimerId){ clearInterval(window.__qTimerId); window.__qTimerId=null; }\n    const secs = (q.seconds!=null) ? Number(q.seconds) : ( (GAME && GAME.timer && GAME.timer.enabled) ? Number(GAME.timer.seconds||0) : null );\n    const timerEl = document.getElementById(\"qTimerBadge\") || document.querySelector(\".timer\") || document.querySelector(\"[data-role='pillTimer']\");\n    const txtEl = timerEl ? (timerEl.querySelector(\".qTimerText\") || timerEl.querySelector(\"[data-role='timerText']\")) : null;\n    const progEl = timerEl ? (timerEl.querySelector(\".qTimerProg\") || timerEl.querySelector(\"circle.qTimerProg\")) : null;\n    const R = 16;\n    const C = 2 * Math.PI * R;\n    if(progEl){\n      progEl.style.strokeDasharray = String(C);\n      progEl.style.strokeDashoffset = String(C);\n    }\n    if(Number.isFinite(secs) && secs>0){\n      const total = Math.max(1, Math.round(secs));\n      let left = total;\n\n      const paint = ()=>{\n        const p = Math.max(0, Math.min(1, left / total));\n        const hue = 45 * p;\n        if(timerEl){\n          timerEl.style.display = \"\";\n          timerEl.style.setProperty(\"--p\", String(p));\n          timerEl.style.setProperty(\"--h\", String(hue));\n          if(left <= 5) timerEl.classList.add(\"qPulse\"); else timerEl.classList.remove(\"qPulse\");\n        }\n        if(txtEl){ txtEl.textContent = String(left); }\n        else if(timerEl){ timerEl.textContent = \"⏳ \" + String(left); }\n        if(progEl){ progEl.style.strokeDashoffset = String(C * (1 - p)); }\n      };\n\n      paint();\n      window.__qTimerId = setInterval(()=>{\n        left--;\n        paint();\n        if(left<=0){\n          clearInterval(window.__qTimerId); window.__qTimerId=null;\n          try{ if(typeof checkAnswer === \"function\"){ checkAnswer(\"__TIMEOUT__\"); } }catch(e){}\n        }\n      },1000);\n    } else {\n      if(timerEl){\n        timerEl.style.display=\"none\";\n        timerEl.classList.remove(\"qPulse\");\n        if(txtEl) txtEl.textContent=\"\"; else timerEl.textContent=\"\";\n        if(progEl) progEl.style.strokeDashoffset = String(C);\n      }\n    }\n  }catch(e){}\n\n  if (window.__CFG?.useLatex && window.MathJax && window.MathJax.typesetPromise) {\n    setTimeout(() => {\n      window.MathJax.typesetPromise([document.getElementById(\"card\")]).catch(()=>{});\n    }, 60);\n  }\n}\n\nfunction __applyTitle__(title){\n  const t = String(title || \"Башня знаний\");\n  document.title = t;\n  const h1 = document.querySelector(\"#startCard h1\");\n  if(h1) h1.textContent = t;\n}\n\nfunction __buildQuestionsFromCfg__(cfg){\n  const src = Array.isArray(cfg?.questions) ? cfg.questions : [];\n  if(src.length === 0){\n    return Array.from({length:9}, (_,i)=>({\n      type:\"choice\",\n      q:`(вопрос ${i+1})`,\n      options:[\"OK\",\"...\"],\n      answer:\"OK\"\n    }));\n  }\n  return src.map((q,i)=>{\n    if(q && (q.type===\"text\" || q.type===\"input\")){\n      const acc = Array.isArray(q.accepts) ? q.accepts.map(String).filter(s=>s.trim()) : [];\n      const mmRaw = (q && q.media && typeof q.media==="object") ? q.media : {};\n      const media = { imageDataUrl:String(mmRaw.imageDataUrl||""), audioDataUrl:String(mmRaw.audioDataUrl||""), imageName:String(mmRaw.imageName||""), audioName:String(mmRaw.audioName||"") };\n      return { type:"input", q:String(q.prompt||q.q||""), accepts: acc, answer: String(acc[0]||""), seconds:(q.seconds??null), media };\n    }\n    const opts = Array.isArray(q.options) ? q.options.map(String).filter(s=>s.trim()) : [];\n    const ci = Number.isFinite(q.correctIndex) ? q.correctIndex : 0;\n    const ans = (opts[ci] ?? opts[0] ?? \"OK\");\n    const mmRaw2 = (q && q.media && typeof q.media==="object") ? q.media : {};\n    const media = { imageDataUrl:String(mmRaw2.imageDataUrl||""), audioDataUrl:String(mmRaw2.audioDataUrl||""), imageName:String(mmRaw2.imageName||""), audioName:String(mmRaw2.audioName||"") };\n    return { type:"choice", q:String(q.prompt||q.q||""), options: opts.length?opts:["OK","..."], answer: String(ans), seconds:(q.seconds??null), media };\n  });\n}\n\nfunction checkAnswer(userValue){\n  try{ if(window.__qTimerId){ clearInterval(window.__qTimerId); window.__qTimerId=null; } }catch(e){}\n\n  const qi = state.questionIndex;\n  const q = QUESTIONS[(QUESTIONS.length? (qi % QUESTIONS.length):0)];\n  let ok=false;\n  if(q.type===\"input\"){\n    const acc = (q.accepts && q.accepts.length) ? q.accepts : [q.answer];\n    ok = acc.map(normalizeAnswer).includes(normalizeAnswer(userValue));\n  } else {\n    ok = normalizeAnswer(userValue) === normalizeAnswer(q.answer);\n  }\n  const waitingBlock = state.current;\n\n  if(ok){\n    state.correct++;\n    msgEl.innerHTML = `<span style=\"color: var(--good); font-weight:900;\">Верно!</span> Блок опускается (+100).`;\n    playGood();\n    state.dropping = false;\n    setTimeout(()=>{\n      hideOverlayAnimated();\n      state.waitingAnswer = false;\n      if(state.current) state.dropping = true;\n      else setNextEnabled(true);\n    }, 220);\n  } else {\n    state.wrong++;\n    msgEl.innerHTML = `<span style=\"color: var(--bad); font-weight:900;\">Неверно!</span> Блок обугливается и исчезает.`;\n    state.dropping = false;\n\n    const scorchDur = 0.35;\n    let elapsed = 0;\n    function scorchStep(){\n      if(!state.current || state.current !== waitingBlock) return;\n      elapsed += 1/60;\n      state.current.char = Math.min(1, elapsed / scorchDur);\n      if(Math.random() < 0.25){\n        state.smokes.push({\n          x: waitingBlock.x + waitingBlock.w/2 + (Math.random()*30-15),\n          y: waitingBlock.y + waitingBlock.h/2 + (Math.random()*20-10),\n          vx: (Math.random()*2-1)*40,\n          vy: -80 - Math.random()*80,\n          life:0.6+Math.random()*0.4,\n          age:0,\n          rad: 14+Math.random()*18\n        });\n      }\n      if(elapsed < scorchDur){\n        requestAnimationFrame(scorchStep);\n      }\n    }\n    requestAnimationFrame(scorchStep);\n\n    setTimeout(()=>{\n      hideOverlayAnimated();\n      state.waitingAnswer = false;\n      if(waitingBlock && waitingBlock === state.current){\n        boomAt(waitingBlock);\n      }\n      state.current = null;\n      setNextEnabled(true);\n    }, 520);\n  }\n  state.blockIndex++;\n}\n\nsubmitBtn.addEventListener(\"click\", ()=>checkAnswer(ansInput.value));\nansInput.addEventListener(\"keydown\",(e)=>{ if(e.key===\"Enter\") checkAnswer(ansInput.value); });\ndocument.addEventListener(\"keydown\",(e)=>{\n  if(overlay.style.display===\"flex\" && e.key===\"Enter\"){\n    const qi=state.questionIndex;\n    if(QUESTIONS[qi].type===\"input\") checkAnswer(ansInput.value);\n  }\n});\n\nnextBtn.addEventListener(\"click\", ()=>{\n  if(nextBtn.disabled) return;\n  state.questionIndex++;\n  if(state.questionIndex >= 9){\n    finishGame();\n    return;\n  }\n  spawnBlock();\n});\n\nasync function startGame(){\n  if (window.__CFG?.useLatex && !window.MathJax) {\n    window.MathJax = {\n      tex: { inlineMath: [['$', '$']], displayMath: [['$$', '$$']] },\n      startup: { typeset: false }\n    };\n    const script = document.createElement('script');\n    script.src = \"https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js\";\n    document.head.appendChild(script);\n  }\n\n  try{\n    if(typeof __applyTitle__ === \"function\") __applyTitle__(window.__CFG?.title || \"Башня знаний\");\n    if(typeof __buildQuestionsFromCfg__ === \"function\") QUESTIONS = __buildQuestionsFromCfg__(window.__CFG || {});\n    if(!Array.isArray(QUESTIONS) || QUESTIONS.length===0){\n      QUESTIONS = Array.from({length:9}, (_,i)=>({type:\"choice\", q:`(вопрос ${i+1})`, options:[\"OK\",\"...\"], answer:\"OK\"}));\n    }\n  }catch(e){}\n\n  errBox.style.display=\"none\";\n  errList.innerHTML=\"\";\n\n  ensureAudio();\n  if(audioCtx.state===\"suspended\"){ try{ await audioCtx.resume(); }catch{} }\n\n  Object.assign(state, {\n    running:false, bg:null, blocks:[], towerScale:1,\n    tower:[], current:null,\n    particles:[], smokes:[], rings:[], sparks:[], flash:0,\n    cameraShake:0, cameraX:0, cameraY:0,\n    towerOffsetY:0, towerOffsetV:0,\n    questionIndex:0, waitingAnswer:false, dropping:false,\n    blockIndex:0, readyForNext:false,\n    finished:false, score:0, scoreFloats:[], correct:0, wrong:0, landingBounce:null,\n  });\n  scoreNum.textContent = \"0\";\n  setNextEnabled(false);\n  updateRemain();\n\n  const missing=[];\n\n  try{ state.bg = await loadImage(assetUrl(BG_FILE)); }\n  catch{ missing.push(BG_FILE); }\n\n  const blocks=[];\n  for(const f of BLOCK_FILES){\n    try{\n      const raw = await loadImage(assetUrl(f));\n      const t = await trimAndCentroidAndProfiles(raw);\n      blocks.push({ file:f, img:t.img, w:t.w, h:t.h, cx:t.cx, cy:t.cy, top:t.top, bottom:t.bottom });\n    } catch {\n      missing.push(f);\n    }\n  }\n\n  if(missing.length){\n    errBox.style.display=\"block\";\n    for(const f of missing){\n      const li=document.createElement(\"li\");\n      li.textContent = f + \" (не найден/не загружается)\";\n      errList.appendChild(li);\n    }\n    return;\n  }\n\n  state.towerScale = computeTowerScale(blocks);\n  state.blocks = blocks;\n  state.running = true;\n  spawnBlock();\n}\n\nplayBtn.addEventListener(\"click\", async ()=>{\n  startLayer.style.display=\"none\";\n  await startGame();\n});\n\nrequestAnimationFrame(loop);\nrequestAnimationFrame(draw);\n\ntry{\n  const __qp = new URLSearchParams(location.search);\n  if(__qp.get(\"preview\")===\"1\"){\n    const startLayer = document.getElementById(\"startLayer\");\n    if(startLayer) startLayer.style.display=\"none\";\n    setTimeout(()=>{\n      const playBtn = document.getElementById(\"playBtn\");\n      if(playBtn) playBtn.click();\n    }, 60);\n  }\n}catch(e){}\n";
+  const __GAME_HTML__ = "<div id=\"wrap\">\n  <canvas id=\"c\"></canvas>\n\n  <div id=\"hud\">\n    <div class=\"pill\" id=\"leftPill\">\n      Башня: <b id=\"heightTxt\">0</b>\n      <span style=\"opacity:.5\">|</span>\n      Осталось: <b id=\"remainNum\">9</b>\n    </div>\n\n    <div id=\"progressWrap\">\n      Прогресс\n      <div id=\"bar\"><div></div></div>\n      <span id=\"pct\">0%</span>\n    </div>\n\n    <div class=\"pill\" id=\"scorePill\">Счёт: <b id=\"scoreNum\">0</b></div>\n  </div>\n\n  <button id=\"nextBtn\" disabled>Далее →</button>\n\n  <div id=\"overlay\" role=\"dialog\" aria-modal=\"true\">\n    <div id=\"card\">\n      <div id=\"cardHeader\">\n        <div>\n          <div id=\"title\">Вопрос</div>\n          <div id=\"q\">...</div>\n        </div>\n        <div style=\"display:flex;flex-direction:column;align-items:flex-end;gap:8px\">\n          <div id=\"badge\">1 / 9</div>\n          <div id=\"qTimerBadge\" class=\"qTimer\" style=\"display:none\">⏳ 10</div>\n        </div>\n      </div>\n\n      <div id=\"answers\"></div>\n\n      <div id=\"inputRow\">\n        <input id=\"ansInput\" type=\"text\" placeholder=\"Введите ответ...\" autocomplete=\"off\" />\n        <button id=\"submit\">ОК</button>\n      </div>\n\n      <div id=\"msg\"></div>\n      <div id=\"hint\">Верно → блок опускается и становится этажом (+100). Неверно → обугливание, взрыв и исчезает.</div>\n    </div>\n  </div>\n\n  <div id=\"start\">\n    <div id=\"startCard\">\n      <h1>Башня знаний</h1>\n      <p>\n        Первый блок падает сам. Дальше — нажимай <b>Далее</b>.\n        Когда блок остановится — ответь на вопрос.\n        <br/>Верно → блок опускается и становится этажом (+100).\n        <br/>Неверно → блок обугливается, взрывается и исчезает.\n      </p>\n      <button id=\"play\">▶ Начать</button>\n      <div id=\"err\">\n        <b>Не получилось загрузить файлы.</b> Убедись, что они лежат рядом с <code>index.html</code> и имена совпадают.\n        <ul id=\"errList\"></ul>\n      </div>\n    </div>\n  </div>\n\n  <div id=\"finish\">\n    <div id=\"finishCard\">\n      <div id=\"finishTitle\">Молодец!</div>\n      <div id=\"finishText\">Тобой заработано: <b id=\"finishScore\">0</b> баллов</div>\n\n      <div id=\"stats\">\n        <div class=\"stat\"><b id=\"stCorrect\">0</b><div>правильных ответов</div></div>\n        <div class=\"stat\"><b id=\"stWrong\">0</b><div>неправильных ответов</div></div>\n        <div class=\"stat\"><b id=\"stHeight\">0</b><div>блоков в башне</div></div>\n      </div>\n\n      <button id=\"restart\">↻ Сыграть ещё раз</button>\n    </div>\n  </div>\n</div>";
+  const __GAME_JS__ = "function thudSound(){try{const ctx=window.__audioCtx||(window.__audioCtx=new (window.AudioContext||window.webkitAudioContext)());const o=ctx.createOscillator();const g=ctx.createGain();o.type='sine';o.frequency.setValueAtTime(120,ctx.currentTime);o.frequency.exponentialRampToValueAtTime(55,ctx.currentTime+0.10);g.gain.setValueAtTime(0.0001,ctx.currentTime);g.gain.exponentialRampToValueAtTime(0.22,ctx.currentTime+0.015);g.gain.exponentialRampToValueAtTime(0.0001,ctx.currentTime+0.18);o.connect(g);g.connect(ctx.destination);o.start();o.stop(ctx.currentTime+0.20);}catch(e){}}\n\n/** ФАЙЛЫ */\nconst BG_FILE = \"1.png\";\nconst BLOCK_FILES = [\"3.png\",\"4.png\",\"5.png\",\"6.png\",\"7.png\",\"8.png\",\"9.png\",\"10.png\",\"11.png\"];\n\n/** ОЧКИ */\nconst SCORE_PER_BLOCK = 100;\n\n/* QUESTIONS injected from cfg */\nlet QUESTIONS = [];\n\n/** Динамика */\nconst FALL_SPEED = 620;\nconst DROP_SPEED = 900;\n\n/** Эффекты */\nconst SHAKE_ON_BOOM = 18;\nconst SHAKE_ON_LAND = 7;\n\n/** Прогресс */\nconst TARGET_BLOCKS_FOR_100 = 9;\n\n/** Влезание */\nconst SAFE_TOP_MARGIN = 86;\nconst SAFE_BOTTOM_MARGIN = 100;\nconst DESIRED_TOWER_WIDTH = () => Math.min(window.innerWidth * 0.38, 360);\n\n/** TRIM/PROFILE */\nconst TRIM_ALPHA_MIN = 34;\nconst PROFILE_ALPHA_MIN = 22;\nconst CENTROID_ALPHA_MIN = 24;\n\n/** Пружинящий bounce */\nconst LAND_BOUNCE_UP = 10; // px вверх\nconst LAND_BOUNCE_TIME = 0.10;  // сек\n\nconst canvas = document.getElementById(\"c\");\nconst ctx = canvas.getContext(\"2d\");\n\nconst overlay = document.getElementById(\"overlay\");\nconst qEl = document.getElementById(\"q\");\nconst badgeEl = document.getElementById(\"badge\");\nconst answersEl = document.getElementById(\"answers\");\nconst inputRow = document.getElementById(\"inputRow\");\nconst ansInput = document.getElementById(\"ansInput\");\nconst submitBtn = document.getElementById(\"submit\");\nconst msgEl = document.getElementById(\"msg\");\n\nconst startLayer = document.getElementById(\"start\");\nconst playBtn = document.getElementById(\"play\");\n\nconst finishLayer = document.getElementById(\"finish\");\nconst finishScoreEl = document.getElementById(\"finishScore\");\nconst stCorrect = document.getElementById(\"stCorrect\");\nconst stWrong = document.getElementById(\"stWrong\");\nconst stHeight = document.getElementById(\"stHeight\");\nconst restartBtn = document.getElementById(\"restart\");\n\nconst errBox = document.getElementById(\"err\");\nconst errList = document.getElementById(\"errList\");\n\nconst heightTxt = document.getElementById(\"heightTxt\");\nconst remainNum = document.getElementById(\"remainNum\");\nconst pctTxt = document.getElementById(\"pct\");\nconst barFill = document.querySelector(\"#bar > div\");\n\nconst scoreNum = document.getElementById(\"scoreNum\");\nconst nextBtn = document.getElementById(\"nextBtn\");\n\nlet W=0,H=0,DPR=1;\nfunction resize(){\n  DPR = Math.max(1, Math.floor(window.devicePixelRatio || 1));\n  W = Math.floor(window.innerWidth);\n  H = Math.floor(window.innerHeight);\n  canvas.width = W * DPR;\n  canvas.height = H * DPR;\n  ctx.setTransform(DPR,0,0,DPR,0,0);\n}\nwindow.addEventListener(\"resize\", resize);\nresize();\n\n/** Audio */\nlet audioCtx=null;\nfunction ensureAudio(){ if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)(); }\nfunction playBoom(){\n  ensureAudio();\n  const t = audioCtx.currentTime;\n\n  const osc = audioCtx.createOscillator();\n  const gain = audioCtx.createGain();\n  osc.type=\"sawtooth\";\n  osc.frequency.setValueAtTime(120,t);\n  osc.frequency.exponentialRampToValueAtTime(38,t+0.22);\n  gain.gain.setValueAtTime(0.0001,t);\n  gain.gain.exponentialRampToValueAtTime(0.50,t+0.02);\n  gain.gain.exponentialRampToValueAtTime(0.0001,t+0.34);\n\n  const noiseBuf = audioCtx.createBuffer(1, audioCtx.sampleRate*0.30, audioCtx.sampleRate);\n  const data = noiseBuf.getChannelData(0);\n  for(let i=0;i<data.length;i++) data[i]=(Math.random()*2-1)*0.95;\n  const noise = audioCtx.createBufferSource(); noise.buffer=noiseBuf;\n  const nGain = audioCtx.createGain();\n  nGain.gain.setValueAtTime(0.0001,t);\n  nGain.gain.exponentialRampToValueAtTime(0.40,t+0.01);\n  nGain.gain.exponentialRampToValueAtTime(0.0001,t+0.30);\n\n  const filter = audioCtx.createBiquadFilter();\n  filter.type=\"lowpass\";\n  filter.frequency.setValueAtTime(1700,t);\n  filter.frequency.exponentialRampToValueAtTime(320,t+0.26);\n\n  osc.connect(gain).connect(audioCtx.destination);\n  noise.connect(filter).connect(nGain).connect(audioCtx.destination);\n\n  osc.start(t); osc.stop(t+0.36);\n  noise.start(t); noise.stop(t+0.32);\n}\nfunction playGood(){\n  ensureAudio();\n  const t = audioCtx.currentTime;\n  const osc = audioCtx.createOscillator();\n  const gain = audioCtx.createGain();\n  osc.type=\"triangle\";\n  osc.frequency.setValueAtTime(420,t);\n  osc.frequency.exponentialRampToValueAtTime(780,t+0.12);\n  gain.gain.setValueAtTime(0.0001,t);\n  gain.gain.exponentialRampToValueAtTime(0.20,t+0.02);\n  gain.gain.exponentialRampToValueAtTime(0.0001,t+0.18);\n  osc.connect(gain).connect(audioCtx.destination);\n  osc.start(t); osc.stop(t+0.2);\n}\n\n/** Assets */\nfunction assetUrl(file){ return new URL(file, new URL(\".\", window.location.href)).toString(); }\nfunction loadImage(url){\n  return new Promise((resolve, reject)=>{\n    const img=new Image();\n    img.onload=()=>resolve(img);\n    img.onerror=()=>reject(new Error(url));\n    img.src=url;\n  });\n}\n\n/** Профили */\nfunction buildTopBottomProfiles(imageData, w, h){\n  const d = imageData.data;\n  const top = new Array(w).fill(h);\n  const bottom = new Array(w).fill(-1);\n\n  for(let x=0;x<w;x++){\n    for(let y=0;y<h;y++){\n      const a = d[(y*w + x)*4 + 3];\n      if(a >= PROFILE_ALPHA_MIN){ top[x]=y; break; }\n    }\n    for(let y=h-1;y>=0;y--){\n      const a = d[(y*w + x)*4 + 3];\n      if(a >= PROFILE_ALPHA_MIN){ bottom[x]=y; break; }\n    }\n    if(bottom[x] < 0){ bottom[x] = h-1; }\n    if(top[x] >= h){ top[x] = 0; }\n  }\n  return { top, bottom };\n}\n\nfunction trimAndCentroidAndProfiles(img){\n  const c=document.createElement(\"canvas\");\n  c.width=img.width; c.height=img.height;\n  const g=c.getContext(\"2d\");\n  g.drawImage(img,0,0);\n\n  const im=g.getImageData(0,0,c.width,c.height);\n  const d=im.data;\n\n  let minX=c.width, minY=c.height, maxX=-1, maxY=-1;\n  let sumA=0, sumX=0, sumY=0;\n\n  for(let y=0;y<c.height;y++){\n    for(let x=0;x<c.width;x++){\n      const a = d[(y*c.width + x)*4 + 3];\n      if(a >= TRIM_ALPHA_MIN){\n        if(x<minX) minX=x;\n        if(y<minY) minY=y;\n        if(x>maxX) maxX=x;\n        if(y>maxY) maxY=y;\n      }\n      if(a >= CENTROID_ALPHA_MIN){\n        const wgt=a;\n        sumA += wgt;\n        sumX += x*wgt;\n        sumY += y*wgt;\n      }\n    }\n  }\n\n  if(maxX<0 || maxY<0){\n    return Promise.resolve({ img, w: img.width, h: img.height, cx: img.width/2, cy: img.height/2, top:null, bottom:null });\n  }\n\n  const w = (maxX-minX+1);\n  const h = (maxY-minY+1);\n\n  const outC=document.createElement(\"canvas\");\n  outC.width=w; outC.height=h;\n  const og=outC.getContext(\"2d\");\n  og.drawImage(c, minX, minY, w, h, 0, 0, w, h);\n\n  const cropped = og.getImageData(0,0,w,h);\n  const { top, bottom } = buildTopBottomProfiles(cropped, w, h);\n\n  let cx=w/2, cy=h/2;\n  if(sumA>0){\n    cx = (sumX/sumA) - minX;\n    cy = (sumY/sumA) - minY;\n  }\n\n  const out=new Image();\n  out.src=outC.toDataURL(\"image/png\");\n  return new Promise((res,rej)=>{\n    out.onload=()=>res({ img: out, w, h, cx, cy, top, bottom });\n    out.onerror=rej;\n  });\n}\n\n/** State */\nconst state = {\n  running:false,\n  bg:null,\n  blocks:[],\n  towerScale:1,\n  tower:[],\n  current:null,\n  particles:[], smokes:[], rings:[], sparks:[], flash:0,\n  cameraShake:0, cameraX:0, cameraY:0,\n  towerOffsetY:0, towerOffsetV:0,\n  questionIndex:0, waitingAnswer:false, dropping:false,\n  blockIndex:0, readyForNext:false, finished:false,\n  score:0, scoreFloats:[], correct:0, wrong:0,\n  landingBounce: null,\n};\n\n/** HUD helpers */\nfunction setNextEnabled(on){\n  state.readyForNext = on;\n  nextBtn.disabled = !on;\n}\nfunction updateRemain(){\n  const remain = Math.max(0, 9 - state.questionIndex);\n  remainNum.textContent = String(remain);\n}\n\nfunction groundY(){\n  return H - 70 + state.towerOffsetY;\n}\nfunction alignedXForIdx(idx){\n  const b = state.blocks[idx];\n  const cxScaled = b.cx * state.towerScale;\n  return (W/2) - cxScaled;\n}\nfunction blockSize(idx){\n  const b = state.blocks[idx];\n  return { w: b.w*state.towerScale, h: b.h*state.towerScale };\n}\nfunction computeTowerScale(blocks){\n  const maxW = Math.max(...blocks.map(b => b.w));\n  const totalH = blocks.reduce((s,b)=>s+b.h,0);\n  const scaleByWidth = DESIRED_TOWER_WIDTH() / maxW;\n  const availableH = Math.max(220, H - SAFE_TOP_MARGIN - SAFE_BOTTOM_MARGIN);\n  const scaleByHeight = availableH / totalH;\n  return Math.min(scaleByWidth, scaleByHeight);\n}\n\nfunction computeStackY(upper, lower){\n  const su = state.towerScale;\n  const upperMeta = state.blocks[upper.idx];\n  const lowerMeta = state.blocks[lower.idx];\n\n  const overlapLeft = Math.max(upper.x, lower.x);\n  const overlapRight = Math.min(upper.x + upper.w, lower.x + lower.w);\n\n  if(overlapRight <= overlapLeft + 2){\n    return Math.round(lower.y - upper.h);\n  }\n\n  let yMaxAllowed = Infinity;\n  const step = 2;\n\n  for(let wx = overlapLeft; wx <= overlapRight; wx += step){\n    const xu = Math.floor((wx - upper.x) / su);\n    const xl = Math.floor((wx - lower.x) / su);\n    if(xu < 0 || xu >= upperMeta.w) continue;\n    if(xl < 0 || xl >= lowerMeta.w) continue;\n\n    const bu = upperMeta.bottom[xu];\n    const tl = lowerMeta.top[xl];\n\n    const allowed = lower.y + tl*su - bu*su;\n    if(allowed < yMaxAllowed) yMaxAllowed = allowed;\n  }\n  return Math.round(yMaxAllowed) - 1;\n}\n\nfunction spawnBlock(){\n  if(state.finished) return;\n  if(state.blockIndex >= 9){ finishGame(); return; }\n\n  const idx = state.blockIndex;\n  const {w,h} = blockSize(idx);\n\n  state.current = { idx, w,h, x: alignedXForIdx(idx), y: -h - 30, char:0 };\n  state.dropping=false;\n  state.waitingAnswer=false;\n  state.landingBounce=null;\n  setNextEnabled(false);\n}\n\nfunction addScorePop(x,y, text){\n  state.scoreFloats.push({ x, y, vx: (Math.random()*2-1)*30, vy: -160 - Math.random()*60, life: 0.85, age: 0, text });\n}\n\nfunction sparksAtSeam(x, y){\n  for(let i=0;i<18;i++){\n    const a = (-Math.PI/2) + (Math.random()*Math.PI*0.9 - Math.PI*0.45);\n    const sp = 220 + Math.random()*360;\n    state.sparks.push({\n      x: x + (Math.random()*40 - 20),\n      y: y + (Math.random()*6 - 3),\n      vx: Math.cos(a)*sp,\n      vy: Math.sin(a)*sp - (40+Math.random()*60),\n      life: 0.45 + Math.random()*0.2,\n      age: 0\n    });\n  }\n}\n\nfunction dustAt(x,y){\n  for(let i=0;i<10;i++){\n    const a=Math.random()*Math.PI*2;\n    const sp=30+Math.random()*110;\n    state.smokes.push({\n      x:x + (Math.random()*18-9),\n      y:y + (Math.random()*10-5),\n      vx:Math.cos(a)*sp,\n      vy:Math.sin(a)*sp - (30+Math.random()*40),\n      life:0.55+Math.random()*0.35,\n      age:0,\n      rad: 10+Math.random()*14\n    });\n  }\n}\n\nfunction settleCurrentBlock(){\n  const b = state.current;\n  let yFinal;\n  if(state.tower.length===0){\n    yFinal = Math.round(groundY() - b.h);\n  } else {\n    const lower = state.tower[state.tower.length - 1];\n    yFinal = computeStackY(b, lower);\n  }\n\n  const yUp = Math.max(-200, yFinal - LAND_BOUNCE_UP);\n  state.landingBounce = { fromY: yUp, toY: yFinal, age: 0, dur: LAND_BOUNCE_TIME };\n  b.x = Math.round(b.x);\n  b.y = yUp;\n}\n\nfunction finalizeLand(){\n  try{ thudSound(); }catch(e){}\n  const b = state.current;\n  if(!b) return;\n\n  const seamY = b.y + b.h;\n  sparksAtSeam(W/2, seamY);\n\n  state.tower.push({\n    x: Math.round(b.x), y: Math.round(b.y),\n    w: b.w, h: b.h, idx: b.idx,\n    squash:1.0, squashV:0.0\n  });\n\n  state.score += SCORE_PER_BLOCK;\n  scoreNum.textContent = String(state.score);\n  addScorePop(W/2 + 70, b.y + 30, `+${SCORE_PER_BLOCK}`);\n\n  dustAt(W/2, seamY);\n  state.cameraShake = Math.max(state.cameraShake, SHAKE_ON_LAND);\n  state.towerOffsetV -= 120;\n  state.current = null;\n}\n\nfunction boomAt(block){\n  const cx = block.x + block.w/2;\n  const cy = block.y + block.h/2;\n\n  state.flash = Math.min(1, state.flash + 0.95);\n  state.rings.push({ x:cx, y:cy, r:10, vr: 900, life:0.45, age:0 });\n\n  for(let i=0;i<44;i++){\n    const a=Math.random()*Math.PI*2;\n    const sp=160+Math.random()*720;\n    state.particles.push({\n      x:cx,y:cy, vx:Math.cos(a)*sp, vy:Math.sin(a)*sp-(260+Math.random()*360),\n      life:0.55+Math.random()*0.35, age:0, r:2+Math.random()*4\n    });\n  }\n\n  for(let i=0;i<14;i++){\n    const a=Math.random()*Math.PI*2;\n    const sp=50+Math.random()*210;\n    state.smokes.push({\n      x:cx,y:cy, vx:Math.cos(a)*sp, vy:Math.sin(a)*sp-(90+Math.random()*120),\n      life:1.1+Math.random()*0.8, age:0, rad: 22+Math.random()*26\n    });\n  }\n\n  state.cameraShake = Math.max(state.cameraShake, SHAKE_ON_BOOM);\n  playBoom();\n}\n\nfunction finishGame(){\n  state.finished = true;\n  setNextEnabled(false);\n  finishScoreEl.textContent = String(state.score);\n  stCorrect.textContent = String(state.correct);\n  stWrong.textContent = String(state.wrong);\n  stHeight.textContent = String(state.tower.length);\n  finishLayer.style.display=\"flex\";\n}\n\nrestartBtn.addEventListener(\"click\", async ()=>{\n  finishLayer.style.display=\"none\";\n  startLayer.style.display=\"flex\";\n});\n\nfunction showOverlayAnimated(){\n  overlay.style.display=\"flex\";\n  requestAnimationFrame(()=> overlay.classList.add(\"show\"));\n}\nfunction hideOverlayAnimated(){\n  overlay.classList.remove(\"show\");\n  setTimeout(()=>{ overlay.style.display=\"none\"; }, 140);\n}\n\nfunction update(dt){\n  if(!state.running) return;\n  updateRemain();\n\n  if(state.cameraShake>0){\n    state.cameraShake=Math.max(0, state.cameraShake - dt*22);\n    const s=state.cameraShake;\n    state.cameraX=(Math.random()*2-1)*s; state.cameraY=(Math.random()*2-1)*s;\n  } else {\n    state.cameraX=0; state.cameraY=0;\n  }\n  state.flash = Math.max(0, state.flash - dt*3.8);\n\n  {\n    const k=55, damp=10;\n    const a = -k*(state.towerOffsetY) - damp*state.towerOffsetV;\n    state.towerOffsetV += a*dt;\n    state.towerOffsetY += state.towerOffsetV*dt;\n    state.towerOffsetY = Math.max(-10, Math.min(10, state.towerOffsetY));\n  }\n\n  for(const b of state.tower){\n    const k=40, damp=8;\n    const a=-k*(b.squash-1)-damp*b.squashV;\n    b.squashV += a*dt; b.squash  += b.squashV*dt;\n    b.squash = Math.max(0.88, Math.min(1.08, b.squash));\n  }\n\n  for(const p of state.particles){ p.age += dt; p.vy += 980*dt; p.x += p.vx*dt; p.y += p.vy*dt; }\n  state.particles = state.particles.filter(p => p.age < p.life);\n\n  for(const s of state.smokes){ s.age += dt; s.vy += 120*dt; s.x += s.vx*dt; s.y += s.vy*dt; }\n  state.smokes = state.smokes.filter(s => s.age < s.life);\n\n  for(const r of state.rings){ r.age += dt; r.r += r.vr*dt; }\n  state.rings = state.rings.filter(r => r.age < r.life);\n\n  for(const sp of state.sparks){ sp.age += dt; sp.vy += 980*dt; sp.x += sp.vx*dt; sp.y += sp.vy*dt; sp.vx *= (1 - dt*1.8); }\n  state.sparks = state.sparks.filter(s => s.age < s.life);\n\n  for(const f of state.scoreFloats){ f.age += dt; f.vy += 260*dt; f.x += f.vx*dt; f.y += f.vy*dt; }\n  state.scoreFloats = state.scoreFloats.filter(f => f.age < f.life);\n\n  if(state.landingBounce && state.current){\n    const bb = state.landingBounce;\n    bb.age += dt;\n    const t = Math.min(1, bb.age / bb.dur);\n    const ease = 1 - Math.pow(1 - t, 3);\n    state.current.y = Math.round(bb.fromY + (bb.toY - bb.fromY)*ease);\n\n    if(state.tower.length>0){\n      const last = state.tower[state.tower.length-1];\n      last.squashV += 14 * dt;\n    }\n\n    if(t >= 1){\n      state.landingBounce = null;\n      finalizeLand();\n      setNextEnabled(true);\n    }\n  }\n\n  if(state.current && !state.landingBounce){\n    const b = state.current;\n    if(state.waitingAnswer){\n    } else if(state.dropping){\n      let yTarget;\n      if(state.tower.length===0){ yTarget = groundY() - b.h; }\n      else { const lower = state.tower[state.tower.length - 1]; yTarget = computeStackY(b, lower); }\n\n      b.y += DROP_SPEED*dt;\n      if(b.y >= yTarget){\n        b.y = yTarget;\n        settleCurrentBlock();\n      }\n    } else {\n      const topY = (state.tower.length===0 ? groundY() : state.tower[state.tower.length-1].y);\n      const stopY = Math.max(80, topY - b.h - 18);\n      b.y += FALL_SPEED*dt;\n      if(b.y>=stopY){\n        b.y=stopY;\n        state.waitingAnswer=true;\n        showQuestion();\n      }\n    }\n  }\n\n  heightTxt.textContent = String(state.tower.length);\n  const pct = Math.max(0, Math.min(100, Math.round((state.tower.length / TARGET_BLOCKS_FOR_100)*100)));\n  pctTxt.textContent = pct + \"%\";\n  barFill.style.width = pct + \"%\";\n}\n\nfunction drawBackground(){\n  if(state.bg){\n    const img=state.bg;\n    const scale=Math.max(W/img.width,H/img.height);\n    const dw=img.width*scale, dh=img.height*scale;\n    ctx.drawImage(img,(W-dw)/2,(H-dh)/2,dw,dh);\n  } else {\n    ctx.fillStyle=\"#0b0f18\"; ctx.fillRect(0,0,W,H);\n  }\n  const grd=ctx.createRadialGradient(W*0.5,H*0.45,60, W*0.5,H*0.5, Math.max(W,H)*0.7);\n  grd.addColorStop(0,\"rgba(0,0,0,0)\");\n  grd.addColorStop(1,\"rgba(0,0,0,0.45)\");\n  ctx.fillStyle=grd; ctx.fillRect(0,0,W,H);\n\n  ctx.fillStyle=\"rgba(0,0,0,.35)\";\n  ctx.fillRect(0,H-70,W,70);\n}\n\nfunction drawBlock(o, glow=false, squash=1.0, char=0){\n  const img = state.blocks[o.idx].img;\n  ctx.save();\n  ctx.shadowColor = glow ? \"rgba(120,190,255,.35)\" : \"rgba(0,0,0,.45)\";\n  ctx.shadowBlur  = glow ? 18 : 14;\n\n  const cx = o.x + o.w/2;\n  const cy = o.y + o.h;\n  const sx = 1 + (1 - squash) * 0.35;\n  const sy = squash;\n\n  ctx.translate(cx, cy);\n  ctx.scale(sx, sy);\n  ctx.translate(-cx, -cy);\n\n  ctx.drawImage(img, o.x, o.y, o.w, o.h);\n\n  if(char > 0){\n    ctx.globalCompositeOperation = \"source-atop\";\n    ctx.fillStyle = `rgba(0,0,0,${0.70*char})`;\n    ctx.fillRect(o.x-2, o.y-2, o.w+4, o.h+4);\n    ctx.globalCompositeOperation = \"screen\";\n    ctx.fillStyle = `rgba(255,120,60,${0.10*char})`;\n    ctx.fillRect(o.x-2, o.y-2, o.w+4, o.h+4);\n    ctx.globalCompositeOperation = \"source-over\";\n  }\n  ctx.restore();\n}\n\nfunction drawScorePops(){\n  for(const f of state.scoreFloats){\n    const t = f.age / f.life;\n    const a = Math.max(0, 1 - t);\n    const s = 1 + (1 - a) * 0.15;\n    ctx.save();\n    ctx.globalAlpha = a;\n    ctx.translate(f.x, f.y);\n    ctx.scale(s, s);\n    ctx.font = \"900 22px system-ui, -apple-system, Segoe UI, Roboto, Arial\";\n    ctx.lineWidth = 5;\n    ctx.strokeStyle = \"rgba(0,0,0,.35)\";\n    ctx.strokeText(f.text, 0, 0);\n    ctx.fillStyle = \"rgba(120,255,170,.95)\";\n    ctx.fillText(f.text, 0, 0);\n    ctx.restore();\n  }\n}\n\nfunction draw(){\n  ctx.clearRect(0,0,W,H);\n  ctx.save();\n  ctx.translate(state.cameraX, state.cameraY);\n  drawBackground();\n\n  for(const b of state.tower){ drawBlock(b, false, b.squash, 0); }\n  if(state.current){ drawBlock(state.current, true, 1.0, state.current.char || 0); }\n\n  for(const s of state.smokes){\n    const t = s.age / s.life; const a = (1 - t) * 0.35;\n    const r = s.rad * (1 + t*1.25);\n    ctx.fillStyle = `rgba(20,20,20,${a})`; ctx.beginPath(); ctx.arc(s.x, s.y, r, 0, Math.PI*2); ctx.fill();\n  }\n  for(const r of state.rings){\n    const t = r.age / r.life; const a = (1 - t) * 0.55;\n    ctx.strokeStyle = `rgba(255,255,255,${a})`; ctx.lineWidth = 3; ctx.beginPath(); ctx.arc(r.x, r.y, r.r, 0, Math.PI*2); ctx.stroke();\n  }\n  for(const sp of state.sparks){\n    const t = sp.age / sp.life; const a = Math.max(0, 1 - t);\n    ctx.strokeStyle = `rgba(255, 220, 140, ${0.9*a})`; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(sp.x, sp.y); ctx.lineTo(sp.x - sp.vx*0.012, sp.y - sp.vy*0.012); ctx.stroke();\n  }\n  for(const p of state.particles){\n    const a = 1 - (p.age/p.life);\n    ctx.fillStyle = `rgba(255, 200, 120, ${0.78*a})`; ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI*2); ctx.fill();\n  }\n  drawScorePops();\n\n  if(state.flash>0){\n    ctx.fillStyle = `rgba(255,255,255,${state.flash*0.22})`; ctx.fillRect(0,0,W,H);\n  }\n  ctx.restore();\n  requestAnimationFrame(draw);\n}\n\nlet lastT=0;\nfunction loop(t){\n  if(!lastT) lastT=t;\n  const dt=Math.min(0.033,(t-lastT)/1000);\n  lastT=t;\n  update(dt);\n  requestAnimationFrame(loop);\n}\n\nfunction normalizeAnswer(s){ return String(s??\"\").trim().toLowerCase(); }\n\nfunction showQuestion(){\n  const qi = state.questionIndex;\n  const q = QUESTIONS[(QUESTIONS.length? (qi % QUESTIONS.length):0)];\n\n  msgEl.textContent=\"\";\n  answersEl.innerHTML=\"\";\n  inputRow.style.display=\"none\";\n  answersEl.style.display=\"flex\";\n\n  qEl.textContent=q.q;\n  badgeEl.textContent=`${qi+1} / 9`;\n\n  let mediaContainer = document.getElementById(\"qMediaContainer\");\n  if(!mediaContainer){\n    mediaContainer = document.createElement(\"div\");\n    mediaContainer.id = \"qMediaContainer\";\n    mediaContainer.className = \"qMediaContainer\";\n    qEl.parentNode.insertBefore(mediaContainer, qEl);\n  }\n  mediaContainer.innerHTML = \"\";\n\n  if(q.image){\n    const img = document.createElement(\"img\");\n    img.src = q.image;\n    img.className = \"qImage\";\n    img.alt = \"Question image\";\n    mediaContainer.appendChild(img);\n  }\n\n  if(q.audio){\n    const audioControl = document.createElement(\"div\");\n    audioControl.className = \"qAudioControl\";\n    const audioBtn = document.createElement(\"button\");\n    audioBtn.className = \"qAudioBtn\";\n    audioBtn.textContent = \"🔊 Воспроизвести\";\n    audioBtn.type = \"button\";\n    const audio = new Audio(q.audio);\n    let isPlaying = false;\n    audioBtn.addEventListener(\"click\", ()=>{\n      if(isPlaying){\n        audio.pause();\n        audio.currentTime = 0;\n        audioBtn.textContent = \"🔊 Воспроизвести\";\n        isPlaying = false;\n      } else {\n        audio.play();\n        audioBtn.textContent = \"⏸ Пауза\";\n        isPlaying = true;\n      }\n    });\n    audio.addEventListener(\"ended\", ()=>{\n      audioBtn.textContent = \"🔊 Воспроизвести\";\n      isPlaying = false;\n    });\n    audioControl.appendChild(audioBtn);\n    mediaContainer.appendChild(audioControl);\n  }\n\n  if(q.type===\"choice\"){\n    for(const opt of q.options){\n      const btn=document.createElement(\"button\");\n      btn.className=\"btn\";\n      btn.textContent=opt;\n      btn.addEventListener(\"click\", ()=>checkAnswer(opt));\n      answersEl.appendChild(btn);\n    }\n  } else {\n    answersEl.style.display=\"none\";\n    inputRow.style.display=\"flex\";\n    ansInput.value=\"\";\n  }\n\n  showOverlayAnimated();\n  setTimeout(()=>{ if(q.type===\"input\") ansInput.focus(); }, 50);\n\n  try{\n    if(window.__qTimerId){ clearInterval(window.__qTimerId); window.__qTimerId=null; }\n    const secs = (q.seconds!=null) ? Number(q.seconds) : ( (GAME && GAME.timer && GAME.timer.enabled) ? Number(GAME.timer.seconds||0) : null );\n    const timerEl = document.getElementById(\"qTimerBadge\") || document.querySelector(\".timer\") || document.querySelector(\"[data-role='pillTimer']\");\n    const txtEl = timerEl ? (timerEl.querySelector(\".qTimerText\") || timerEl.querySelector(\"[data-role='timerText']\")) : null;\n    const progEl = timerEl ? (timerEl.querySelector(\".qTimerProg\") || timerEl.querySelector(\"circle.qTimerProg\")) : null;\n    const R = 16;\n    const C = 2 * Math.PI * R;\n    if(progEl){\n      progEl.style.strokeDasharray = String(C);\n      progEl.style.strokeDashoffset = String(C);\n    }\n    if(Number.isFinite(secs) && secs>0){\n      const total = Math.max(1, Math.round(secs));\n      let left = total;\n\n      const paint = ()=>{\n        const p = Math.max(0, Math.min(1, left / total));\n        const hue = 45 * p;\n        if(timerEl){\n          timerEl.style.display = \"\";\n          timerEl.style.setProperty(\"--p\", String(p));\n          timerEl.style.setProperty(\"--h\", String(hue));\n          if(left <= 5) timerEl.classList.add(\"qPulse\"); else timerEl.classList.remove(\"qPulse\");\n        }\n        if(txtEl){ txtEl.textContent = String(left); }\n        else if(timerEl){ timerEl.textContent = \"⏳ \" + String(left); }\n        if(progEl){ progEl.style.strokeDashoffset = String(C * (1 - p)); }\n      };\n\n      paint();\n      window.__qTimerId = setInterval(()=>{\n        left--;\n        paint();\n        if(left<=0){\n          clearInterval(window.__qTimerId); window.__qTimerId=null;\n          try{ if(typeof checkAnswer === \"function\"){ checkAnswer(\"__TIMEOUT__\"); } }catch(e){}\n        }\n      },1000);\n    } else {\n      if(timerEl){\n        timerEl.style.display=\"none\";\n        timerEl.classList.remove(\"qPulse\");\n        if(txtEl) txtEl.textContent=\"\"; else timerEl.textContent=\"\";\n        if(progEl) progEl.style.strokeDashoffset = String(C);\n      }\n    }\n  }catch(e){}\n\n  if (window.__CFG?.useLatex && window.MathJax && window.MathJax.typesetPromise) {\n    setTimeout(() => {\n      window.MathJax.typesetPromise([document.getElementById(\"card\")]).catch(()=>{});\n    }, 60);\n  }\n}\n\nfunction __applyTitle__(title){\n  const t = String(title || \"Башня знаний\");\n  document.title = t;\n  const h1 = document.querySelector(\"#startCard h1\");\n  if(h1) h1.textContent = t;\n}\n\nfunction __buildQuestionsFromCfg__(cfg){\n  const src = Array.isArray(cfg?.questions) ? cfg.questions : [];\n  if(src.length === 0){\n    return Array.from({length:9}, (_,i)=>({\n      type:\"choice\",\n      q:`(вопрос ${i+1})`,\n      options:[\"OK\",\"...\"],\n      answer:\"OK\"\n    }));\n  }\n  return src.map((q,i)=>{\n    if(q && (q.type===\"text\" || q.type===\"input\")){\n      const acc = Array.isArray(q.accepts) ? q.accepts.map(String).filter(s=>s.trim()) : [];\n      return { type:\"input\", q:String(q.prompt||q.q||\"\"), accepts: acc, answer: String(acc[0]||\"\"), seconds:(q.seconds??null), image: q.image || null, audio: q.audio || null };\n    }\n    const opts = Array.isArray(q.options) ? q.options.map(String).filter(s=>s.trim()) : [];\n    const ci = Number.isFinite(q.correctIndex) ? q.correctIndex : 0;\n    const ans = (opts[ci] ?? opts[0] ?? \"OK\");\n    return { type:\"choice\", q:String(q.prompt||q.q||\"\"), options: opts.length?opts:[\"OK\",\"...\"], answer: String(ans), seconds:(q.seconds??null), image: q.image || null, audio: q.audio || null };\n  });\n}\n\nfunction checkAnswer(userValue){\n  try{ if(window.__qTimerId){ clearInterval(window.__qTimerId); window.__qTimerId=null; } }catch(e){}\n\n  const qi = state.questionIndex;\n  const q = QUESTIONS[(QUESTIONS.length? (qi % QUESTIONS.length):0)];\n  let ok=false;\n  if(q.type===\"input\"){\n    const acc = (q.accepts && q.accepts.length) ? q.accepts : [q.answer];\n    ok = acc.map(normalizeAnswer).includes(normalizeAnswer(userValue));\n  } else {\n    ok = normalizeAnswer(userValue) === normalizeAnswer(q.answer);\n  }\n  const waitingBlock = state.current;\n\n  if(ok){\n    state.correct++;\n    msgEl.innerHTML = `<span style=\"color: var(--good); font-weight:900;\">Верно!</span> Блок опускается (+100).`;\n    playGood();\n    state.dropping = false;\n    setTimeout(()=>{\n      hideOverlayAnimated();\n      state.waitingAnswer = false;\n      if(state.current) state.dropping = true;\n      else setNextEnabled(true);\n    }, 220);\n  } else {\n    state.wrong++;\n    msgEl.innerHTML = `<span style=\"color: var(--bad); font-weight:900;\">Неверно!</span> Блок обугливается и исчезает.`;\n    state.dropping = false;\n\n    const scorchDur = 0.35;\n    let elapsed = 0;\n    function scorchStep(){\n      if(!state.current || state.current !== waitingBlock) return;\n      elapsed += 1/60;\n      state.current.char = Math.min(1, elapsed / scorchDur);\n      if(Math.random() < 0.25){\n        state.smokes.push({\n          x: waitingBlock.x + waitingBlock.w/2 + (Math.random()*30-15),\n          y: waitingBlock.y + waitingBlock.h/2 + (Math.random()*20-10),\n          vx: (Math.random()*2-1)*40,\n          vy: -80 - Math.random()*80,\n          life:0.6+Math.random()*0.4,\n          age:0,\n          rad: 14+Math.random()*18\n        });\n      }\n      if(elapsed < scorchDur){\n        requestAnimationFrame(scorchStep);\n      }\n    }\n    requestAnimationFrame(scorchStep);\n\n    setTimeout(()=>{\n      hideOverlayAnimated();\n      state.waitingAnswer = false;\n      if(waitingBlock && waitingBlock === state.current){\n        boomAt(waitingBlock);\n      }\n      state.current = null;\n      setNextEnabled(true);\n    }, 520);\n  }\n  state.blockIndex++;\n}\n\nsubmitBtn.addEventListener(\"click\", ()=>checkAnswer(ansInput.value));\nansInput.addEventListener(\"keydown\",(e)=>{ if(e.key===\"Enter\") checkAnswer(ansInput.value); });\ndocument.addEventListener(\"keydown\",(e)=>{\n  if(overlay.style.display===\"flex\" && e.key===\"Enter\"){\n    const qi=state.questionIndex;\n    if(QUESTIONS[qi].type===\"input\") checkAnswer(ansInput.value);\n  }\n});\n\nnextBtn.addEventListener(\"click\", ()=>{\n  if(nextBtn.disabled) return;\n  state.questionIndex++;\n  if(state.questionIndex >= 9){\n    finishGame();\n    return;\n  }\n  spawnBlock();\n});\n\nasync function startGame(){\n  if (window.__CFG?.useLatex && !window.MathJax) {\n    window.MathJax = {\n      tex: { inlineMath: [['$', '$']], displayMath: [['$$', '$$']] },\n      startup: { typeset: false }\n    };\n    const script = document.createElement('script');\n    script.src = \"https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js\";\n    document.head.appendChild(script);\n  }\n\n  try{\n    if(typeof __applyTitle__ === \"function\") __applyTitle__(window.__CFG?.title || \"Башня знаний\");\n    if(typeof __buildQuestionsFromCfg__ === \"function\") QUESTIONS = __buildQuestionsFromCfg__(window.__CFG || {});\n    if(!Array.isArray(QUESTIONS) || QUESTIONS.length===0){\n      QUESTIONS = Array.from({length:9}, (_,i)=>({type:\"choice\", q:`(вопрос ${i+1})`, options:[\"OK\",\"...\"], answer:\"OK\"}));\n    }\n  }catch(e){}\n\n  errBox.style.display=\"none\";\n  errList.innerHTML=\"\";\n\n  ensureAudio();\n  if(audioCtx.state===\"suspended\"){ try{ await audioCtx.resume(); }catch{} }\n\n  Object.assign(state, {\n    running:false, bg:null, blocks:[], towerScale:1,\n    tower:[], current:null,\n    particles:[], smokes:[], rings:[], sparks:[], flash:0,\n    cameraShake:0, cameraX:0, cameraY:0,\n    towerOffsetY:0, towerOffsetV:0,\n    questionIndex:0, waitingAnswer:false, dropping:false,\n    blockIndex:0, readyForNext:false,\n    finished:false, score:0, scoreFloats:[], correct:0, wrong:0, landingBounce:null,\n  });\n  scoreNum.textContent = \"0\";\n  setNextEnabled(false);\n  updateRemain();\n\n  const missing=[];\n\n  try{ state.bg = await loadImage(assetUrl(BG_FILE)); }\n  catch{ missing.push(BG_FILE); }\n\n  const blocks=[];\n  for(const f of BLOCK_FILES){\n    try{\n      const raw = await loadImage(assetUrl(f));\n      const t = await trimAndCentroidAndProfiles(raw);\n      blocks.push({ file:f, img:t.img, w:t.w, h:t.h, cx:t.cx, cy:t.cy, top:t.top, bottom:t.bottom });\n    } catch {\n      missing.push(f);\n    }\n  }\n\n  if(missing.length){\n    errBox.style.display=\"block\";\n    for(const f of missing){\n      const li=document.createElement(\"li\");\n      li.textContent = f + \" (не найден/не загружается)\";\n      errList.appendChild(li);\n    }\n    return;\n  }\n\n  state.towerScale = computeTowerScale(blocks);\n  state.blocks = blocks;\n  state.running = true;\n  spawnBlock();\n}\n\nplayBtn.addEventListener(\"click\", async ()=>{\n  startLayer.style.display=\"none\";\n  await startGame();\n});\n\nrequestAnimationFrame(loop);\nrequestAnimationFrame(draw);\n\ntry{\n  const __qp = new URLSearchParams(location.search);\n  if(__qp.get(\"preview\")===\"1\"){\n    const startLayer = document.getElementById(\"startLayer\");\n    if(startLayer) startLayer.style.display=\"none\";\n    setTimeout(()=>{\n      const playBtn = document.getElementById(\"playBtn\");\n      if(playBtn) playBtn.click();\n    }, 60);\n  }\n}catch(e){}\n";
 
   function injectCanvasGame(cfg){
     const root = $("gameRoot");
@@ -1169,6 +1279,48 @@
     setTimeout(()=>t.classList.remove("show"), 1400);
   }
 
+
+  // ===== МЕДИА ФУНКЦИИ =====
+  async function compressImage(file, maxWidth=1200, quality=0.85){
+    return new Promise((resolve, reject)=>{
+      const reader = new FileReader();
+      reader.onload = (e)=>{
+        const img = new Image();
+        img.onload = ()=>{
+          const canvas = document.createElement('canvas');
+          let width = img.width;
+          let height = img.height;
+          
+          if(width > maxWidth){
+            height = (height / width) * maxWidth;
+            width = maxWidth;
+          }
+          if(height > maxWidth){
+            width = (width / height) * maxWidth;
+            height = maxWidth;
+          }
+          
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0, width, height);
+          
+          canvas.toBlob((blob)=>{
+            if(!blob){ reject(new Error('Compression failed')); return; }
+            const reader2 = new FileReader();
+            reader2.onload = ()=> resolve(String(reader2.result || ""));
+            reader2.onerror = reject;
+            reader2.readAsDataURL(blob);
+          }, 'image/jpeg', quality);
+        };
+        img.onerror = reject;
+        img.src = String(e.target.result);
+      };
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+  }
+
   function fileToDataUrl(file){
     return new Promise((resolve,reject)=>{
       const r = new FileReader();
@@ -1177,186 +1329,6 @@
       r.readAsDataURL(file);
     });
   }
-
-// ===== Question media helpers (v3) =====
-function ensureDraftMedia(){
-  if(!Editor.draft) return;
-  if(!Editor.draft.media || typeof Editor.draft.media !== "object"){
-    Editor.draft.media = { imageDataUrl:"", audioDataUrl:"", imageName:"", audioName:"" };
-  } else {
-    Editor.draft.media.imageDataUrl = String(Editor.draft.media.imageDataUrl || "");
-    Editor.draft.media.audioDataUrl = String(Editor.draft.media.audioDataUrl || "");
-    Editor.draft.media.imageName = String(Editor.draft.media.imageName || "");
-    Editor.draft.media.audioName = String(Editor.draft.media.audioName || "");
-  }
-}
-
-function blobToDataUrl(blob){
-  return new Promise((resolve,reject)=>{
-    const r = new FileReader();
-    r.onload = ()=>resolve(String(r.result || ""));
-    r.onerror = reject;
-    r.readAsDataURL(blob);
-  });
-}
-
-async function compressImageToDataUrl(file, maxSide=1280, quality=0.78){
-  // Converts to WEBP when possible, otherwise JPEG.
-  const dataUrl = await fileToDataUrl(file);
-  const img = new Image();
-  await new Promise((res,rej)=>{ img.onload=res; img.onerror=rej; img.src=dataUrl; });
-
-  let w = img.naturalWidth || img.width;
-  let h = img.naturalHeight || img.height;
-  if(!w || !h) return dataUrl;
-
-  const scale = Math.min(1, maxSide / Math.max(w,h));
-  const tw = Math.max(1, Math.round(w * scale));
-  const th = Math.max(1, Math.round(h * scale));
-
-  const c = document.createElement("canvas");
-  c.width = tw; c.height = th;
-  const g = c.getContext("2d");
-  g.drawImage(img, 0, 0, tw, th);
-
-  const canWebp = (()=>{ try{ return c.toDataURL("image/webp").startsWith("data:image/webp"); }catch(e){ return false; } })();
-  const mime = canWebp ? "image/webp" : "image/jpeg";
-  return c.toDataURL(mime, quality);
-}
-
-function canRecordOpus(){
-  try{
-    return !!window.MediaRecorder && (
-      MediaRecorder.isTypeSupported("audio/webm;codecs=opus") ||
-      MediaRecorder.isTypeSupported("audio/webm") ||
-      MediaRecorder.isTypeSupported("audio/ogg;codecs=opus") ||
-      MediaRecorder.isTypeSupported("audio/ogg")
-    );
-  }catch(e){ return false; }
-}
-
-async function compressAudioToDataUrl(file, opts={}){
-  // Best-effort: record decoded audio through MediaRecorder -> opus (webm/ogg).
-  // Fallback: raw dataURL.
-  const maxBytes = Number(opts.maxBytes || (8 * 1024 * 1024)); // 8MB
-  if(file.size > maxBytes){
-    throw new Error("Файл слишком большой (лимит " + Math.round(maxBytes/1024/1024) + " МБ)");
-  }
-  if(!canRecordOpus()){
-    return await fileToDataUrl(file);
-  }
-
-  const ab = await file.arrayBuffer();
-  const AC = window.AudioContext || window.webkitAudioContext;
-  const ctx = new AC();
-  const buf = await new Promise((res,rej)=>ctx.decodeAudioData(ab, res, rej));
-
-  const dest = ctx.createMediaStreamDestination();
-  const src = ctx.createBufferSource();
-  src.buffer = buf;
-  src.connect(dest);
-  // Optional: also connect to silent gain so it doesn't play out loud in editor
-  const silent = ctx.createGain(); silent.gain.value = 0;
-  src.connect(silent); silent.connect(ctx.destination);
-
-  const mime = MediaRecorder.isTypeSupported("audio/webm;codecs=opus") ? "audio/webm;codecs=opus"
-             : MediaRecorder.isTypeSupported("audio/ogg;codecs=opus") ? "audio/ogg;codecs=opus"
-             : MediaRecorder.isTypeSupported("audio/webm") ? "audio/webm"
-             : "audio/ogg";
-
-  const rec = new MediaRecorder(dest.stream, { mimeType: mime });
-  const chunks = [];
-  rec.ondataavailable = (e)=>{ if(e.data && e.data.size) chunks.push(e.data); };
-
-  const out = await new Promise((resolve,reject)=>{
-    rec.onerror = (e)=>reject(e?.error || e);
-    rec.onstop = async ()=>{
-      try{
-        const blob = new Blob(chunks, { type: mime.split(";")[0] });
-        // If opus result is larger than original, keep original
-        if(blob.size && blob.size < file.size){
-          resolve(await blobToDataUrl(blob));
-        } else {
-          resolve(await fileToDataUrl(file));
-        }
-      }catch(err){ reject(err); }
-    };
-
-    rec.start(250);
-    src.start(0);
-    const ms = Math.max(200, Math.round(buf.duration * 1000) + 200);
-    setTimeout(()=>{
-      try{ rec.stop(); }catch(e){}
-      try{ src.stop(); }catch(e){}
-      try{ ctx.close(); }catch(e){}
-    }, ms);
-  });
-
-  return out;
-}
-
-function updateQuestionMediaUI(){
-  if(!$("qImgThumb") || !$("qAudioBadge")) return;
-  ensureDraftMedia();
-  const mm = Editor.draft?.media || {};
-  const imgThumb = $("qImgThumb");
-  const aBadge = $("qAudioBadge");
-
-  if(mm.imageDataUrl){
-    imgThumb.src = mm.imageDataUrl;
-    imgThumb.style.display = "";
-  } else {
-    imgThumb.removeAttribute("src");
-    imgThumb.style.display = "none";
-  }
-
-  if(mm.audioDataUrl){
-    aBadge.textContent = mm.audioName ? ("🎵 " + mm.audioName) : "🎵 аудио загружено";
-    aBadge.style.display = "";
-  } else {
-    aBadge.textContent = "";
-    aBadge.style.display = "none";
-  }
-}
-
-async function handlePickQuestionImage(file){
-  if(!file) return;
-  ensureDraftMedia();
-  try{
-    // hard guard
-    const max = 6 * 1024 * 1024;
-    if(file.size > max){ toast("Картинка слишком большая (до 6 МБ)"); return; }
-    toast("Сжимаю картинку…");
-    const dataUrl = await compressImageToDataUrl(file, 1400, 0.78);
-    Editor.draft.media.imageDataUrl = dataUrl;
-    Editor.draft.media.imageName = file.name || "image";
-    updateQuestionMediaUI();
-    toast("Картинка добавлена ✅");
-    updatePreview(false);
-  }catch(e){
-    showErr(e?.stack || e?.message || String(e));
-    toast("Не удалось загрузить картинку 😕");
-  }
-}
-
-async function handlePickQuestionAudio(file){
-  if(!file) return;
-  ensureDraftMedia();
-  try{
-    const max = 8 * 1024 * 1024;
-    if(file.size > max){ toast("Аудио слишком большое (до 8 МБ)"); return; }
-    toast("Сжимаю аудио…");
-    const dataUrl = await compressAudioToDataUrl(file, {maxBytes:max});
-    Editor.draft.media.audioDataUrl = dataUrl;
-    Editor.draft.media.audioName = file.name || "audio";
-    updateQuestionMediaUI();
-    toast("Мелодия добавлена ✅");
-    updatePreview(false);
-  }catch(e){
-    showErr(e?.stack || e?.message || String(e));
-    toast("Не удалось загрузить мелодию 😕");
-  }
-}
 
   async function copyToClipboard(text){
     try{
@@ -1442,24 +1414,14 @@ async function handlePickQuestionAudio(file){
     const timerSeconds = Math.max(5, Math.min(600, Number(cfg.timer?.seconds || 30)));
     let questions = Array.isArray(cfg.questions) ? cfg.questions.slice(0,9) : [];
 
-    
-questions = questions.map(q=>{
+    questions = questions.map(q=>{
       const rawSecs = (q && ("seconds" in q)) ? q.seconds : null;
       const nSecs = (rawSecs==null || rawSecs==="") ? null : Number(rawSecs);
       const seconds = (Number.isFinite(nSecs) && nSecs>0) ? Math.max(1, Math.min(600, Math.round(nSecs))) : null;
-
-      const mmRaw = (q && q.media && typeof q.media==="object") ? q.media : {};
-      const media = {
-        imageDataUrl: String(mmRaw.imageDataUrl || ""),
-        audioDataUrl: String(mmRaw.audioDataUrl || ""),
-        imageName: String(mmRaw.imageName || ""),
-        audioName: String(mmRaw.audioName || ""),
-      };
-
       if(q?.type === "text"){
-        return { type:"text", prompt:String(q.prompt||""), accepts:(Array.isArray(q.accepts)?q.accepts:[]).map(x=>String(x||"")), seconds, media };
+        return { type:"text", prompt:String(q.prompt||""), accepts:(Array.isArray(q.accepts)?q.accepts:[]).map(x=>String(x||"")), seconds, image: q.image || null, audio: q.audio || null };
       }
-      return { type:"choice", prompt:String(q?.prompt||""), options:(Array.isArray(q?.options)?q.options:[]).map(x=>String(x||"")), correctIndex:Number(q?.correctIndex||0), seconds, media };
+      return { type:"choice", prompt:String(q?.prompt||""), options:(Array.isArray(q?.options)?q.options:[]).map(x=>String(x||"")), correctIndex:Number(q?.correctIndex||0), seconds, image: q.image || null, audio: q.audio || null };
     });
 
     return { title, useRepoBg, bgDataUrl, timer: { enabled: timerEnabled, seconds: timerSeconds }, useImages, useLatex, blockUrls: blockUrls, questions };
@@ -1490,7 +1452,10 @@ questions = questions.map(q=>{
     const p = String(q.prompt || "").trim();
     const short = p.length > 50 ? p.slice(0,50)+"…" : p;
     const type = (q.type==="choice") ? "Выбор" : "Ввод";
-    return { title: short || "(пусто)", sub: type };
+    let indicators = "";
+    if(q.image) indicators += "🖼️ ";
+    if(q.audio) indicators += "🎵 ";
+    return { title: short || "(пусто)", sub: type, indicators };
   }
 
   function renderList(){
@@ -1513,7 +1478,8 @@ questions = questions.map(q=>{
       const meta = document.createElement("div");
       meta.className = "meta";
       const s = qSummary(q);
-      meta.innerHTML = `<div class="t">${escapeHtml(String(i+1)+". "+s.title)}</div><div class="s">${escapeHtml(s.sub)}</div>`;
+      const indicatorHtml = s.indicators ? `<span class="mediaIndicators">${s.indicators}</span>` : "";
+      meta.innerHTML = `<div class="t">${escapeHtml(String(i+1)+". "+s.title)} ${indicatorHtml}</div><div class="s">${escapeHtml(s.sub)}</div>`;
 
       const btns = document.createElement("div");
       btns.style.display="flex";
@@ -1657,8 +1623,7 @@ questions = questions.map(q=>{
       $("modalTitle").textContent = "Редактировать вопрос";
     } else {
       Editor.draft = {
-        id: uid(), type: "choice", prompt: "", options: ["",""], correctIndex: 0, seconds: null,
-        media: { imageDataUrl:"", audioDataUrl:"", imageName:"", audioName:"" }
+        id: uid(), type: "choice", prompt: "", options: ["",""], correctIndex: 0, seconds: null, image: null, audio: null
       };
       Editor.editingId = null;
       $("modalTitle").textContent = "Добавить вопрос";
@@ -1668,17 +1633,110 @@ questions = questions.map(q=>{
     $("inpPrompt").value = Editor.draft.prompt || "";
     if(!("seconds" in Editor.draft)) Editor.draft.seconds = null;
     if($("inpQSeconds")) $("inpQSeconds").value = (Editor.draft.seconds ?? "");
-
-    ensureDraftMedia();
-    updateQuestionMediaUI();
-
+    if(!("image" in Editor.draft)) Editor.draft.image = null;
+    if(!("audio" in Editor.draft)) Editor.draft.audio = null;
+    
     syncModalType();
     if($("selType").value === "choice") renderChoiceUI();
     else renderTextUI();
 
+    updateMediaUI();
     showModal();
     setTimeout(()=>$("inpPrompt").focus(), 40);
   }
+
+
+  // ===== МЕДИА УПРАВЛЕНИЕ =====
+  function updateMediaUI(){
+    const draft = Editor.draft;
+    if(!draft) return;
+
+    // Изображение
+    const imageBox = $("imageBox");
+    const imagePreview = $("imagePreview");
+    const btnRemoveImage = $("btnRemoveImage");
+    
+    if(draft.image){
+      imageBox.classList.add("hasMedia");
+      imagePreview.innerHTML = `<img src="${draft.image}" alt="Preview" />`;
+      btnRemoveImage.style.display = "block";
+    } else {
+      imageBox.classList.remove("hasMedia");
+      imagePreview.innerHTML = '<div style="color:var(--muted);font-size:11px;text-align:center">Нажмите кнопку ниже</div>';
+      btnRemoveImage.style.display = "none";
+    }
+
+    // Аудио
+    const audioBox = $("audioBox");
+    const audioPreview = $("audioPreview");
+    const btnRemoveAudio = $("btnRemoveAudio");
+    
+    if(draft.audio){
+      audioBox.classList.add("hasMedia");
+      audioPreview.innerHTML = `<audio controls src="${draft.audio}"></audio><div class="mediaFileName">Аудио загружено</div>`;
+      btnRemoveAudio.style.display = "block";
+    } else {
+      audioBox.classList.remove("hasMedia");
+      audioPreview.innerHTML = '<div style="color:var(--muted);font-size:11px;text-align:center">Нажмите кнопку ниже</div>';
+      btnRemoveAudio.style.display = "none";
+    }
+  }
+
+  $("btnAddImage").addEventListener("click", ()=> $("fileImage").click());
+  $("btnAddAudio").addEventListener("click", ()=> $("fileAudio").click());
+
+  $("fileImage").addEventListener("change", async (e)=>{
+    const file = e.target.files?.[0];
+    if(!file) return;
+    
+    try{
+      toast("Сжимаем изображение...");
+      const dataUrl = await compressImage(file, 1200, 0.85);
+      if(Editor.draft){
+        Editor.draft.image = dataUrl;
+        updateMediaUI();
+        toast("Изображение загружено ✅");
+      }
+    }catch(err){
+      toast("Ошибка загрузки 😕");
+      console.error(err);
+    }
+    e.target.value = "";
+  });
+
+  $("fileAudio").addEventListener("change", async (e)=>{
+    const file = e.target.files?.[0];
+    if(!file) return;
+    
+    try{
+      const dataUrl = await fileToDataUrl(file);
+      if(Editor.draft){
+        Editor.draft.audio = dataUrl;
+        updateMediaUI();
+        toast("Аудио загружено ✅");
+      }
+    }catch(err){
+      toast("Ошибка загрузки 😕");
+      console.error(err);
+    }
+    e.target.value = "";
+  });
+
+  $("btnRemoveImage").addEventListener("click", ()=>{
+    if(Editor.draft){
+      Editor.draft.image = null;
+      updateMediaUI();
+      toast("Изображение удалено");
+    }
+  });
+
+  $("btnRemoveAudio").addEventListener("click", ()=>{
+    if(Editor.draft){
+      Editor.draft.audio = null;
+      updateMediaUI();
+      toast("Аудио удалено");
+    }
+  });
 
   function getDraftFromModal(){
     const q = Editor.draft;
@@ -1700,6 +1758,7 @@ questions = questions.map(q=>{
     } else {
       q.accepts = (q.accepts || [""]).map(x=>String(x||""));
     }
+    // Медиа уже в q.image и q.audio
     return q;
   }
 
@@ -1725,9 +1784,9 @@ questions = questions.map(q=>{
   function buildPayload(previewWithDraft){
     let questions = Editor.questions.map(q=>{
       if(q.type === "choice"){
-        return { type:"choice", prompt:q.prompt||"", options:(q.options||[]).slice(), correctIndex:Number(q.correctIndex||0), seconds:(q.seconds??null), media: (q.media && typeof q.media==="object") ? { imageDataUrl:String(q.media.imageDataUrl||""), audioDataUrl:String(q.media.audioDataUrl||""), imageName:String(q.media.imageName||""), audioName:String(q.media.audioName||"") } : { imageDataUrl:"", audioDataUrl:"", imageName:"", audioName:"" } };
+        return { type:"choice", prompt:q.prompt||"", options:(q.options||[]).slice(), correctIndex:Number(q.correctIndex||0), seconds:(q.seconds??null), image: q.image || null, audio: q.audio || null };
       }
-      return { type:"text", prompt:q.prompt||"", accepts:(q.accepts||[]).slice(), seconds:(q.seconds??null), media: (q.media && typeof q.media==="object") ? { imageDataUrl:String(q.media.imageDataUrl||""), audioDataUrl:String(q.media.audioDataUrl||""), imageName:String(q.media.imageName||""), audioName:String(q.media.audioName||"") } : { imageDataUrl:"", audioDataUrl:"", imageName:"", audioName:"" } };
+      return { type:"text", prompt:q.prompt||"", accepts:(q.accepts||[]).slice(), seconds:(q.seconds??null), image: q.image || null, audio: q.audio || null };
     });
     if(previewWithDraft && Editor.draft){
       const d = deepClone(Editor.draft);
@@ -1736,7 +1795,8 @@ questions = questions.map(q=>{
         const mapped = {
           type:"choice", prompt:d.prompt||"", options:(d.options||[]).slice(), correctIndex:Number(d.correctIndex||0),
           seconds: (d.seconds==null || d.seconds==="") ? null : Number(d.seconds),
-          media: (d.media && typeof d.media==="object") ? { imageDataUrl:String(d.media.imageDataUrl||""), audioDataUrl:String(d.media.audioDataUrl||""), imageName:String(d.media.imageName||""), audioName:String(d.media.audioName||"") } : { imageDataUrl:"", audioDataUrl:"", imageName:"", audioName:"" }
+          image: d.image || null,
+          audio: d.audio || null
         };
         if(questions.length === 0) questions.push(mapped);
         else questions[0] = mapped;
@@ -1744,7 +1804,8 @@ questions = questions.map(q=>{
         const mapped = {
           type:"text", prompt:d.prompt||"", accepts:(d.accepts||[]).slice(),
           seconds: (d.seconds==null || d.seconds==="") ? null : Number(d.seconds),
-          media: (d.media && typeof d.media==="object") ? { imageDataUrl:String(d.media.imageDataUrl||""), audioDataUrl:String(d.media.audioDataUrl||""), imageName:String(d.media.imageName||""), audioName:String(d.media.audioName||"") } : { imageDataUrl:"", audioDataUrl:"", imageName:"", audioName:"" }
+          image: d.image || null,
+          audio: d.audio || null
         };
         if(questions.length === 0) questions.push(mapped);
         else questions[0] = mapped;
@@ -1804,37 +1865,6 @@ questions = questions.map(q=>{
   $("chkTimer").addEventListener("change", ()=>{ Editor.timer.enabled = $("chkTimer").checked; updatePreview(false); });
   $("inpSeconds").addEventListener("input", ()=>{ Editor.timer.seconds = Number($("inpSeconds").value || 30); updatePreview(false); });
   $("btnAddQ").addEventListener("click", ()=>{ if(Editor.questions.length >= 9){ toast("Вопросов уже 9 🙂"); return; } openModal(null); });
-  // Медиа для вопроса
-  $("btnPickQImage").addEventListener("click", ()=>{ $("fileQImage").click(); });
-  $("btnPickQAudio").addEventListener("click", ()=>{ $("fileQAudio").click(); });
-
-  $("fileQImage").addEventListener("change", async (e)=>{
-    const f = e.target.files && e.target.files[0];
-    await handlePickQuestionImage(f);
-    e.target.value = ""; // чтобы можно было выбрать тот же файл снова
-  });
-  $("fileQAudio").addEventListener("change", async (e)=>{
-    const f = e.target.files && e.target.files[0];
-    await handlePickQuestionAudio(f);
-    e.target.value = "";
-  });
-
-  $("btnClearQImage").addEventListener("click", ()=>{
-    if(Editor.draft && Editor.draft.media){
-      Editor.draft.media.imageDataUrl = "";
-      Editor.draft.media.imageName = "";
-      updateQuestionMediaUI();
-      toast("Картинка сброшена");
-    }
-  });
-  $("btnClearQAudio").addEventListener("click", ()=>{
-    if(Editor.draft && Editor.draft.media){
-      Editor.draft.media.audioDataUrl = "";
-      Editor.draft.media.audioName = "";
-      updateQuestionMediaUI();
-      toast("Мелодия сброшена");
-    }
-  });
   $("btnClearQs").addEventListener("click", ()=>{ Editor.questions = []; renderList(); updatePreview(false); toast("Очищено"); });
   $("btnCloseModal").addEventListener("click", ()=>{ Editor.draft=null; Editor.editingId=null; hideModal(); });
   $("modalBackdrop").addEventListener("click", (e)=>{ if(e.target === $("modalBackdrop")){ Editor.draft=null; Editor.editingId=null; hideModal(); } });
