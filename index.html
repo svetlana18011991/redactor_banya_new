@@ -983,10 +983,7 @@
             <span style="font-size:20px; line-height:1; cursor:help;" title="Ссылка на аудио">🎵</span>
             <input id="inpQAudio" type="text" placeholder="https://.../audio.mp3" />
             <button class="btn small danger" id="btnClearAudio" type="button" title="Удалить аудио">✖</button>
-          
-          <div class="muted" style="margin-top:8px">Или выберите файл с компьютера — при публикации он будет загружен автоматически.</div>
-
-          <div class="answerRow">
+<div class="answerRow">
             <span style="font-size:20px; line-height:1; cursor:help;" title="Картинка с компьютера">🖼️+</span>
             <input id="fileQImage" type="file" accept="image/*" />
             <button class="btn small" id="btnClearImageFile" type="button" title="Удалить выбранный файл">✖</button>
@@ -1643,8 +1640,16 @@
       q.seconds = Math.round(s);
     }
     
-    q.image = $("inpQImage") ? $("inpQImage").value.trim() : "";
-    q.audio = $("inpQAudio") ? $("inpQAudio").value.trim() : "";
+    const imgVal = $("inpQImage") ? $("inpQImage").value.trim() : "";
+    const audVal = $("inpQAudio") ? $("inpQAudio").value.trim() : "";
+
+    if(imgVal){ q.image = imgVal; delete q._imageDataUrl; delete q._imageFile; }
+    else if(q._imageDataUrl){ q.image = q._imageDataUrl; }
+    else { q.image = ""; }
+
+    if(audVal){ q.audio = audVal; delete q._audioDataUrl; delete q._audioFile; }
+    else if(q._audioDataUrl){ q.audio = q._audioDataUrl; }
+    else { q.audio = ""; }
 
     if(q.type === "choice"){
       q.options = (q.options || []).map(x=>String(x||""));
@@ -1775,8 +1780,10 @@
     q._imageFile = f;
     try{
       const dataUrl = await fileToDataUrl(f);
-      $("inpQImage").value = dataUrl; // чтобы работало превью прямо сейчас
+      q._imageDataUrl = dataUrl; // храним отдельно, чтобы не засорять поле URL
+      if($("inpQImage")) $("inpQImage").value = "";
       toast("Картинка выбрана ✅");
+      updatePreview(true);
     }catch(err){
       toast("Не удалось прочитать файл 😕");
     }
@@ -1796,12 +1803,12 @@
   });
   if($("btnClearImageFile")) $("btnClearImageFile").addEventListener("click", ()=>{
     if($("fileQImage")) $("fileQImage").value = "";
-    const q = Editor.draft; if(q) delete q._imageFile;
+    const q = Editor.draft; if(q){ delete q._imageFile; delete q._imageDataUrl; }
     toast("Файл картинки убран");
   });
   if($("btnClearAudioFile")) $("btnClearAudioFile").addEventListener("click", ()=>{
     if($("fileQAudio")) $("fileQAudio").value = "";
-    const q = Editor.draft; if(q) delete q._audioFile;
+    const q = Editor.draft; if(q){ delete q._audioFile; delete q._audioDataUrl; }
     toast("Файл аудио убран");
   });
 
