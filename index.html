@@ -857,51 +857,6 @@
       <div class="errbar" id="errbar"></div>
 
       <div class="panel-body">
-
-        <div class="section">
-          <div class="title" data-i18n="sec_title">Название</div>
-          <label><span data-i18n="label_game_title">Заголовок в игре</span></label>
-          <input id="inpTitle" type="text" value="Башня знаний" />
-        </div>
-
-        <div class="section">
-          <div class="title" data-i18n="ui_lang_title">Язык интерфейса</div>
-          <label data-i18n="ui_lang_label">Выбрать язык</label>
-          <select id="selLang">
-            <option value="ru">Русский</option>
-            <option value="en">English</option>
-            <option value="de">Deutsch</option>
-            <option value="zh">中文</option>
-          </select>
-        </div>
-
-        <div class="section">
-          <div class="title" data-i18n="ui_feedback_title">Фидбек в конце</div>
-          <label data-i18n="ui_feedback_label">Текст на финальном экране (используй {{score}} или _________)</label>
-          <textarea id="inpFeedback" rows="3" placeholder="Молодец! Тобой заработано _________ баллов"></textarea>
-        </div>
-
-        <div class="section">
-          <div class="title" data-i18n="ui_bgurl_title">Фон по ссылке</div>
-          <label data-i18n="ui_bgurl_label">URL картинки (если заполнено — используется вместо файла)</label>
-          <input id="inpBgUrl" type="text" placeholder="https://.../background.jpg" />
-          <div class="hint" data-i18n="ui_bgurl_hint">Совет: так быстрее для Genially, чем грузить файл.</div>
-        </div>
-
-        <div class="section">
-          <div class="title" data-i18n="sec_style">Оформление</div>
-          <label><span data-i18n="label_bg">Выбрать свой фон</span></label>
-          <div class="row" style="gap:10px; align-items:center; margin-top:6px">
-            <input id="fileBg" type="file" accept="image/*" />
-            <button id="btnResetBg" type="button" class="btn small"><span data-i18n="btn_reset_bg">↩ Сбросить фон</span></button>
-          </div>
-
-          <div class="toggle" data-hide="blocks">
-            <input id="chkUseImages" type="checkbox" checked />
-            <div>
-              <div style="font-weight:900">Блоки: стандартные</div>
-              <div class="muted"></div>
-            </div>
           </div>
           
           <div class="toggle">
@@ -1769,11 +1724,11 @@ function __applyTitle__(title){\n  const t = String(title || \"Башня зна
   if($("inpFeedback")) $("inpFeedback").value = Editor.feedback || "Молодец! Тобой заработано _________ баллов";
   if($("selLang")) $("selLang").value = Editor.lang || "ru";
   try{ applyLangEditor(); }catch(e){} updatePreview(false); });
-  $("fileBg").addEventListener("change", async (e)=>{
+  if($("fileBg")) $("fileBg").addEventListener("change", async (e)=>{
     const f = e.target.files?.[0]; if(!f) return;
     Editor.bgDataUrl = await fileToDataUrl(f); toast(t("toast_bg_loaded")); updatePreview(false);
   });
-  $("btnResetBg").addEventListener("click", ()=>{ Editor.bgDataUrl = ""; $("fileBg").value = ""; updatePreview(false); });
+  if($("btnResetBg")) $("btnResetBg").addEventListener("click", ()=>{ Editor.bgDataUrl = ""; $("fileBg").value = ""; updatePreview(false); });
   // bg url (lighter than file for Genially)
   if($("inpBgUrl")){
     $("inpBgUrl").addEventListener("input", ()=>{ Editor.bgUrl = $("inpBgUrl").value.trim(); updatePreview(false); });
