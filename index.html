@@ -814,29 +814,11 @@
       box-shadow: 0 0 0 3px rgba(255,150,0,.18) !important;
     }
 
-    .versionBadge{
-      position:fixed;
-      top:10px; right:10px;
-      z-index:9999;
-      padding:6px 10px;
-      border-radius:999px;
-      font-weight:900;
-      font-size:12px;
-      letter-spacing:.3px;
-      background:rgba(0,0,0,.45);
-      border:1px solid rgba(255,255,255,.18);
-      backdrop-filter: blur(8px);
-      color:rgba(255,255,255,.92);
-      box-shadow: 0 10px 24px rgba(0,0,0,.35);
-      user-select:none;
-    }
-
-  </style>
+    </style>
 </head>
 
 <body>
-  <div class="versionBadge">версия 1</div>
-  <div class="app" id="editorRoot">
+<div class="app" id="editorRoot">
     <div class="panel settings">
       <div class="panel-header">
         <div class="h">Редактор «Башня»</div>
@@ -983,8 +965,10 @@
             <span style="font-size:20px; line-height:1; cursor:help;" title="Ссылка на аудио">🎵</span>
             <input id="inpQAudio" type="text" placeholder="https://.../audio.mp3" />
             <button class="btn small danger" id="btnClearAudio" type="button" title="Удалить аудио">✖</button>
-<div class="answerRow">
-            <span style="font-size:20px; line-height:1; cursor:help;" title="Картинка с компьютера">🖼️+</span>
+          </div>
+
+          <div class="answerRow">
+            <span style="font-size:20px; line-height:1; cursor:help;" title="Картинка с компьютера">>🖼️+</span>
             <input id="fileQImage" type="file" accept="image/*" />
             <button class="btn small" id="btnClearImageFile" type="button" title="Удалить выбранный файл">✖</button>
           </div>
