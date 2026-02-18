@@ -1355,7 +1355,7 @@
     if(Editor.questions.length === 0){
       const d = document.createElement("div");
       d.className = "muted";
-      d.textContent = "Пока нет вопросов. Нажмите «Добавить» и заполните 9 вопросов.";
+      d.innerHTML = t("qs_empty");
       list.appendChild(d);
       return;
     }
@@ -1740,6 +1740,7 @@
       code_copy_iframe:"Скопировать iframe",
       code_download:"Скачать игру (HTML)",
       toast_copied:"Скопировано",
+      qs_empty:"Пока нет вопросов. Нажмите «Добавить» и заполните 9 вопросов.",
     },
     en: {
       editor_title:"Tower Editor",
@@ -1749,10 +1750,10 @@
       ui_lang_title:"Interface language",
       ui_lang_label:"Choose language",
       ui_feedback_title:"Final feedback",
-      ui_feedback_label:"Text on final screen (use {{score}} or _________)",
-      ui_bgurl_title:"Background by link",
-      ui_bgurl_label:"Image URL (if set — used instead of file)",
-      ui_bgurl_hint:"Tip: faster for Genially than uploading a file.",
+      ui_feedback_label:"",
+      ui_bgurl_title:"Background by URL",
+      ui_bgurl_label:"Image URL (if filled — used instead of file)",
+      ui_bgurl_hint:"",
       sec_style:"Style",
       label_bg:"Choose background file",
       btn_reset_bg:"↩ Reset background",
@@ -1760,7 +1761,7 @@
       sec_questions:"Questions",
       btn_add:"Add",
       btn_clear:"Clear",
-      toast_iframe_ok:"iframe copied ✅",
+      toast_iframe_ok:"Copied",
       toast_iframe_fail:"Copy failed",
       toast_bg_loaded:"Background loaded",
       modal_add_q:"Add question",
@@ -1798,19 +1799,21 @@
       code_copy_iframe:"Copy iframe",
       code_download:"Download game (HTML)",
       toast_copied:"Copied",
+      ui_feedback_ph:"Well done! You scored _________ points.",
+      qs_empty:"No questions yet. Click “Add” and fill in 9 questions.",
     },
     de: {
       editor_title:"Turm-Editor",
-      btn_copy_iframe:"📋 Iframe-Code копieren",
+      btn_copy_iframe:"📋 iframe kopieren",
       sec_title:"Titel",
       label_game_title:"Spieltitel",
-      ui_lang_title:"Sprache",
+      ui_lang_title:"Oberflächensprache",
       ui_lang_label:"Sprache wählen",
-      ui_feedback_title:"Feedback am Ende",
-      ui_feedback_label:"Text im Endbildschirm ({{score}} oder _________)",
-      ui_bgurl_title:"Hintergrund per Link",
-      ui_bgurl_label:"Bild-URL (wenn gesetzt — statt Datei)",
-      ui_bgurl_hint:"Tipp: быстрее für Genially als Upload.",
+      ui_feedback_title:"Abschluss-Feedback",
+      ui_feedback_label:"",
+      ui_bgurl_title:"Hintergrund per URL",
+      ui_bgurl_label:"Bild-URL (wenn ausgefüllt — statt Datei verwendet)",
+      ui_bgurl_hint:"",
       sec_style:"Design",
       label_bg:"Hintergrunddatei wählen",
       btn_reset_bg:"↩ Hintergrund zurücksetzen",
@@ -1818,7 +1821,7 @@
       sec_questions:"Fragen",
       btn_add:"Hinzufügen",
       btn_clear:"Leeren",
-      toast_iframe_ok:"iframe kopiert ✅",
+      toast_iframe_ok:"Kopiert",
       toast_iframe_fail:"Kopieren fehlgeschlagen",
       toast_bg_loaded:"Hintergrund geladen",
       modal_add_q:"Frage hinzufügen",
@@ -1856,6 +1859,8 @@
       code_copy_iframe:"iframe kopieren",
       code_download:"Spiel herunterladen (HTML)",
       toast_copied:"Kopiert",
+      ui_feedback_ph:"Super! Du hast _________ Punkte erzielt.",
+      qs_empty:"Noch keine Fragen. Klicke auf „Hinzufügen“ und erstelle 9 Fragen.",
     },
     zh: {
       editor_title:"塔楼编辑器",
@@ -1864,11 +1869,11 @@
       label_game_title:"游戏标题",
       ui_lang_title:"界面语言",
       ui_lang_label:"选择语言",
-      ui_feedback_title:"结尾反馈",
-      ui_feedback_label:"结尾文字（使用 {{score}} 或 _________）",
+      ui_feedback_title:"最终反馈",
+      ui_feedback_label:"",
       ui_bgurl_title:"背景链接",
-      ui_bgurl_label:"图片 URL（填写则优先使用）",
-      ui_bgurl_hint:"提示：比上传文件更适合 Genially。",
+      ui_bgurl_label:"图片 URL（填写后将替代上传文件）",
+      ui_bgurl_hint:"",
       sec_style:"样式",
       label_bg:"选择背景文件",
       btn_reset_bg:"↩ 重置背景",
@@ -1876,7 +1881,7 @@
       sec_questions:"题目",
       btn_add:"添加",
       btn_clear:"清空",
-      toast_iframe_ok:"已复制 ✅",
+      toast_iframe_ok:"已复制",
       toast_iframe_fail:"复制失败",
       toast_bg_loaded:"背景已加载",
       modal_add_q:"添加题目",
@@ -1914,6 +1919,8 @@
       code_copy_iframe:"复制 iframe",
       code_download:"下载游戏 (HTML)",
       toast_copied:"已复制",
+      ui_feedback_ph:"做得好！你获得了 _________ 分。",
+      qs_empty:"还没有题目。点击“添加”，并填写 9 道题。",
     }
   };
 
