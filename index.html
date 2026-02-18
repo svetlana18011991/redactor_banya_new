@@ -2253,23 +2253,67 @@
   }
 
   function applyLangModals(){
-    const roots = [document.getElementById("modalBackdrop"), document.getElementById("codeBackdrop")].filter(Boolean);
+    const L = (Editor && Editor.lang) ? Editor.lang : "ru";
+    const dict = I18N[L] || I18N.ru;
+
+    // Update text nodes inside both modals (add/edit question)
+    const roots = [];
+    const addModal = document.getElementById("modalAdd");
+    const editModal = document.getElementById("modalEdit");
+    if(addModal) roots.push(addModal);
+    if(editModal) roots.push(editModal);
+
     for(const root of roots){
+      // Titles / labels
       root.querySelectorAll("[data-i18n]").forEach(el=>{
         const k = el.getAttribute("data-i18n");
-        const val = t(k);
-        // allow small HTML (<b>, etc.)
-        el.innerHTML = val;
-      
-    // dynamic placeholders inside modal (options / answers)
-    try{
-      const optInputs = document.querySelectorAll("#modalBackdrop .optText, #modalBackdrop input[data-role='optText']");
-      optInputs.forEach((inp,i)=>{ if(inp && inp.tagName==="INPUT") inp.placeholder = `${t("modal_option_ph")} ${i+1}`; });
-      const ansInputs = document.querySelectorAll("#modalBackdrop .ansText, #modalBackdrop input[data-role='ansText']");
-      ansInputs.forEach((inp,i)=>{ if(inp && inp.tagName==="INPUT") inp.placeholder = `${t("modal_answer_ph")} ${i+1}`; });
-    }catch(e){}
-}
+        if(!k) return;
+        const v = (dict && dict[k]) ? dict[k] : (I18N.ru[k] || k);
+        if(el.tagName === "INPUT" || el.tagName === "TEXTAREA"){
+          if(!el.value) el.placeholder = v;
+        }else{
+          el.textContent = v;
+        }
+      });
 
+      // Placeholders
+      root.querySelectorAll("[data-i18n-placeholder]").forEach(el=>{
+        const k = el.getAttribute("data-i18n-placeholder");
+        if(!k) return;
+        const v = (dict && dict[k]) ? dict[k] : (I18N.ru[k] || "");
+        el.setAttribute("placeholder", v);
+      });
+
+      // Option placeholders (choice answers) inside modal
+      const optInputs = root.querySelectorAll("input.optText");
+      optInputs.forEach((inp, idx)=>{
+        const row = inp.closest(".optRow") || inp.parentElement;
+        const isCorrect = !!(row && row.querySelector("input[type='radio']") && row.querySelector("input[type='radio']").checked);
+        const ph = optPlaceholder(idx, isCorrect);
+
+        // If value is one of the auto-defaults from any language, clear it and use placeholder
+        const defaults = [
+          "✅ Верный ответ","Вариант 1","Вариант 2","Вариант 3","Вариант 4","Вариант 5","Вариант 6","Вариант 7","Вариант 8","Вариант 9",
+          "✅ Correct answer","Option 1","Option 2","Option 3","Option 4","Option 5","Option 6","Option 7","Option 8","Option 9",
+          "✅ Richtige Antwort",
+          "✅ 正确答案","选项 1","选项 2","选项 3","选项 4","选项 5","选项 6","选项 7","选项 8","选项 9"
+        ];
+        if(defaults.includes((inp.value||"").trim())) inp.value = "";
+        inp.placeholder = ph;
+      });
+    }
+
+    // Dynamic placeholders for question number in input-mode
+    try{
+      const qInputs = document.querySelectorAll("input.qPrompt[data-qidx]");
+      qInputs.forEach(inp=>{
+        const n = Number(inp.getAttribute("data-qidx")||"0") + 1;
+        const k = "q_placeholder";
+        const tpl = (dict && dict[k]) ? dict[k] : (I18N.ru[k] || "Вопрос {n}");
+        inp.placeholder = tpl.replace("{n}", String(n));
+      });
+    }catch(e){}
+  }
   function optPlaceholder(idx, isCorrect){
     const L = (Editor && Editor.lang) ? Editor.lang : "ru";
     const dict = {
@@ -2282,69 +2326,6 @@
     if(isCorrect) return d.correct;
     return d.opt.replace("{n}", String(idx+1));
   }
-      root.querySelectorAll("[data-i18n-placeholder]").forEach(el=>{
-        const k = el.getAttribute("data-i18n-placeholder");
-        const val = t(k);
-        if("placeholder" in el) el.placeholder = val;
-      });
-    }
-
-    const modal = document.querySelector("#modalBackdrop .modal-body");
-    if(modal){
-      const labels = modal.querySelectorAll("label");
-      if(labels[0]) labels[0].textContent = t("modal_q_type");
-      if(labels[1]) labels[1].textContent = t("modal_question");
-      if(labels[2]) labels[2].textContent = t("modal_seconds_label");
-    }
-    if($("inpPrompt")) $("inpPrompt").setAttribute("placeholder", t("modal_question_ph"));
-    if($("inpQSeconds")) $("inpQSeconds").setAttribute("placeholder", t("modal_seconds_ph"));
-
-    const heads = document.querySelectorAll("#modalBackdrop .choiceBlock > div:first-child");
-    if(heads[0]) heads[0].textContent = t("modal_timer_title");
-    if(heads[1]) heads[1].textContent = t("modal_media_title");
-    if(heads[2]) heads[2].textContent = t("modal_answers_title");
-    if(heads[3]) heads[3].textContent = t("modal_text_answers_title");
-
-    const muteds = document.querySelectorAll("#modalBackdrop .choiceBlock .muted");
-    if(muteds[0]) muteds[0].textContent = t("modal_timer_desc_plain");
-    if(muteds[1]) muteds[1].textContent = t("modal_media_desc_plain");
-    if(muteds[2]) muteds[2].textContent = t("modal_answers_desc_plain");
-    if(muteds[3]) muteds[3].textContent = t("modal_text_answers_desc_plain");
-
-    if($("inpQImage")) $("inpQImage").setAttribute("placeholder", t("modal_img_ph"));
-    if($("inpQAudio")) $("inpQAudio").setAttribute("placeholder", t("modal_audio_ph"));
-
-    document.querySelectorAll('#modalBackdrop .answerRow span').forEach(sp=>{
-      const t0 = sp.getAttribute("title")||"";
-      if(t0.includes("картин") || t0.toLowerCase().includes("image")) sp.setAttribute("title", t("modal_img_title"));
-      if(t0.includes("аудио") || t0.toLowerCase().includes("audio")) sp.setAttribute("title", t("modal_audio_title"));
-    });
-    if($("btnClearImage")) $("btnClearImage").setAttribute("title", t("modal_clear_img"));
-    if($("btnClearAudio")) $("btnClearAudio").setAttribute("title", t("modal_clear_audio"));
-
-    if($("btnAddChoice")) $("btnAddChoice").textContent = "➕ " + t("modal_add_option");
-    if($("btnAddText")) $("btnAddText").textContent = "➕ " + t("modal_add_option");
-
-    if($("btnPreviewDraft")) $("btnPreviewDraft").textContent = "👁 " + t("modal_preview");
-    if($("btnSaveQ")) $("btnSaveQ").textContent = "💾 " + t("modal_save");
-
-    if($("codeTitle")) $("codeTitle").textContent = t("code_title");
-    if($("btnCloseCode")) $("btnCloseCode").textContent = t("modal_close");
-
-    const codeMuted = document.querySelector("#codeBackdrop .modal-body .muted");
-    if(codeMuted) codeMuted.textContent = t("code_desc_plain");
-
-    const codeLabels = document.querySelectorAll("#codeBackdrop .modal-body label");
-    if(codeLabels[0]) codeLabels[0].textContent = t("code_link_label");
-    if(codeLabels[1]) codeLabels[1].textContent = t("code_iframe_label");
-
-    if($("btnCopyFromModal")) $("btnCopyFromModal").textContent = "📋 " + t("code_copy_link");
-    if($("btnCopyIframe")) $("btnCopyIframe").textContent = "📎 " + t("code_copy_iframe");
-    if($("btnDownloadGame")) $("btnDownloadGame").textContent = "⬇ " + t("code_download");
-
-    if($("toast")) $("toast").textContent = t("toast_copied");
-  }
-
   function applyLangSelectLabels(){
     const sel = $("selLang"); if(!sel) return;
     const map = {
@@ -2491,6 +2472,6 @@
 })();
 </script>
 
-  <div id="versionBadge">Версия 18</div>
+  <div id="versionBadge">Версия 19</div>
 </body>
 </html>
