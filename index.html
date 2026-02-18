@@ -883,14 +883,14 @@
       <div class="panel-body">
 
         <div class="section">
+          <div class="title" data-i18n="ui_lang_title">Язык интерфейса</div>
+          <div class="section">
           <div class="title" data-i18n="sec_title">Название</div>
           <label><span data-i18n="label_game_title">Заголовок в игре</span></label>
           <input id="inpTitle" type="text" value="Башня знаний" />
         </div>
 
-        <div class="section">
-          <div class="title" data-i18n="ui_lang_title">Язык интерфейса</div>
-          <label data-i18n="ui_lang_label">Выбрать язык</label>
+        <label data-i18n="ui_lang_label">Выбрать язык</label>
           <select id="selLang">
             <option value="ru">Русский</option>
             <option value="en">English</option>
@@ -962,14 +962,17 @@
           <textarea id="inpFeedback" rows="3" data-i18n-placeholder="ui_feedback_ph" placeholder="Молодец! Тобой заработано _________ баллов"></textarea>
         </div>
 
-        <div class="section">
+        
+
+
+        
+
+<div class="section">
           <div class="title" data-i18n="ui_bgurl_title">Фон по ссылке</div>
           <label data-i18n="ui_bgurl_label">URL картинки (если заполнено — используется вместо файла)</label>
           <input id="inpBgUrl" type="text" placeholder="https://.../background.jpg" />
           <div class="hint" data-i18n="ui_bgurl_hint">Совет: так быстрее для Genially, чем грузить файл.</div>
         </div>
-
-        
 
 <div class="section">
           <div class="title" data-hide="exportTitle" data-i18n="sec_export">Экспорт в Genially</div>
@@ -2174,15 +2177,21 @@
   }
 
   function applyLangModals(){
-    if($("btnCloseModal")) $("btnCloseModal").textContent = t("modal_close");
-
-    const sel = $("selType");
-    if(sel){
-      const oChoice = sel.querySelector('option[value="choice"]');
-      const oText   = sel.querySelector('option[value="text"]');
-      if(oChoice) oChoice.textContent = t("modal_type_choice");
-      if(oText)   oText.textContent   = t("modal_type_text");
+    const roots = [document.getElementById("modalBackdrop"), document.getElementById("codeBackdrop")].filter(Boolean);
+    for(const root of roots){
+      root.querySelectorAll("[data-i18n]").forEach(el=>{
+        const k = el.getAttribute("data-i18n");
+        const val = t(k);
+        // allow small HTML (<b>, etc.)
+        el.innerHTML = val;
+      });
+      root.querySelectorAll("[data-i18n-placeholder]").forEach(el=>{
+        const k = el.getAttribute("data-i18n-placeholder");
+        const val = t(k);
+        if("placeholder" in el) el.placeholder = val;
+      });
     }
+  }
 
     const modal = document.querySelector("#modalBackdrop .modal-body");
     if(modal){
@@ -2386,6 +2395,6 @@
 })();
 </script>
 
-  <div id="versionBadge">Версия 10</div>
+  <div id="versionBadge">Версия 11</div>
 </body>
 </html>
