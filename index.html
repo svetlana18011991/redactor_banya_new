@@ -1167,8 +1167,8 @@
     try{
       const qp = new URLSearchParams(location.search);
       if(qp.get("preview")==="1"){
-        const startLayer = document.getElementById("startLayer");
-        const playBtn = document.getElementById("playBtn");
+        const startLayer = document.getElementById("start");
+        const playBtn = document.getElementById("play");
         if(startLayer) startLayer.style.display="none";
         if(playBtn) setTimeout(()=>playBtn.click(), 80);
       }
@@ -1183,8 +1183,8 @@
       }
     } else {
       try{
-        const playBtn = document.getElementById("playBtn");
-        const startLayer = document.getElementById("startLayer");
+        const playBtn = document.getElementById("play");
+        const startLayer = document.getElementById("start");
         if(startLayer) startLayer.style.display="";
         if(playBtn) playBtn.click();
       }catch(e){}
@@ -1508,13 +1508,13 @@
     if(existing){
       Editor.draft = deepClone(existing);
       Editor.editingId = existing.id;
-      $("modalTitle").textContent = "Редактировать вопрос";
+      $("modalTitle").textContent = t("modal_edit_q");
     } else {
       Editor.draft = {
         id: uid(), type: "choice", prompt: "", options: ["",""], correctIndex: 0, seconds: null, image: "", audio: ""
       };
       Editor.editingId = null;
-      $("modalTitle").textContent = "Добавить вопрос";
+      $("modalTitle").textContent = t("modal_add_q");
     }
 
     $("selType").value = Editor.draft.type || "choice";
@@ -1698,15 +1698,48 @@
       toast_iframe_ok:"iframe скопирован ✅",
       toast_iframe_fail:"Не удалось скопировать",
       toast_bg_loaded:"Фон загружен",
-      sec_questions_title:"题目",
+      sec_questions_title:"Вопросы",
       btn_add:"添加",
-      qs_help:"必须 <b>9 道题</b>。类型：<b>选择</b> 或 <b>输入</b>（允许多个正确答案）。",
+      qs_help:"Строго <b>9 вопросов</b>. Можно: <b>выбор</b> или <b>ввод</b> (несколько правильных вариантов).",
       sec_export:"导出到 Genially",
       export_hint:'点击 <b>"📋 复制 iframe"</b>，即可得到如下短代码：',
       latex_desc:"启用数学公式（例如 $x^2$）",
       ui_feedback_ph:"做得好！你获得了 _________ 分。",
-
-
+      modal_add_q:"Добавить вопрос",
+      modal_edit_q:"Редактировать вопрос",
+      modal_close:"Закрыть",
+      modal_q_type:"Тип вопроса",
+      modal_type_choice:"С выбором ответа",
+      modal_type_text:"С вводом ответа",
+      modal_question:"Вопрос",
+      modal_question_ph:"Введите вопрос…",
+      modal_timer_title:"Таймер для этого вопроса",
+      modal_timer_desc_plain:"Можно задать время именно для этого вопроса (пусто = без таймера/по умолчанию).",
+      modal_seconds_label:"Секунд на этот вопрос",
+      modal_seconds_ph:"например 20",
+      modal_media_title:"Медиа (ссылки)",
+      modal_media_desc_plain:"Вставьте прямую ссылку (URL) на картинку или аудиофайл.",
+      modal_img_title:"Ссылка на картинку",
+      modal_audio_title:"Ссылка на аудио",
+      modal_img_ph:"https://.../image.jpg",
+      modal_audio_ph:"https://.../audio.mp3",
+      modal_clear_img:"Удалить картинку",
+      modal_clear_audio:"Удалить аудио",
+      modal_answers_title:"Варианты ответа",
+      modal_answers_desc_plain:"Минимум 2 варианта. Отметь верный радиокнопкой.",
+      modal_text_answers_title:"Верные ответы (ввод)",
+      modal_text_answers_desc_plain:"Можно несколько вариантов — принимается любой.",
+      modal_add_option:"Добавить вариант",
+      modal_preview:"Показать в превью",
+      modal_save:"Сохранить",
+      code_title:"Ссылка для запуска игры",
+      code_desc_plain:"Это ссылка на игру. Её можно вставлять в Genially (через iframe) и куда угодно.",
+      code_link_label:"Ссылка",
+      code_iframe_label:"iframe (если нужен)",
+      code_copy_link:"Скопировать ссылку",
+      code_copy_iframe:"Скопировать iframe",
+      code_download:"Скачать игру (HTML)",
+      toast_copied:"Скопировано",
     },
     en: {
       editor_title:"Tower Editor",
@@ -1730,6 +1763,41 @@
       toast_iframe_ok:"iframe copied ✅",
       toast_iframe_fail:"Copy failed",
       toast_bg_loaded:"Background loaded",
+      modal_add_q:"Add question",
+      modal_edit_q:"Edit question",
+      modal_close:"Close",
+      modal_q_type:"Question type",
+      modal_type_choice:"Multiple choice",
+      modal_type_text:"Text input",
+      modal_question:"Question",
+      modal_question_ph:"Type your question…",
+      modal_timer_title:"Timer for this question",
+      modal_timer_desc_plain:"You can set time for this question (empty = no timer / default).",
+      modal_seconds_label:"Seconds for this question",
+      modal_seconds_ph:"e.g. 20",
+      modal_media_title:"Media (links)",
+      modal_media_desc_plain:"Paste direct URL to an image or an audio file.",
+      modal_img_title:"Image link",
+      modal_audio_title:"Audio link",
+      modal_img_ph:"https://.../image.jpg",
+      modal_audio_ph:"https://.../audio.mp3",
+      modal_clear_img:"Remove image",
+      modal_clear_audio:"Remove audio",
+      modal_answers_title:"Answer options",
+      modal_answers_desc_plain:"Minimum 2 options. Mark the correct one with the radio button.",
+      modal_text_answers_title:"Correct answers (text)",
+      modal_text_answers_desc_plain:"You can add several variants — any of them will be accepted.",
+      modal_add_option:"Add option",
+      modal_preview:"Show in preview",
+      modal_save:"Save",
+      code_title:"Game launch link",
+      code_desc_plain:"This is the game link. You can embed it in Genially (via iframe) and anywhere else.",
+      code_link_label:"Link",
+      code_iframe_label:"iframe (if needed)",
+      code_copy_link:"Copy link",
+      code_copy_iframe:"Copy iframe",
+      code_download:"Download game (HTML)",
+      toast_copied:"Copied",
     },
     de: {
       editor_title:"Turm-Editor",
@@ -1753,6 +1821,41 @@
       toast_iframe_ok:"iframe kopiert ✅",
       toast_iframe_fail:"Kopieren fehlgeschlagen",
       toast_bg_loaded:"Hintergrund geladen",
+      modal_add_q:"Frage hinzufügen",
+      modal_edit_q:"Frage bearbeiten",
+      modal_close:"Schließen",
+      modal_q_type:"Fragetyp",
+      modal_type_choice:"Multiple Choice",
+      modal_type_text:"Texteingabe",
+      modal_question:"Frage",
+      modal_question_ph:"Gib deine Frage ein…",
+      modal_timer_title:"Timer für diese Frage",
+      modal_timer_desc_plain:"Du kannst die Zeit für diese Frage setzen (leer = kein Timer / Standard).",
+      modal_seconds_label:"Sekunden für diese Frage",
+      modal_seconds_ph:"z.B. 20",
+      modal_media_title:"Medien (Links)",
+      modal_media_desc_plain:"Füge eine direkte URL zu einem Bild oder einer Audiodatei ein.",
+      modal_img_title:"Bild-Link",
+      modal_audio_title:"Audio-Link",
+      modal_img_ph:"https://.../bild.jpg",
+      modal_audio_ph:"https://.../audio.mp3",
+      modal_clear_img:"Bild entfernen",
+      modal_clear_audio:"Audio entfernen",
+      modal_answers_title:"Antwortoptionen",
+      modal_answers_desc_plain:"Mindestens 2 Optionen. Markiere die richtige mit dem Radiobutton.",
+      modal_text_answers_title:"Richtige Antworten (Text)",
+      modal_text_answers_desc_plain:"Du kannst mehrere Varianten hinzufügen — jede wird akzeptiert.",
+      modal_add_option:"Option hinzufügen",
+      modal_preview:"In Vorschau zeigen",
+      modal_save:"Speichern",
+      code_title:"Spiel-Link",
+      code_desc_plain:"Das ist der Spiel-Link. Du kannst ihn in Genially (per iframe) und überall einbetten.",
+      code_link_label:"Link",
+      code_iframe_label:"iframe (optional)",
+      code_copy_link:"Link kopieren",
+      code_copy_iframe:"iframe kopieren",
+      code_download:"Spiel herunterladen (HTML)",
+      toast_copied:"Kopiert",
     },
     zh: {
       editor_title:"塔楼编辑器",
@@ -1776,6 +1879,41 @@
       toast_iframe_ok:"已复制 ✅",
       toast_iframe_fail:"复制失败",
       toast_bg_loaded:"背景已加载",
+      modal_add_q:"添加题目",
+      modal_edit_q:"编辑题目",
+      modal_close:"关闭",
+      modal_q_type:"题目类型",
+      modal_type_choice:"选择题",
+      modal_type_text:"输入题",
+      modal_question:"题目",
+      modal_question_ph:"请输入题目…",
+      modal_timer_title:"本题计时器",
+      modal_timer_desc_plain:"可为本题设置时间（留空 = 无计时/默认）。",
+      modal_seconds_label:"本题秒数",
+      modal_seconds_ph:"例如 20",
+      modal_media_title:"媒体（链接）",
+      modal_media_desc_plain:"粘贴图片或音频文件的直接链接（URL）。",
+      modal_img_title:"图片链接",
+      modal_audio_title:"音频链接",
+      modal_img_ph:"https://.../image.jpg",
+      modal_audio_ph:"https://.../audio.mp3",
+      modal_clear_img:"删除图片",
+      modal_clear_audio:"删除音频",
+      modal_answers_title:"答案选项",
+      modal_answers_desc_plain:"至少 2 个选项，用单选按钮标记正确答案。",
+      modal_text_answers_title:"正确答案（输入）",
+      modal_text_answers_desc_plain:"可添加多个答案，任意一个都算正确。",
+      modal_add_option:"添加选项",
+      modal_preview:"在预览中显示",
+      modal_save:"保存",
+      code_title:"游戏链接",
+      code_desc_plain:"这是游戏链接。可在 Genially（iframe）或其他地方嵌入。",
+      code_link_label:"链接",
+      code_iframe_label:"iframe（可选）",
+      code_copy_link:"复制链接",
+      code_copy_iframe:"复制 iframe",
+      code_download:"下载游戏 (HTML)",
+      toast_copied:"已复制",
     }
   };
 
@@ -1801,7 +1939,75 @@
       if(val==null) return;
       el.setAttribute("placeholder", String(val));
     });
+
+  function applyLangModals(){
+    if($("btnCloseModal")) $("btnCloseModal").textContent = t("modal_close");
+
+    const sel = $("selType");
+    if(sel){
+      const oChoice = sel.querySelector('option[value="choice"]');
+      const oText   = sel.querySelector('option[value="text"]');
+      if(oChoice) oChoice.textContent = t("modal_type_choice");
+      if(oText)   oText.textContent   = t("modal_type_text");
+    }
+
+    const modal = document.querySelector("#modalBackdrop .modal-body");
+    if(modal){
+      const labels = modal.querySelectorAll("label");
+      if(labels[0]) labels[0].textContent = t("modal_q_type");
+      if(labels[1]) labels[1].textContent = t("modal_question");
+      if(labels[2]) labels[2].textContent = t("modal_seconds_label");
+    }
+    if($("inpPrompt")) $("inpPrompt").setAttribute("placeholder", t("modal_question_ph"));
+    if($("inpQSeconds")) $("inpQSeconds").setAttribute("placeholder", t("modal_seconds_ph"));
+
+    const heads = document.querySelectorAll("#modalBackdrop .choiceBlock > div:first-child");
+    if(heads[0]) heads[0].textContent = t("modal_timer_title");
+    if(heads[1]) heads[1].textContent = t("modal_media_title");
+    if(heads[2]) heads[2].textContent = t("modal_answers_title");
+    if(heads[3]) heads[3].textContent = t("modal_text_answers_title");
+
+    const muteds = document.querySelectorAll("#modalBackdrop .choiceBlock .muted");
+    if(muteds[0]) muteds[0].textContent = t("modal_timer_desc_plain");
+    if(muteds[1]) muteds[1].textContent = t("modal_media_desc_plain");
+    if(muteds[2]) muteds[2].textContent = t("modal_answers_desc_plain");
+    if(muteds[3]) muteds[3].textContent = t("modal_text_answers_desc_plain");
+
+    if($("inpQImage")) $("inpQImage").setAttribute("placeholder", t("modal_img_ph"));
+    if($("inpQAudio")) $("inpQAudio").setAttribute("placeholder", t("modal_audio_ph"));
+
+    document.querySelectorAll('#modalBackdrop .answerRow span').forEach(sp=>{
+      const t0 = sp.getAttribute("title")||"";
+      if(t0.includes("картин") || t0.toLowerCase().includes("image")) sp.setAttribute("title", t("modal_img_title"));
+      if(t0.includes("аудио") || t0.toLowerCase().includes("audio")) sp.setAttribute("title", t("modal_audio_title"));
+    });
+    if($("btnClearImage")) $("btnClearImage").setAttribute("title", t("modal_clear_img"));
+    if($("btnClearAudio")) $("btnClearAudio").setAttribute("title", t("modal_clear_audio"));
+
+    if($("btnAddChoice")) $("btnAddChoice").textContent = "➕ " + t("modal_add_option");
+    if($("btnAddText")) $("btnAddText").textContent = "➕ " + t("modal_add_option");
+
+    if($("btnPreviewDraft")) $("btnPreviewDraft").textContent = "👁 " + t("modal_preview");
+    if($("btnSaveQ")) $("btnSaveQ").textContent = "💾 " + t("modal_save");
+
+    if($("codeTitle")) $("codeTitle").textContent = t("code_title");
+    if($("btnCloseCode")) $("btnCloseCode").textContent = t("modal_close");
+
+    const codeMuted = document.querySelector("#codeBackdrop .modal-body .muted");
+    if(codeMuted) codeMuted.textContent = t("code_desc_plain");
+
+    const codeLabels = document.querySelectorAll("#codeBackdrop .modal-body label");
+    if(codeLabels[0]) codeLabels[0].textContent = t("code_link_label");
+    if(codeLabels[1]) codeLabels[1].textContent = t("code_iframe_label");
+
+    if($("btnCopyFromModal")) $("btnCopyFromModal").textContent = "📋 " + t("code_copy_link");
+    if($("btnCopyIframe")) $("btnCopyIframe").textContent = "📎 " + t("code_copy_iframe");
+    if($("btnDownloadGame")) $("btnDownloadGame").textContent = "⬇ " + t("code_download");
+
+    if($("toast")) $("toast").textContent = t("toast_copied");
   }
+  }
+  try{ applyLangModals(); }catch(e){}
 
 
   function applyLangSelectLabels(){
@@ -1827,6 +2033,7 @@
       Editor.lang = $("selLang").value;
       applyLangEditor();
       try{ applyLangSelectLabels(); }catch(e){}
+      try{ applyLangModals(); }catch(e){}
       updatePreview(false);
     });
   }
