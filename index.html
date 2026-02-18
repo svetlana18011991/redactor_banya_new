@@ -884,19 +884,19 @@
 
         <div class="section">
           <div class="title" data-i18n="ui_lang_title">Язык интерфейса</div>
-          <div class="section">
-          <div class="title" data-i18n="sec_title">Название</div>
-          <label><span data-i18n="label_game_title">Заголовок в игре</span></label>
-          <input id="inpTitle" type="text" value="Башня знаний" />
-        </div>
-
-        <label data-i18n="ui_lang_label">Выбрать язык</label>
+          <label data-i18n="ui_lang_label">Выбрать язык</label>
           <select id="selLang">
             <option value="ru">Русский</option>
             <option value="en">English</option>
             <option value="de">Deutsch</option>
             <option value="zh">中文</option>
           </select>
+        </div>
+
+        <div class="section">
+          <div class="title" data-i18n="sec_title">Название</div>
+          <label><span data-i18n="label_game_title">Заголовок в игре</span></label>
+          <input id="inpTitle" type="text" value="Башня знаний" />
         </div>
 
         <div class="section" id="secStyle">
@@ -940,6 +940,13 @@
         </div>
 
         <div class="section">
+          <div class="title" data-i18n="ui_bgurl_title">Фон по ссылке</div>
+          <label data-i18n="ui_bgurl_label">URL картинки (если заполнено — используется вместо файла)</label>
+          <input id="inpBgUrl" type="text" placeholder="https://.../background.jpg" />
+          <div class="hint" data-i18n="ui_bgurl_hint">Совет: так быстрее для Genially, чем грузить файл.</div>
+        </div>
+
+<div class="section">
           <div class="title"><span data-i18n="sec_questions_title">Вопросы</span> <span class="pill" id="pillCount">0 / 9</span></div>
 
           <div class="row">
@@ -967,12 +974,9 @@
 
         
 
-<div class="section">
-          <div class="title" data-i18n="ui_bgurl_title">Фон по ссылке</div>
-          <label data-i18n="ui_bgurl_label">URL картинки (если заполнено — используется вместо файла)</label>
-          <input id="inpBgUrl" type="text" placeholder="https://.../background.jpg" />
-          <div class="hint" data-i18n="ui_bgurl_hint">Совет: так быстрее для Genially, чем грузить файл.</div>
-        </div>
+
+
+
 
 <div class="section">
           <div class="title" data-hide="exportTitle" data-i18n="sec_export">Экспорт в Genially</div>
@@ -2191,7 +2195,6 @@
         if("placeholder" in el) el.placeholder = val;
       });
     }
-  }
 
     const modal = document.querySelector("#modalBackdrop .modal-body");
     if(modal){
@@ -2395,6 +2398,6 @@
 })();
 </script>
 
-  <div id="versionBadge">Версия 11</div>
+  <div id="versionBadge">Версия 12</div>
 </body>
 </html>
