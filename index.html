@@ -817,19 +817,26 @@
       border-color: rgba(255,170,0,.55) !important;
       box-shadow: 0 0 0 3px rgba(255,150,0,.18) !important;
     }
+
+/* header tidy */
+.panel-header .h{max-width:100%}
+.panel-header select{min-height:42px}
+.panel-header .btn{min-height:42px}
+#appLogo{flex:0 0 auto}
+#selLang{width:180px}
 </style>
 </head>
 
 <body>
   <div class="app" id="editorRoot">
     <div class="panel settings">
-      <div class="panel-header" style="display:block">
-        <div class="row" style="margin:0;align-items:center;gap:10px">
-          <img id="appLogo" src="63.png" alt="Logo" style="width:34px;height:34px;object-fit:contain;border-radius:10px;border:1px solid rgba(255,255,255,.14);background:rgba(0,0,0,.22)" onerror="this.onerror=null;this.src='63';" />
-          <div class="h" data-i18n="editorTitle" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.15;font-size:clamp(18px,2.2vw,24px);flex:1">Светлана Быкова</div>
+      <div class="panel-header" style="display:flex;flex-direction:column;gap:10px;align-items:stretch">
+        <div class="row" style="margin:0;align-items:center;gap:10px;justify-content:flex-start">
+          <img id="appLogo" src="63.png" alt="Logo" style="width:34px;height:34px;object-fit:contain;border-radius:10px;border:1px solid rgba(255,255,255,.14);background:rgba(0,0,0,.22);margin-left:-10px" onerror="this.onerror=null;this.src='63';" />
+          <div class="h" data-i18n="editorTitle" style="font-size:16px;font-weight:800;line-height:1;white-space:nowrap">Светлана Быкова</div>
         </div>
 
-        <div class="row" style="margin-top:10px;gap:10px;align-items:center;justify-content:flex-end">
+        <div class="row" style="margin:0;gap:10px;align-items:center;justify-content:flex-end;flex-wrap:wrap">
           <select id="selLang" aria-label="Language" style="max-width:180px">
             <option value="ru">Русский</option>
             <option value="en">English</option>
@@ -840,9 +847,7 @@
         </div>
       </div>
 
-      <div class="panel-body">
-
-        <div class="section">
+<div class="section">
           <div class="title" data-i18n="secName">Название</div>
           <label data-i18n="gameTitleLabel">Заголовок в игре</label>
           <input id="inpTitle" type="text" value="Башня знаний" />
@@ -1440,6 +1445,8 @@ fontSample:"Schriftbeispiel"
       if(!k) return;
       q[decodeURIComponent(k)] = decodeURIComponent(v||"");
     });
+    q.fontKey = Editor.draft?.fontKey || "inter";
+    q.fontFamily = Editor.draft?.fontFamily || "";
     return q;
   }
 
@@ -1773,7 +1780,15 @@ function openModal(existing=null){
     if($("inpQImage")) $("inpQImage").value = Editor.draft.image;
     if($("inpQAudio")) $("inpQAudio").value = Editor.draft.audio;
     
-    syncModalType();
+    
+    // font selection (per question)
+    if(!Editor.draft.fontKey) Editor.draft.fontKey = "inter";
+    if(!Editor.draft.fontFamily){
+      const d = (typeof FONT_OPTIONS!=="undefined" && FONT_OPTIONS.find(x=>x.key===Editor.draft.fontKey)) || (typeof FONT_OPTIONS!=="undefined" ? FONT_OPTIONS[0] : null);
+      if(d) Editor.draft.fontFamily = d.family;
+    }
+    renderFontList(Editor.draft.fontKey || "inter");
+syncModalType();
     if($("selType").value === "choice") renderChoiceUI();
     else renderTextUI();
 
