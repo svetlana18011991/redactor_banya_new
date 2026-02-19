@@ -4,6 +4,10 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Башня — Editor + Game (один файл)</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Roboto:wght@400;700&family=Montserrat:wght@400;700&family=Poppins:wght@400;700&family=Merriweather:wght@400;700&family=Playfair+Display:wght@400;700&family=Fira+Sans:wght@400;700&display=swap" rel="stylesheet">
+
 
   <style>
     html, body{height:100%}
@@ -820,9 +824,9 @@
   <div class="app" id="editorRoot">
     <div class="panel settings">
       <div class="panel-header">
-        <div style="display:flex;align-items:center;gap:10px;min-width:0">
+        <div style="display:flex;align-items:center;gap:10px;min-width:0;flex:1;flex-wrap:wrap">
           <img id="appLogo" src="63.png" alt="Logo" style="width:34px;height:34px;object-fit:contain;border-radius:10px;border:1px solid rgba(255,255,255,.14);background:rgba(0,0,0,.22)" onerror="this.onerror=null;this.src='63';" />
-          <div class="h" data-i18n="editorTitle" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Светлана Быкова</div>
+          <div class="h" data-i18n="editorTitle" style="white-space:normal;overflow:visible;text-overflow:clip;line-height:1.15;font-size:clamp(16px,2vw,22px)">Светлана Быкова</div>
         </div>
 
         <div class="row" style="margin:0;align-items:center;justify-content:flex-end">
@@ -872,7 +876,24 @@
           </div>
         </div>
 
-        <div class="section" data-section="timer">
+        
+        <div class="card" style="margin-top:12px">
+          <label class="row" style="gap:10px; align-items:flex-start">
+            <input type="checkbox" id="chkShuffleQuestions" />
+            <div>
+              <div style="font-weight:900" data-i18n="shuffleQuestionsTitle">Случайный порядок вопросов</div>
+              <div class="muted" data-i18n="shuffleQuestionsHint">Если включено — вопросы будут перемешиваться при запуске игры. Если выключено — идут строго по порядку.</div>
+            </div>
+          </label>
+        </div>
+
+        <div class="card" style="margin-top:12px">
+          <div class="title" data-i18n="instructionTitle" style="margin-bottom:8px">Инструкция перед началом</div>
+          <textarea id="inpInstruction" rows="4" data-i18n-placeholder="instructionPh" placeholder="Напишите инструкцию, которая появится в начале игры..."></textarea>
+          <div class="muted" style="margin-top:8px" data-i18n="instructionHint">Эта инструкция показывается на стартовом экране игры перед кнопкой «Начать».</div>
+        </div>
+
+<div class="section" data-section="timer">
           <div class="title">Таймер</div>
 
           <div class="toggle">
@@ -994,6 +1015,13 @@
       </div>
 
       <div class="modal-foot">
+      <div style="margin-top:14px">
+        <div style="font-weight:900" data-i18n="fontTitle">Шрифт для вопроса и ответов</div>
+        <div class="muted" data-i18n="fontHint">Выбранный шрифт применяется к этому вопросу и его вариантам ответа в игре.</div>
+        <div id="fontList" style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:10px"></div>
+      </div>
+
+
         <button class="btn" id="btnPreviewDraft" type="button" data-i18n="btnPreviewDraft">👁 Показать в превью</button>
         <button class="btn primary" id="btnSaveQ" type="button" data-i18n="btnSave">💾 Сохранить</button>
       </div>
@@ -1079,7 +1107,20 @@
       gStartP2c:"Неверно → блок обугливается, взрывается и исчезает.", gFinishTitle:"Молодец!", gFinishEarned:"Тобой заработано:",
       gCorrect:"правильных ответов", gWrong:"неправильных ответов", gHeight:"блоков в башне", gRestart:"Сыграть ещё раз",
       gRight:"Верно!", gWrongMsg:"Неверно!", gDropPlus:"Блок опускается (+100).", gBurn:"Блок обугливается и исчезает."
-    },
+    ,
+shuffleQuestionsTitle:"Случайный порядок вопросов",
+shuffleQuestionsHint:"Если включено — вопросы будут перемешиваться при запуске игры. Если выключено — идут строго по порядку.",
+instructionTitle:"Инструкция перед началом",
+instructionPh:"Напишите инструкцию, которая появится в начале игры...",
+instructionHint:"Эта инструкция показывается на стартовом экране игры перед кнопкой «Начать».",
+defaultInstruction:`Первый блок падает сам. Дальше — нажимай <b>Далее</b>.
+Когда блок остановится — ответь на вопрос.
+<br/>Верно → блок опускается и становится этажом (+100).
+<br/>Неверно → блок обугливание, взрыв и исчезает.`,
+fontTitle:"Шрифт для вопроса и ответов",
+fontHint:"Выбранный шрифт применяется к этому вопросу и его вариантам ответа в игре.",
+fontSample:"Пример шрифта"
+},
     en: { editorTitle:"Светлана Быкова", btnCopyCode:"📋 Copy code (iframe)", secName:"Name", gameTitleLabel:"Game title",
       secDesign:"Design", bgLabel:"Background (URL only)", bgPlaceholder:"https://.../background.jpg", btnResetBg:"↩ Reset background",
       bgHint:"Only direct image links (PNG/JPG/WebP). Local uploads are disabled.",
@@ -1110,7 +1151,20 @@
       gStartP2c:"Wrong → the block burns, explodes and disappears.", gFinishTitle:"Well done!", gFinishEarned:"You earned:",
       gCorrect:"correct answers", gWrong:"wrong answers", gHeight:"blocks in the tower", gRestart:"Play again",
       gRight:"Correct!", gWrongMsg:"Wrong!", gDropPlus:"The block drops (+100).", gBurn:"The block burns and disappears."
-    },
+    ,
+shuffleQuestionsTitle:"Random question order",
+shuffleQuestionsHint:"If enabled — questions will be shuffled when the game starts. If disabled — they stay in the original order.",
+instructionTitle:"Intro instruction",
+instructionPh:"Write the instruction that will appear at the start of the game...",
+instructionHint:"This instruction is shown on the start screen before the Start button.",
+defaultInstruction:`The first block falls automatically. Then click <b>Next</b>.
+When the block stops — answer the question.
+<br/>Correct → the block drops and becomes a floor (+100).
+<br/>Wrong → it burns, explodes and disappears.`,
+fontTitle:"Font for question & answers",
+fontHint:"The selected font is applied to this question and its answers in the game.",
+fontSample:"Font sample"
+},
     zh: { editorTitle:"Светлана Быкова", btnCopyCode:"📋 复制代码（iframe）", secName:"名称", gameTitleLabel:"游戏标题",
       secDesign:"外观", bgLabel:"背景（仅限链接）", bgPlaceholder:"https://.../background.jpg", btnResetBg:"↩ 重置背景",
       bgHint:"仅支持图片直链（PNG/JPG/WebP）。已禁用本地上传。",
@@ -1141,7 +1195,20 @@
       gStartP2c:"答错 → 方块烧焦、爆炸并消失。", gFinishTitle:"做得好！", gFinishEarned:"你获得：",
       gCorrect:"正确答案", gWrong:"错误答案", gHeight:"塔楼方块", gRestart:"再玩一次",
       gRight:"正确！", gWrongMsg:"错误！", gDropPlus:"方块下落（+100）。", gBurn:"方块烧焦并消失。"
-    },
+    ,
+shuffleQuestionsTitle:"题目随机顺序",
+shuffleQuestionsHint:"开启后：游戏开始时题目将被打乱；关闭则按原顺序显示。",
+instructionTitle:"开场说明",
+instructionPh:"输入将显示在游戏开始前的说明…",
+instructionHint:"该说明会出现在开始界面，并显示在开始按钮上方。",
+defaultInstruction:`第一块会自动下落。之后点击 <b>下一步</b>。
+当方块停止后，请回答问题。
+<br/>答对 → 方块下落并成为楼层（+100）。
+<br/>答错 → 方块燃烧、爆炸并消失。`,
+fontTitle:"题目与答案字体",
+fontHint:"所选字体会应用到此题目及其答案选项。",
+fontSample:"字体示例"
+},
     de: { editorTitle:"Светлана Быкова", btnCopyCode:"📋 Code kopieren (iframe)", secName:"Name", gameTitleLabel:"Spieltitel",
       secDesign:"Design", bgLabel:"Hintergrund (nur URL)", bgPlaceholder:"https://.../background.jpg", btnResetBg:"↩ Hintergrund zurücksetzen",
       bgHint:"Nur direkte Bild-URLs (PNG/JPG/WebP). Lokale Uploads sind deaktiviert.",
@@ -1172,7 +1239,20 @@
       gStartP2c:"Falsch → Block brennt, explodiert und verschwindet.", gFinishTitle:"Gut gemacht!", gFinishEarned:"Du hast verdient:",
       gCorrect:"richtige Antworten", gWrong:"falsche Antworten", gHeight:"Blöcke im Turm", gRestart:"Nochmal spielen",
       gRight:"Richtig!", gWrongMsg:"Falsch!", gDropPlus:"Der Block fällt (+100).", gBurn:"Der Block brennt und verschwindet."
-    }
+    ,
+shuffleQuestionsTitle:"Zufällige Fragenreihenfolge",
+shuffleQuestionsHint:"Wenn aktiviert, werden die Fragen beim Start gemischt. Wenn deaktiviert, bleiben sie in der Originalreihenfolge.",
+instructionTitle:"Start-Anleitung",
+instructionPh:"Schreibe die Anleitung, die zu Beginn des Spiels angezeigt wird...",
+instructionHint:"Diese Anleitung wird auf dem Startbildschirm vor der Start-Schaltfläche angezeigt.",
+defaultInstruction:`Der erste Block fällt automatisch. Danach klicke <b>Weiter</b>.
+Wenn der Block stoppt — beantworte die Frage.
+<br/>Richtig → der Block sinkt ab und wird zu einem Stockwerk (+100).
+<br/>Falsch → er verbrennt, explodiert und verschwindet.`,
+fontTitle:"Schrift für Frage & Antworten",
+fontHint:"Die gewählte Schrift gilt für diese Frage und ihre Antworten im Spiel.",
+fontSample:"Schriftbeispiel"
+}
   };
   window.__I18N__ = I18N;
 
@@ -1264,7 +1344,7 @@
       }
     }catch(e){}
 
-    window.__CFG = { title: cfg.title || "Башня знаний", lang: cfg.lang || "ru", bgUrl: cfg.bgUrl || "", questions: cfg.questions || [], useLatex: !!cfg.useLatex };
+    window.__CFG = { title: cfg.title || "Башня знаний", lang: cfg.lang || "ru", bgUrl: cfg.bgUrl || "", shuffleQuestions: !!cfg.shuffleQuestions, instruction: String(cfg.instruction||""), questions: cfg.questions || [], useLatex: !!cfg.useLatex };
 
     try{
       const qp = new URLSearchParams(location.search);
@@ -1412,12 +1492,17 @@
     });
 
     const lang = String(cfg.lang || "ru");
-    return { title, lang, useRepoBg, bgUrl, timer: { enabled: timerEnabled, seconds: timerSeconds }, useImages, useLatex, blockUrls: blockUrls, questions };
+    const shuffleQuestions = !!cfg.shuffleQuestions;
+    const instruction = String(cfg.instruction || "");
+    return { title, lang, shuffleQuestions, instruction, useRepoBg, bgUrl, timer: { enabled: timerEnabled, seconds: timerSeconds }, useImages, useLatex, blockUrls: blockUrls, questions };
   }
 
   const Editor = {
     title: "Башня знаний",
     lang: "ru",
+    shuffleQuestions: false,
+    instruction: "",
+    _instructionTouched: false,
     useRepoBg: true,
     bgUrl: "",
     timer: { enabled:false, seconds: 30 },
@@ -1723,9 +1808,22 @@
       return { ...q, options: newOptions, correctIndex: newCorrectIndex };
     });
 
+
+    // Shuffle QUESTION order only if enabled
+    if(!!Editor.shuffleQuestions){
+      const qcopy = questions.slice();
+      for(let k=qcopy.length-1;k>0;k--){
+        const j = (Math.random()*(k+1))|0;
+        const t = qcopy[k]; qcopy[k]=qcopy[j]; qcopy[j]=t;
+      }
+      questions = qcopy;
+    }
+
 return normalizeCfg({
       title: Editor.title || "Башня знаний",
       lang: Editor.lang || "ru",
+      shuffleQuestions: !!Editor.shuffleQuestions,
+      instruction: String(Editor.instruction || ""),
       useRepoBg: true,
       bgUrl: Editor.bgUrl || "",
       timer: { enabled: !!Editor.timer.enabled, seconds: Number(Editor.timer.seconds || 30) },
@@ -1883,9 +1981,34 @@ return normalizeCfg({
     $("selLang").addEventListener("change", ()=>{
       Editor.lang = $("selLang").value || "ru";
       applyI18n();
+      if($("inpInstruction") && !Editor._instructionTouched){
+        Editor.instruction = t("defaultInstruction");
+        $("inpInstruction").value = Editor.instruction;
+      }
       updatePreview(false);
     });
   }
+
+  // Instruction (default per language unless user edits)
+  if($("inpInstruction")){
+    Editor.instruction = t("defaultInstruction");
+    $("inpInstruction").value = Editor.instruction;
+    $("inpInstruction").addEventListener("input", ()=>{
+      Editor._instructionTouched = true;
+      Editor.instruction = $("inpInstruction").value || "";
+      updatePreview(false);
+    });
+  }
+
+  // Shuffle questions toggle (questions themselves are not modified; only payload order)
+  if($("chkShuffleQuestions")){
+    $("chkShuffleQuestions").checked = !!Editor.shuffleQuestions;
+    $("chkShuffleQuestions").addEventListener("change", ()=>{
+      Editor.shuffleQuestions = $("chkShuffleQuestions").checked;
+      updatePreview(false);
+    });
+  }
+
   applyI18n();
 
   Editor.timer.enabled = $("chkTimer").checked; Editor.timer.seconds = Number($("inpSeconds").value || 30);
