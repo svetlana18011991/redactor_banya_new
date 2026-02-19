@@ -819,7 +819,6 @@
     }
 
 /* header tidy */
-.panel-header .h{max-width:100%}
 .panel-header select{min-height:42px}
 .panel-header .btn{min-height:42px}
 #appLogo{flex:0 0 auto}
@@ -847,7 +846,11 @@
         </div>
       </div>
 
-<div class="section">
+      <div class="errbar" id="errbar"></div>
+
+      <div class="panel-body">
+
+        <div class="section">
           <div class="title" data-i18n="secName">Название</div>
           <label data-i18n="gameTitleLabel">Заголовок в игре</label>
           <input id="inpTitle" type="text" value="Башня знаний" />
@@ -1021,7 +1024,8 @@
       <div style="margin-top:14px">
         <div style="font-weight:900" data-i18n="fontTitle">Шрифт для вопроса и ответов</div>
         <div class="muted" data-i18n="fontHint">Выбранный шрифт применяется к этому вопросу и его вариантам ответа в игре.</div>
-        <div id="fontList" style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:10px"></div>
+        <select id="selQFont" style="width:100%"></select>
+        <div class="muted" id="fontSampleTxt" style="margin-top:8px;font-size:16px">Пример шрифта</div>
       </div>
 
 
@@ -1263,7 +1267,61 @@ fontSample:"Schriftbeispiel"
     const lang = (Editor.lang && I18N[Editor.lang]) ? Editor.lang : "ru";
     return (I18N[lang] && I18N[lang][key] != null) ? I18N[lang][key] : (I18N.ru[key] ?? key);
   }
-  function applyI18n(){
+  
+  const FONT_OPTIONS = [
+    { key:"inter", name:"Inter", family:"Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif" },
+    { key:"roboto", name:"Roboto", family:"Roboto, system-ui, -apple-system, Segoe UI, Arial, sans-serif" },
+    { key:"montserrat", name:"Montserrat", family:"Montserrat, system-ui, -apple-system, Segoe UI, Arial, sans-serif" },
+    { key:"poppins", name:"Poppins", family:"Poppins, system-ui, -apple-system, Segoe UI, Arial, sans-serif" },
+    { key:"merriweather", name:"Merriweather", family:"Merriweather, Georgia, serif" },
+    { key:"playfair", name:"Playfair Display", family:"Playfair Display, Georgia, serif" },
+    { key:"fira", name:"Fira Sans", family:"Fira Sans, system-ui, -apple-system, Segoe UI, Arial, sans-serif" },
+  ];
+
+  function ensureFontDefaults(q){
+    if(!q.fontKey) q.fontKey = "inter";
+    if(!q.fontFamily){
+      const d = FONT_OPTIONS.find(x=>x.key===q.fontKey) || FONT_OPTIONS[0];
+      q.fontKey = d.key;
+      q.fontFamily = d.family;
+    }
+    q.fontKey = Editor.draft?.fontKey || "inter";
+    q.fontFamily = Editor.draft?.fontFamily || "";
+    return q;
+  }
+
+  function fillFontSelect(selectedKey){
+    const sel = $("selQFont");
+    if(!sel) return;
+    sel.innerHTML = "";
+    FONT_OPTIONS.forEach(opt=>{
+      const o = document.createElement("option");
+      o.value = opt.key;
+      o.textContent = `${opt.name} — ${t("fontSample")}`;
+      o.style.fontFamily = opt.family;
+      sel.appendChild(o);
+    });
+    sel.value = selectedKey || "inter";
+    const sample = $("fontSampleTxt");
+    if(sample){
+      const d = FONT_OPTIONS.find(x=>x.key===sel.value) || FONT_OPTIONS[0];
+      sample.textContent = t("fontSample");
+      sample.style.fontFamily = d.family;
+    }
+    sel.onchange = ()=>{
+      const d = FONT_OPTIONS.find(x=>x.key===sel.value) || FONT_OPTIONS[0];
+      if(Editor.draft){
+        Editor.draft.fontKey = d.key;
+        Editor.draft.fontFamily = d.family;
+      }
+      if(sample){
+        sample.textContent = t("fontSample");
+        sample.style.fontFamily = d.family;
+      }
+    };
+  }
+
+function applyI18n(){
     const lang = (Editor.lang && I18N[Editor.lang]) ? Editor.lang : "ru";
     document.documentElement.lang = lang;
     document.querySelectorAll("[data-i18n]").forEach(el=>{
@@ -1280,7 +1338,8 @@ fontSample:"Schriftbeispiel"
       const k = el.getAttribute("data-i18n-title");
       el.setAttribute("title", t(k));
     });
-    renderList();
+        if($("selQFont")){ fillFontSelect(Editor.draft?.fontKey || "inter"); }
+renderList();
   }
 
   const __GAME_CSS__ = "\n    :root{\n      --hud-bg: rgba(10, 12, 18, .55);\n      --panel-bg: rgba(20, 22, 30, .78);\n      --panel-stroke: rgba(255,255,255,.12);\n      --text: rgba(255,255,255,.92);\n      --muted: rgba(255,255,255,.72);\n      --good: rgba(120, 255, 170, .95);\n      --bad: rgba(255, 120, 140, .95);\n      --shadow: 0 18px 60px rgba(0,0,0,.35);\n    }\n    html,body{height:100%;margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;color:var(--text);overflow:hidden;background:#000;}\n    #wrap{position:relative;width:100%;height:100%;}\n    canvas{width:100%;height:100%;display:block;}\n\n    #hud{\n      position:absolute; left:12px; right:12px; top:12px;\n      display:flex; gap:12px; align-items:center;\n      pointer-events:none;\n      z-index: 3;\n    }\n    .pill{\n      background:var(--hud-bg);\n      border:1px solid rgba(255,255,255,.10);\n      border-radius:999px;\n      padding:10px 14px;\n      box-shadow:var(--shadow);\n      backdrop-filter: blur(10px);\n      display:flex; gap:10px; align-items:center;\n      white-space:nowrap;\n    }\n    #progressWrap{\n      flex:1;\n      background:var(--hud-bg);\n      border:1px solid rgba(255,255,255,.10);\n      border-radius:999px;\n      padding:10px 14px;\n      box-shadow:var(--shadow);\n      backdrop-filter: blur(10px);\n      display:flex; align-items:center; gap:10px;\n      min-width:160px;\n      pointer-events:none;\n    }\n    #bar{\n      height:10px; flex:1;\n      background:rgba(255,255,255,.12);\n      border-radius:999px;\n      overflow:hidden;\n      border:1px solid rgba(255,255,255,.10);\n    }\n    #bar>div{\n      height:100%; width:0%;\n      background: linear-gradient(90deg, rgba(120,190,255,.9), rgba(120,255,170,.85));\n      border-radius:999px;\n    }\n\n    #scorePill{ margin-left:auto; }\n    #scoreNum{ font-weight:900; letter-spacing:.2px; }\n    #leftPill{ gap:12px; }\n    #remainNum{ font-weight:900; }\n\n    #nextBtn{\n      position:absolute;\n      left:50%;\n      bottom:88px;\n      transform: translateX(160px);\n      pointer-events:auto;\n      border-radius:16px;\n      padding:12px 14px;\n      border:1px solid rgba(120,190,255,.35);\n      background: rgba(120,190,255,.22);\n      color: var(--text);\n      font-weight: 900;\n      cursor:pointer;\n      box-shadow: var(--shadow);\n      backdrop-filter: blur(10px);\n      transition: transform .08s ease, filter .12s ease, opacity .12s ease;\n      user-select:none;\n      z-index: 4;\n    }\n    #nextBtn:active{ transform: translateX(160px) scale(.99); }\n    #nextBtn[disabled]{ opacity:.45; cursor:not-allowed; filter:saturate(.7); }\n\n    #overlay{\n      position:absolute; inset:0;\n      display:none; align-items:center; justify-content:center;\n      background: rgba(0,0,0,.25);\n      backdrop-filter: blur(6px);\n      z-index: 5;\n    }\n    #card{\n      width:min(640px, calc(100% - 24px));\n      background:var(--panel-bg);\n      border:1px solid var(--panel-stroke);\n      border-radius:18px;\n      box-shadow:var(--shadow);\n      padding:18px 18px 14px;\n\n      transform: translateY(10px) scale(.96);\n      opacity: 0;\n      transition: transform .18s ease, opacity .18s ease;\n      will-change: transform, opacity;\n    }\n    #overlay.show #card{\n      transform: translateY(0) scale(1);\n      opacity: 1;\n    }\n\n    #cardHeader{\n      display:flex; align-items:flex-start; justify-content:space-between;\n      gap:12px; margin-bottom:12px;\n    }\n    #title{ font-size:16px; color:var(--muted); letter-spacing:.2px; }\n    #q{ font-size:20px; line-height:1.25; margin-top:6px; }\n    #badge{\n      border-radius:999px; padding:6px 10px;\n      border:1px solid rgba(255,255,255,.12);\n      color:var(--muted); font-size:12px; white-space:nowrap;\n    }\n    #answers{ display:flex; flex-direction:column; gap:10px; margin-top:14px; }\n    .btn{\n      width:100%; text-align:left;\n      background:rgba(255,255,255,.08);\n      border:1px solid rgba(255,255,255,.12);\n      border-radius:14px;\n      padding:12px 12px;\n      color:var(--text);\n      cursor:pointer;\n      transition: transform .08s ease, background .12s ease;\n    }\n    .btn:hover{ background:rgba(255,255,255,.11); }\n    .btn:active{ transform:scale(.99); }\n\n    #inputRow{ display:none; gap:10px; align-items:center; margin-top:12px; }\n    #ansInput{\n      flex:1;\n      background:rgba(255,255,255,.07);\n      border:1px solid rgba(255,255,255,.14);\n      border-radius:14px;\n      padding:12px 12px;\n      color:var(--text);\n      outline:none;\n      font-size:16px;\n    }\n    #submit{\n      background:rgba(120,190,255,.20);\n      border:1px solid rgba(120,190,255,.35);\n      border-radius:14px;\n      padding:12px 14px;\n      cursor:pointer;\n      color:var(--text);\n      font-weight:800;\n    }\n    #submit:hover{ background:rgba(120,190,255,.26); }\n\n    #msg{ margin-top:12px; min-height:18px; font-size:14px; color:var(--muted); }\n    #hint{ margin-top:10px; font-size:12px; color:rgba(255,255,255,.55); }\n\n    #start{\n      position:absolute; inset:0;\n      display:flex; align-items:center; justify-content:center;\n      background: radial-gradient(1200px 800px at 50% 45%, rgba(0,0,0,.15), rgba(0,0,0,.55));\n      backdrop-filter: blur(3px);\n      z-index: 6;\n    }\n    #startCard{\n      width:min(700px, calc(100% - 24px));\n      background: rgba(20, 22, 30, .75);\n      border: 1px solid rgba(255,255,255,.12);\n      border-radius: 18px;\n      box-shadow: var(--shadow);\n      padding: 18px;\n    }\n    #startCard h1{ margin:0 0 8px 0; font-size:24px; }\n    #startCard p{ margin:0 0 14px 0; color: var(--muted); line-height:1.35; }\n    #play{\n      display:inline-flex; gap:10px; align-items:center;\n      padding:12px 14px;\n      border-radius:14px;\n      border:1px solid rgba(120,190,255,.35);\n      background: rgba(120,190,255,.22);\n      color: var(--text);\n      font-weight:900;\n      cursor:pointer;\n    }\n    #play:hover{ background: rgba(120,190,255,.28); }\n\n    #err{\n      display:none;\n      margin-top:12px;\n      padding:12px;\n      border-radius:14px;\n      border:1px solid rgba(255,120,140,.35);\n      background: rgba(255,120,140,.12);\n      color: rgba(255,235,238,.95);\n      font-size:13px;\n      line-height:1.35;\n    }\n    #err ul{ margin:8px 0 0 18px; }\n    code{background:rgba(255,255,255,.08); padding:2px 6px; border-radius:8px; border:1px solid rgba(255,255,255,.12);}\n\n    #finish{\n      position:absolute; inset:0;\n      display:none; align-items:center; justify-content:center;\n      background: rgba(0,0,0,.35);\n      backdrop-filter: blur(8px);\n      z-index: 7;\n    }\n    #finishCard{\n      width:min(720px, calc(100% - 24px));\n      border-radius:20px;\n      border:1px solid rgba(255,255,255,.14);\n      background: rgba(18, 20, 28, .75);\n      box-shadow: var(--shadow);\n      padding: 18px 18px 16px;\n      text-align:center;\n    }\n    #finishTitle{\n      font-size:30px; font-weight:1000; letter-spacing:.3px;\n      margin: 4px 0 8px;\n      background: linear-gradient(90deg, rgba(120,190,255,.95), rgba(120,255,170,.95));\n      -webkit-background-clip:text;\n      background-clip:text;\n      color:transparent;\n    }\n    #finishText{\n      color: rgba(255,255,255,.82);\n      font-size:18px;\n      margin: 0 0 10px;\n    }\n    #stats{\n      display:flex;\n      justify-content:center;\n      gap:12px;\n      flex-wrap:wrap;\n      margin: 10px 0 14px;\n    }\n    .stat{\n      background: rgba(255,255,255,.07);\n      border: 1px solid rgba(255,255,255,.12);\n      border-radius: 14px;\n      padding: 10px 12px;\n      min-width: 160px;\n      text-align:left;\n    }\n    .stat b{ font-size:18px; }\n    .stat div{ color: rgba(255,255,255,.70); font-size:12px; margin-top:4px; }\n    #restart{\n      display:inline-flex; gap:10px; align-items:center;\n      padding:12px 14px;\n      border-radius:14px;\n      border:1px solid rgba(120,190,255,.35);\n      background: rgba(120,190,255,.22);\n      color: var(--text);\n      font-weight:900;\n      cursor:pointer;\n    }\n    #restart:hover{ background: rgba(120,190,255,.28); }\n  \n/* per-question timer badge */\n.qTimer{\n  padding:8px 10px;\n  border-radius:999px;\n  border:1px solid rgba(242,211,122,.35);\n  background: rgba(0,0,0,.35);\n  color: rgba(255,255,255,.95);\n  font-weight:900;\n  font-size:12px;\n  box-shadow: 0 10px 30px rgba(0,0,0,.35);\n  backdrop-filter: blur(10px);\n}\n";
@@ -1445,8 +1504,6 @@ fontSample:"Schriftbeispiel"
       if(!k) return;
       q[decodeURIComponent(k)] = decodeURIComponent(v||"");
     });
-    q.fontKey = Editor.draft?.fontKey || "inter";
-    q.fontFamily = Editor.draft?.fontFamily || "";
     return q;
   }
 
@@ -1692,71 +1749,7 @@ fontSample:"Schriftbeispiel"
     });
   }
 
-  
-  const FONT_OPTIONS = [
-    { key:"inter", name:"Inter", family:"Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif" },
-    { key:"roboto", name:"Roboto", family:"Roboto, system-ui, -apple-system, Segoe UI, Arial, sans-serif" },
-    { key:"montserrat", name:"Montserrat", family:"Montserrat, system-ui, -apple-system, Segoe UI, Arial, sans-serif" },
-    { key:"poppins", name:"Poppins", family:"Poppins, system-ui, -apple-system, Segoe UI, Arial, sans-serif" },
-    { key:"merriweather", name:"Merriweather", family:"Merriweather, Georgia, serif" },
-    { key:"playfair", name:"Playfair Display", family:"Playfair Display, Georgia, serif" },
-    { key:"fira", name:"Fira Sans", family:"Fira Sans, system-ui, -apple-system, Segoe UI, Arial, sans-serif" },
-  ];
-
-  function renderFontList(selectedKey){
-    const box = $("fontList");
-    if(!box) return;
-    box.innerHTML = "";
-    FONT_OPTIONS.forEach(opt=>{
-      const item = document.createElement("label");
-      item.className = "card";
-      item.style.cursor = "pointer";
-      item.style.padding = "10px";
-      item.style.display = "flex";
-      item.style.gap = "10px";
-      item.style.alignItems = "center";
-
-      const radio = document.createElement("input");
-      radio.type = "radio";
-      radio.name = "qFont";
-      radio.value = opt.key;
-      radio.checked = (opt.key === selectedKey);
-
-      const txt = document.createElement("div");
-      txt.style.display = "flex";
-      txt.style.flexDirection = "column";
-      txt.style.gap = "2px";
-
-      const nm = document.createElement("div");
-      nm.style.fontWeight = "900";
-      nm.textContent = opt.name;
-
-      const sample = document.createElement("div");
-      sample.className = "muted";
-      sample.textContent = t("fontSample");
-      sample.style.fontFamily = opt.family;
-      sample.style.fontSize = "16px";
-      sample.style.opacity = "1";
-
-      txt.appendChild(nm);
-      txt.appendChild(sample);
-
-      item.appendChild(radio);
-      item.appendChild(txt);
-
-      item.addEventListener("click", ()=>{
-        radio.checked = true;
-        if(Editor.draft){
-          Editor.draft.fontKey = opt.key;
-          Editor.draft.fontFamily = opt.family;
-        }
-      });
-
-      box.appendChild(item);
-    });
-  }
-
-function openModal(existing=null){
+  function openModal(existing=null){
     if(existing){
       Editor.draft = deepClone(existing);
       Editor.editingId = existing.id;
@@ -1780,15 +1773,7 @@ function openModal(existing=null){
     if($("inpQImage")) $("inpQImage").value = Editor.draft.image;
     if($("inpQAudio")) $("inpQAudio").value = Editor.draft.audio;
     
-    
-    // font selection (per question)
-    if(!Editor.draft.fontKey) Editor.draft.fontKey = "inter";
-    if(!Editor.draft.fontFamily){
-      const d = (typeof FONT_OPTIONS!=="undefined" && FONT_OPTIONS.find(x=>x.key===Editor.draft.fontKey)) || (typeof FONT_OPTIONS!=="undefined" ? FONT_OPTIONS[0] : null);
-      if(d) Editor.draft.fontFamily = d.family;
-    }
-    renderFontList(Editor.draft.fontKey || "inter");
-syncModalType();
+    syncModalType();
     if($("selType").value === "choice") renderChoiceUI();
     else renderTextUI();
 
