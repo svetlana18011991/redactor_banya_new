@@ -823,14 +823,14 @@
 <body>
   <div class="app" id="editorRoot">
     <div class="panel settings">
-      <div class="panel-header">
-        <div style="display:flex;align-items:center;gap:10px;min-width:0;flex:1;flex-wrap:wrap">
+      <div class="panel-header" style="display:block">
+        <div class="row" style="margin:0;align-items:center;gap:10px">
           <img id="appLogo" src="63.png" alt="Logo" style="width:34px;height:34px;object-fit:contain;border-radius:10px;border:1px solid rgba(255,255,255,.14);background:rgba(0,0,0,.22)" onerror="this.onerror=null;this.src='63';" />
-          <div class="h" data-i18n="editorTitle" style="white-space:normal;overflow:visible;text-overflow:clip;line-height:1.15;font-size:clamp(16px,2vw,22px)">Светлана Быкова</div>
+          <div class="h" data-i18n="editorTitle" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.15;font-size:clamp(18px,2.2vw,24px);flex:1">Светлана Быкова</div>
         </div>
 
-        <div class="row" style="margin:0;align-items:center;justify-content:flex-end">
-          <select id="selLang" aria-label="Language" style="max-width:160px">
+        <div class="row" style="margin-top:10px;gap:10px;align-items:center;justify-content:flex-end">
+          <select id="selLang" aria-label="Language" style="max-width:180px">
             <option value="ru">Русский</option>
             <option value="en">English</option>
             <option value="zh">中文</option>
@@ -839,8 +839,6 @@
           <button class="btn primary" id="btnCopyCode" type="button" data-i18n="btnCopyCode">📋 Скопировать код (iframe)</button>
         </div>
       </div>
-
-      <div class="errbar" id="errbar"></div>
 
       <div class="panel-body">
 
@@ -1687,7 +1685,71 @@ fontSample:"Schriftbeispiel"
     });
   }
 
-  function openModal(existing=null){
+  
+  const FONT_OPTIONS = [
+    { key:"inter", name:"Inter", family:"Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif" },
+    { key:"roboto", name:"Roboto", family:"Roboto, system-ui, -apple-system, Segoe UI, Arial, sans-serif" },
+    { key:"montserrat", name:"Montserrat", family:"Montserrat, system-ui, -apple-system, Segoe UI, Arial, sans-serif" },
+    { key:"poppins", name:"Poppins", family:"Poppins, system-ui, -apple-system, Segoe UI, Arial, sans-serif" },
+    { key:"merriweather", name:"Merriweather", family:"Merriweather, Georgia, serif" },
+    { key:"playfair", name:"Playfair Display", family:"Playfair Display, Georgia, serif" },
+    { key:"fira", name:"Fira Sans", family:"Fira Sans, system-ui, -apple-system, Segoe UI, Arial, sans-serif" },
+  ];
+
+  function renderFontList(selectedKey){
+    const box = $("fontList");
+    if(!box) return;
+    box.innerHTML = "";
+    FONT_OPTIONS.forEach(opt=>{
+      const item = document.createElement("label");
+      item.className = "card";
+      item.style.cursor = "pointer";
+      item.style.padding = "10px";
+      item.style.display = "flex";
+      item.style.gap = "10px";
+      item.style.alignItems = "center";
+
+      const radio = document.createElement("input");
+      radio.type = "radio";
+      radio.name = "qFont";
+      radio.value = opt.key;
+      radio.checked = (opt.key === selectedKey);
+
+      const txt = document.createElement("div");
+      txt.style.display = "flex";
+      txt.style.flexDirection = "column";
+      txt.style.gap = "2px";
+
+      const nm = document.createElement("div");
+      nm.style.fontWeight = "900";
+      nm.textContent = opt.name;
+
+      const sample = document.createElement("div");
+      sample.className = "muted";
+      sample.textContent = t("fontSample");
+      sample.style.fontFamily = opt.family;
+      sample.style.fontSize = "16px";
+      sample.style.opacity = "1";
+
+      txt.appendChild(nm);
+      txt.appendChild(sample);
+
+      item.appendChild(radio);
+      item.appendChild(txt);
+
+      item.addEventListener("click", ()=>{
+        radio.checked = true;
+        if(Editor.draft){
+          Editor.draft.fontKey = opt.key;
+          Editor.draft.fontFamily = opt.family;
+        }
+      });
+
+      box.appendChild(item);
+    });
+  }
+
+function openModal(existing=null){
     if(existing){
       Editor.draft = deepClone(existing);
       Editor.editingId = existing.id;
