@@ -6,7 +6,7 @@
   <title>Башня — Editor + Game (один файл)</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Roboto:wght@400;700&family=Montserrat:wght@400;700&family=Poppins:wght@400;700&family=Merriweather:wght@400;700&family=Playfair+Display:wght@400;700&family=Fira+Sans:wght@400;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Roboto:wght@400;700&family=Montserrat:wght@400;700&family=Poppins:wght@400;700&family=Merriweather:wght@400;700&family=Playfair+Display:wght@400;700&family=Fira+Sans:wght@400;700&family=Caveat:wght@400;700&family=Pacifico&display=swap" rel="stylesheet">
 
 
   <style>
@@ -362,7 +362,7 @@
 
     .errbar{
       display:none;
-      margin:12px 14px 0;
+      margin:12px 14px 0 0;
       padding:10px 12px;
       border-radius:14px;
       border:1px solid rgba(255,77,77,.35);
@@ -371,6 +371,9 @@
       font-size:13px;
       line-height:1.35;
       white-space:pre-wrap;
+      max-height:46px;
+      overflow:hidden;
+      text-overflow:ellipsis;
     }
     .errbar.show{display:block}
 
@@ -1276,6 +1279,8 @@ fontSample:"Schriftbeispiel"
     { key:"merriweather", name:"Merriweather", family:"Merriweather, Georgia, serif" },
     { key:"playfair", name:"Playfair Display", family:"Playfair Display, Georgia, serif" },
     { key:"fira", name:"Fira Sans", family:"Fira Sans, system-ui, -apple-system, Segoe UI, Arial, sans-serif" },
+    { key:"caveat", name:"Caveat", family:"Caveat, 'Comic Sans MS', cursive" },
+    { key:"pacifico", name:"Pacifico", family:"Pacifico, 'Comic Sans MS', cursive" },
   ];
 
   function ensureFontDefaults(q){
