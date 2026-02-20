@@ -41,13 +41,13 @@
 
     .app{
       display:grid;
-      grid-template-columns: 460px 1fr;
+      grid-template-columns: minmax(380px, 440px) 1fr;
       gap:14px;
       padding:14px;
       max-width: 1540px;
       margin: 0 auto;
     }
-    @media (max-width: 1020px){
+    @media (max-width: 740px){
       .app{grid-template-columns:1fr}
     }
 
@@ -227,7 +227,7 @@
       color:rgba(255,255,255,.92);
     }
 
-    .preview{
+    .preview{min-width:520px;
       min-height: calc(100vh - 28px);
       display:flex;
       flex-direction:column;
