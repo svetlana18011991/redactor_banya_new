@@ -824,11 +824,12 @@
 #appLogo{flex:0 0 auto}
 #selLang{width:180px}
 
-/* anti-horizontal-scroll */
+/* no-horizontal-scroll */
 .panel-content{overflow-x:hidden}
 .panel, .panel-content, .row{min-width:0}
 .row{flex-wrap:wrap}
 button, select, input, textarea{max-width:100%}
+.card{max-width:100%}
 </style>
 </head>
 
@@ -889,22 +890,21 @@ button, select, input, textarea{max-width:100%}
         </div>
 
         
+        
         <div class="card" style="margin-top:12px">
-          <label class="row" style="gap:10px; align-items:flex-start">
-            <select id="selShuffleQuestions" style="max-width:220px">
-              <option value="0" data-i18n="shuffleOff">Выключен</option>
-              <option value="1" data-i18n="shuffleOn">Включен</option>
-            </select>
-            <div>
-              <div style="font-weight:900" data-i18n="shuffleQuestionsTitle">Случайный порядок вопросов</div>
-              
-            </div>
-          </label>
+          <div style="font-weight:900; font-size:14px; margin-bottom:8px" data-i18n="shuffleQuestionsTitle">Случайный порядок вопросов</div>
+          <select id="selShuffleQuestions" style="max-width:220px">
+            <option value="0" data-i18n="shuffleOff">Выключен</option>
+            <option value="1" data-i18n="shuffleOn">Включен</option>
+          </select>
         </div>
 
+        
         <div class="card" style="margin-top:12px">
           <div class="title" data-i18n="instructionTitle" style="margin-bottom:8px">Инструкция перед началом</div>
           <textarea id="inpInstruction" rows="4" data-i18n-placeholder="instructionPh" placeholder="Напишите инструкцию, которая появится в начале игры..."></textarea>
+        </div>
+
 </div>
 
 <div class="section" data-section="timer">
@@ -1127,7 +1127,7 @@ shuffleQuestionsTitle:"Случайный порядок вопросов",
 shuffleQuestionsHint:"Если включено — вопросы будут перемешиваться при запуске игры. Если выключено — идут строго по порядку.",
 instructionTitle:"Инструкция перед началом",
 instructionPh:"Напишите инструкцию, которая появится в начале игры...",
-instructionHint:"Эта инструкция показывается на стартовом экране игры перед кнопкой «Начать».",
+instructionHint:"",
 defaultInstruction:`Первый блок падает сам. Дальше — нажимай <b>Далее</b>.
 Когда блок остановится — ответь на вопрос.
 <br/>Верно → блок опускается и становится этажом (+100).
@@ -1606,7 +1606,6 @@ renderList();
 
   function renderList(){
     const list = $("qList");
-    if(!list) return;
     list.innerHTML = "";
     setCountPill();
 
@@ -1952,6 +1951,16 @@ return normalizeCfg({
   });
   $("chkUseImages").addEventListener("change", ()=>{ Editor.useImages = true; if($("chkUseImages")) $("chkUseImages").checked = true; updatePreview(false); });
   if($("chkUseLatex")) $("chkUseLatex").addEventListener("change", ()=>{ Editor.useLatex = $("chkUseLatex").checked; updatePreview(false); });
+
+  // Random question order (select)
+  if($("selShuffleQuestions")){
+    $("selShuffleQuestions").value = Editor.shuffleQuestions ? "1" : "0";
+    $("selShuffleQuestions").addEventListener("change", ()=>{
+      Editor.shuffleQuestions = ($("selShuffleQuestions").value === "1");
+      updatePreview(false);
+    });
+  }
+
   $("chkTimer").addEventListener("change", ()=>{ Editor.timer.enabled = $("chkTimer").checked; updatePreview(false); });
   $("inpSeconds").addEventListener("input", ()=>{ Editor.timer.seconds = Number($("inpSeconds").value || 30); updatePreview(false); });
   $("btnAddQ").addEventListener("click", ()=>{ if(Editor.questions.length >= 9){ toast(t("toastAddLimit")); return; } openModal(null); });
@@ -2077,8 +2086,11 @@ return normalizeCfg({
 
   // Shuffle questions toggle (questions themselves are not modified; only payload order)
   if($("selShuffleQuestions")){
-    $("selShuffleQuestions").value==="1" = !!Editor.shuffleQuestions;
-    if($("selShuffleQuestions")) $("selShuffleQuestions").addEventListener("change", ()=>{ Editor.shuffleQuestions = ($("selShuffleQuestions").value==="1"); updatePreview(false); });
+    $("selShuffleQuestions").value = Editor.shuffleQuestions ? "1" : "0";
+    $("selShuffleQuestions").addEventListener("change", ()=>{
+      Editor.shuffleQuestions = ($("selShuffleQuestions").value === "1");
+      updatePreview(false);
+    });
   }
 
   applyI18n();
@@ -2086,6 +2098,7 @@ return normalizeCfg({
   Editor.timer.enabled = $("chkTimer").checked; Editor.timer.seconds = Number($("inpSeconds").value || 30);
   Editor.useImages = true; if($("chkUseImages")) $("chkUseImages").checked = true;
   if($("chkUseLatex")) Editor.useLatex = $("chkUseLatex").checked;
+  if($("selShuffleQuestions")) Editor.shuffleQuestions = ($("selShuffleQuestions").value === "1");
   Editor.useRepoBg = true;
   if($("inpBgUrl")) $("inpBgUrl").value = Editor.bgUrl || "";
 
