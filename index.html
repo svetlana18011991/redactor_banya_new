@@ -830,6 +830,17 @@
 /* header align */
 .panel-header{padding-left:6px;padding-right:6px}
 #appLogo{margin-left:-18px !important}
+
+/* hide instruction hint */
+[data-i18n="instructionHint"]{display:none !important}
+
+/* no horizontal scroll */
+html,body{overflow-x:hidden}
+.app,.panel,.panel-content{overflow-x:hidden}
+.row{flex-wrap:wrap}
+#btnCopyCode{max-width:100%}
+
+.compact-shuffle{margin-top:2px}
 </style>
 </head>
 
@@ -890,7 +901,7 @@
         
         <div class="card" style="margin-top:12px">
           <label class="row" style="gap:10px; align-items:flex-start">
-            <input type="checkbox" id="chkShuffleQuestions" />
+            <input type="checkbox" id="chkShuffleQuestions" class="compact-shuffle" />
             <div>
               <div style="font-weight:900" data-i18n="shuffleQuestionsTitle">Случайный порядок вопросов</div>
               <div class="muted" data-i18n="shuffleQuestionsHint">Если включено — вопросы будут перемешиваться при запуске игры. Если выключено — идут строго по порядку.</div>
@@ -1074,8 +1085,7 @@
   function showErr(msg){
     if (!errbar) return;
     errbar.classList.add("show");
-    const one = String(msg||"").split("
-").filter(Boolean)[0] || String(msg||"");
+    const one = String(msg||"").split("\n").filter(Boolean)[0] || String(msg||"");
     errbar.textContent = one;
   }
   window.addEventListener("error", (e) => {
@@ -1123,7 +1133,7 @@
       gRight:"Верно!", gWrongMsg:"Неверно!", gDropPlus:"Блок опускается (+100).", gBurn:"Блок обугливается и исчезает."
     ,
 shuffleQuestionsTitle:"Случайный порядок вопросов",
-shuffleQuestionsHint:"Если включено — вопросы будут перемешиваться при запуске игры. Если выключено — идут строго по порядку.",
+shuffleQuestionsHint:"Вкл — вопросы будут перемешаны при старте. Выкл — по порядку.",
 instructionTitle:"Инструкция перед началом",
 instructionPh:"Напишите инструкцию, которая появится в начале игры...",
 instructionHint:"Эта инструкция показывается на стартовом экране игры перед кнопкой «Начать».",
@@ -1167,7 +1177,7 @@ fontSample:"Пример шрифта"
       gRight:"Correct!", gWrongMsg:"Wrong!", gDropPlus:"The block drops (+100).", gBurn:"The block burns and disappears."
     ,
 shuffleQuestionsTitle:"Random question order",
-shuffleQuestionsHint:"If enabled — questions will be shuffled when the game starts. If disabled — they stay in the original order.",
+shuffleQuestionsHint:"On — shuffle questions on start. Off — keep order.",
 instructionTitle:"Intro instruction",
 instructionPh:"Write the instruction that will appear at the start of the game...",
 instructionHint:"This instruction is shown on the start screen before the Start button.",
@@ -1211,7 +1221,7 @@ fontSample:"Font sample"
       gRight:"正确！", gWrongMsg:"错误！", gDropPlus:"方块下落（+100）。", gBurn:"方块烧焦并消失。"
     ,
 shuffleQuestionsTitle:"题目随机顺序",
-shuffleQuestionsHint:"开启后：游戏开始时题目将被打乱；关闭则按原顺序显示。",
+shuffleQuestionsHint:"开：开始时打乱题目；关：按顺序。",
 instructionTitle:"开场说明",
 instructionPh:"输入将显示在游戏开始前的说明…",
 instructionHint:"该说明会出现在开始界面，并显示在开始按钮上方。",
@@ -1255,7 +1265,7 @@ fontSample:"字体示例"
       gRight:"Richtig!", gWrongMsg:"Falsch!", gDropPlus:"Der Block fällt (+100).", gBurn:"Der Block brennt und verschwindet."
     ,
 shuffleQuestionsTitle:"Zufällige Fragenreihenfolge",
-shuffleQuestionsHint:"Wenn aktiviert, werden die Fragen beim Start gemischt. Wenn deaktiviert, bleiben sie in der Originalreihenfolge.",
+shuffleQuestionsHint:"An — Fragen mischen. Aus — Reihenfolge behalten.",
 instructionTitle:"Start-Anleitung",
 instructionPh:"Schreibe die Anleitung, die zu Beginn des Spiels angezeigt wird...",
 instructionHint:"Diese Anleitung wird auf dem Startbildschirm vor der Start-Schaltfläche angezeigt.",
