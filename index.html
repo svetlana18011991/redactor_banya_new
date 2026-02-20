@@ -1,15 +1,13 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Башня — Editor + Game (один файл)</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Roboto:wght@400;700&family=Montserrat:wght@400;700&family=Poppins:wght@400;700&family=Merriweather:wght@400;700&family=Playfair+Display:wght@400;700&family=Fira+Sans:wght@400;700&display=swap" rel="stylesheet">
-
-
-  <style>
+<meta charset="utf-8"/>
+<meta content="width=device-width,initial-scale=1" name="viewport"/>
+<title>Башня — Editor + Game (один файл)</title>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&amp;family=Roboto:wght@400;700&amp;family=Montserrat:wght@400;700&amp;family=Poppins:wght@400;700&amp;family=Merriweather:wght@400;700&amp;family=Playfair+Display:wght@400;700&amp;family=Fira+Sans:wght@400;700&amp;display=swap" rel="stylesheet"/>
+<style>
     html, body{height:100%}
 
     :root{
@@ -47,7 +45,7 @@
       max-width: 1540px;
       margin: 0 auto;
     }
-    @media (max-width: 1020px){
+    @media (max-width: 0px){
       .app{grid-template-columns:1fr}
     }
 
@@ -90,7 +88,7 @@
     [data-hide="blocks"]{display:none !important}
 
     .section{
-      padding:12px 12px;
+      padding:14px 14px;
       border-radius:16px;
       border:1px solid rgba(255,255,255,.10);
       background:rgba(0,0,0,.16);
@@ -613,7 +611,7 @@
     }
 
     .block{
-      padding:12px 12px;
+      padding:14px 14px;
       border-radius:16px;
       background:rgba(0,0,0,.18);
       border:1px solid rgba(255,255,255,.10);
@@ -735,9 +733,9 @@
       grid-template-columns: 1fr 1fr;
       gap:12px;
     }
-    @media (max-width:720px){ .grid{grid-template-columns:1fr} }
+    @media (max-width: 0px){ .grid{grid-template-columns:1fr} }
     .stat{
-      padding:12px 12px;
+      padding:14px 14px;
       border-radius:18px;
       border:1px solid rgba(255,255,255,.12);
       background:rgba(0,0,0,.18);
@@ -840,12 +838,6 @@ button, select, input, textarea{max-width:100%}
 #livePreview{display:block;width:100%;height:100%;min-height:720px;border:0;background:transparent}
 .preview-body{flex:1;min-height:720px}
 
-/* force-two-columns */
-.app{display:grid;grid-template-columns:minmax(360px,520px) minmax(520px,1fr);gap:18px;align-items:start}
-@media (max-width: 0px){}
-/* keep preview on the right even with devtools; allow page to scroll horizontally if window is too narrow */
-html,body{overflow-x:auto}
-
 /* preview-sticky */
 .preview{position:sticky;top:16px;height:calc(100vh - 32px)}
 .preview-body{height:calc(100vh - 140px);min-height:560px}
@@ -854,244 +846,245 @@ html,body{overflow-x:auto}
 /* label-padding */
 .section .title, .section h3, .card .title, .card label, .card div[data-i18n]{padding-left:6px}
 .card{padding-left:14px;padding-right:14px;box-sizing:border-box}
+
 </style>
+
+<style id="layoutFix">
+  /* Жесткая фиксация: превью всегда справа, левая панель фиксирована */
+  html, body {
+    overflow-x: auto !important; /* Включаем скролл, если экран слишком узкий */
+    min-width: 1024px !important; /* Не даем странице сжаться меньше суммы двух панелей */
+  }
+
+  .app {
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: nowrap !important; /* Запрещаем перенос элементов на новую строку */
+    align-items: flex-start !important;
+    gap: 14px !important;
+    max-width: 1540px;
+    margin: 0 auto;
+  }
+
+  .panel.settings {
+    flex: 0 0 460px !important; /* Левая панель фиксирована на 460px */
+    width: 460px !important;
+    max-width: 460px !important;
+    overflow-x: hidden !important; /* Прячем случайный скролл внутри настроек */
+  }
+
+  .panel.preview {
+    flex: 1 1 auto !important; /* Правая панель занимает все оставшееся место */
+    min-width: 520px !important; /* Но не сужается меньше 520px */
+  }
+
+  /* Фикс отрезания букв слева в настройках */
+  .panel.settings .section-title,
+  .panel.settings .card-title,
+  .panel.settings h3,
+  .panel.settings label,
+  .panel.settings [data-i18n] {
+    padding-left: 6px;
+  }
+</style>
+
 </head>
-
 <body>
-  <div class="app" id="editorRoot">
-    <div class="panel settings">
-      <div class="panel-header" style="display:flex;flex-direction:column;gap:10px;align-items:stretch">
-        <div class="row" style="margin:0;align-items:center;gap:10px;justify-content:flex-start">
-          <img id="appLogo" src="63.png" alt="Logo" style="width:34px;height:34px;object-fit:contain;border-radius:10px;border:1px solid rgba(255,255,255,.14);background:rgba(0,0,0,.22);margin-left:-10px" onerror="this.onerror=null;this.src='63';" />
-          <div class="h" data-i18n="editorTitle" style="font-size:16px;font-weight:800;line-height:1;white-space:nowrap">Светлана Быкова</div>
-        </div>
-
-        <div class="row" style="margin:0;gap:10px;align-items:center;justify-content:flex-end;flex-wrap:wrap">
-          <select id="selLang" aria-label="Language" style="max-width:180px">
-            <option value="ru">Русский</option>
-            <option value="en">English</option>
-            <option value="zh">中文</option>
-            <option value="de">Deutsch</option>
-          </select>
-          <button class="btn primary" id="btnCopyCode" type="button" data-i18n="btnCopyCode">📋 Скопировать код (iframe)</button>
-        </div>
-      </div>
-
-      <div class="errbar" id="errbar"></div>
-
-      <div class="panel-body">
-
-        <div class="section">
-          <div class="title" data-i18n="secName">Название</div>
-          <label data-i18n="gameTitleLabel">Заголовок в игре</label>
-          <input id="inpTitle" type="text" value="Башня знаний" />
-        </div>
-
-        <div class="section">
-          <div class="title" data-i18n="secDesign">Оформление</div>
-          <label data-i18n="bgLabel">Фон (только по ссылке)</label>
-          <div class="row" style="gap:10px; align-items:center; margin-top:6px">
-            <input id="inpBgUrl" type="text" data-i18n-placeholder="bgPlaceholder" placeholder="https://.../background.jpg" />
-            <button id="btnResetBg" type="button" class="btn small" data-i18n="btnResetBg">↩ Сбросить фон</button>
-          </div>
-          <div class="muted" style="margin-top:8px" data-i18n="bgHint">Поддерживаются только прямые ссылки на изображения (PNG/JPG/WebP). Загрузка с компьютера отключена.</div>
-
-          <div class="toggle" data-hide="blocks">
-            <input id="chkUseImages" type="checkbox" checked />
-            <div>
-              <div style="font-weight:900" data-i18n="blocksStandard">Блоки: стандартные</div>
-              <div class="muted"></div>
-            </div>
-          </div>
-          
-          <div class="toggle">
-            <input id="chkUseLatex" type="checkbox" />
-            <div>
-              <div style="font-weight:900" data-i18n="useLatex">Использовать LaTeX</div>
-              <div class="muted" data-i18n="useLatexHint">Включает поддержку математических формул (например, $x^2$)</div>
-            </div>
-          </div>
-        </div>
-
-        
-        
-        <div class="card" style="margin-top:12px">
-          <div style="font-weight:900; font-size:14px; margin-bottom:8px" data-i18n="shuffleQuestionsTitle">Случайный порядок вопросов</div>
-          <select id="selShuffleQuestions" style="max-width:220px">
-            <option value="0" data-i18n="shuffleOff">Выключен</option>
-            <option value="1" data-i18n="shuffleOn">Включен</option>
-          </select>
-        </div>
-
-        
-        <div class="card" style="margin-top:12px">
-          <div class="title" data-i18n="instructionTitle" style="margin-bottom:8px">Инструкция перед началом</div>
-          <textarea id="inpInstruction" rows="4" data-i18n-placeholder="instructionPh" placeholder="Напишите инструкцию, которая появится в начале игры..."></textarea>
-        </div>
-
+<div class="app" id="editorRoot">
+<div class="panel settings">
+<div class="panel-header" style="display:flex;flex-direction:column;gap:10px;align-items:stretch">
+<div class="row" style="margin:0;align-items:center;gap:10px;justify-content:flex-start">
+<img alt="Logo" id="appLogo" onerror="this.onerror=null;this.src='63';" src="63.png" style="width:34px;height:34px;object-fit:contain;border-radius:10px;border:1px solid rgba(255,255,255,.14);background:rgba(0,0,0,.22);margin-left:-10px"/>
+<div class="h" data-i18n="editorTitle" style="font-size:16px;font-weight:800;line-height:1;white-space:nowrap">Светлана Быкова</div>
 </div>
-
+<div class="row" style="margin:0;gap:10px;align-items:center;justify-content:flex-end;flex-wrap:wrap">
+<select aria-label="Language" id="selLang" style="max-width:180px">
+<option value="ru">Русский</option>
+<option value="en">English</option>
+<option value="zh">中文</option>
+<option value="de">Deutsch</option>
+</select>
+<button class="btn primary" data-i18n="btnCopyCode" id="btnCopyCode" type="button">📋 Скопировать код (iframe)</button>
+</div>
+</div>
+<div class="errbar" id="errbar"></div>
+<div class="panel-body">
+<div class="section">
+<div class="title" data-i18n="secName">Название</div>
+<label data-i18n="gameTitleLabel">Заголовок в игре</label>
+<input id="inpTitle" type="text" value="Башня знаний"/>
+</div>
+<div class="section">
+<div class="title" data-i18n="secDesign">Оформление</div>
+<label data-i18n="bgLabel">Фон (только по ссылке)</label>
+<div class="row" style="gap:10px; align-items:center; margin-top:6px">
+<input data-i18n-placeholder="bgPlaceholder" id="inpBgUrl" placeholder="https://.../background.jpg" type="text"/>
+<button class="btn small" data-i18n="btnResetBg" id="btnResetBg" type="button">↩ Сбросить фон</button>
+</div>
+<div class="muted" data-i18n="bgHint" style="margin-top:8px">Поддерживаются только прямые ссылки на изображения (PNG/JPG/WebP). Загрузка с компьютера отключена.</div>
+<div class="toggle" data-hide="blocks">
+<input checked="" id="chkUseImages" type="checkbox"/>
+<div>
+<div data-i18n="blocksStandard" style="font-weight:900">Блоки: стандартные</div>
+<div class="muted"></div>
+</div>
+</div>
+<div class="toggle">
+<input id="chkUseLatex" type="checkbox"/>
+<div>
+<div data-i18n="useLatex" style="font-weight:900">Использовать LaTeX</div>
+<div class="muted" data-i18n="useLatexHint">Включает поддержку математических формул (например, $x^2$)</div>
+</div>
+</div>
+</div>
+<div class="card" style="margin-top:12px">
+<div data-i18n="shuffleQuestionsTitle" style="font-weight:900; font-size:14px; margin-bottom:8px">Случайный порядок вопросов</div>
+<select id="selShuffleQuestions" style="max-width:220px">
+<option data-i18n="shuffleOff" value="0">Выключен</option>
+<option data-i18n="shuffleOn" value="1">Включен</option>
+</select>
+</div>
+<div class="card" style="margin-top:12px">
+<div class="title" data-i18n="instructionTitle" style="margin-bottom:8px">Инструкция перед началом</div>
+<textarea data-i18n-placeholder="instructionPh" id="inpInstruction" placeholder="Напишите инструкцию, которая появится в начале игры..." rows="4"></textarea>
+</div>
+</div>
 <div class="section" data-section="timer">
-          <div class="title">Таймер</div>
+<div class="title">Таймер</div>
+<div class="toggle">
+<input id="chkTimer" type="checkbox"/>
+<div>
+<div style="font-weight:900">Включить таймер</div>
+<div class="muted">Если время вышло — ответ неверный, блок сгорает.</div>
+</div>
+</div>
+<label>Секунд на вопрос</label>
+<input id="inpSeconds" max="600" min="5" step="1" type="number" value="30"/>
+</div>
+<div class="section"><div class="title">Инструкция перед началом</div>
 
-          <div class="toggle">
-            <input id="chkTimer" type="checkbox" />
-            <div>
-              <div style="font-weight:900">Включить таймер</div>
-              <div class="muted">Если время вышло — ответ неверный, блок сгорает.</div>
-            </div>
-          </div>
+</div><div class="section"><div class="title">Случайный порядок вопросов</div>
 
-          <label>Секунд на вопрос</label>
-          <input id="inpSeconds" type="number" min="5" max="600" step="1" value="30" />
-        </div>
-
-        <div class="section">
-          <div class="title"><span data-i18n="secQuestions">Вопросы</span> <span class="pill" id="pillCount">0 / 9</span></div>
-
-          <div class="row">
-            <button class="btn primary" id="btnAddQ" type="button" data-i18n="btnAddQ">➕ Добавить</button>
-            <button class="btn" id="btnClearQs" type="button" data-i18n="btnClearQs">🧹 Очистить</button>
-          </div>
-
-          <div class="q-list" id="qList" style="margin-top:12px"></div>
-
-          <div class="muted" style="margin-top:10px">
-            <span data-i18n="questionsHint">Строго <b>9 вопросов</b>. Можно: <b>выбор</b> или <b>ввод</b> (несколько правильных вариантов).</span>
-          </div>
-        </div>
-
-        <div class="section">
-          <div class="title" data-hide="exportTitle">Экспорт в Genially</div>
-          <div class="muted">
+</div><div class="section">
+<div class="title"><span data-i18n="secQuestions">Вопросы</span> <span class="pill" id="pillCount">0 / 9</span></div>
+<div class="row">
+<button class="btn primary" data-i18n="btnAddQ" id="btnAddQ" type="button">➕ Добавить</button>
+<button class="btn" data-i18n="btnClearQs" id="btnClearQs" type="button">🧹 Очистить</button>
+</div>
+<div class="q-list" id="qList" style="margin-top:12px"></div>
+<div class="muted" style="margin-top:10px">
+<span data-i18n="questionsHint">Строго <b>9 вопросов</b>. Можно: <b>выбор</b> или <b>ввод</b> (несколько правильных вариантов).</span>
+</div>
+</div>
+<div class="section">
+<div class="title" data-hide="exportTitle">Экспорт в Genially</div>
+<div class="muted">
             Нажми <b>«📋 Скопировать iframe»</b> — в буфере будет короткий код вида:
             <div style="margin-top:8px; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size:12px; color:rgba(255,255,255,.86)">
               .../index.html?game=...
             </div>
-          </div>
-        </div>
+</div>
+</div>
+</div>
+</div>
+<div class="panel preview">
+<div class="preview-top">
+<div>
+<div class="name" data-i18n="previewTitle">Просмотр</div>
+<div class="hint" data-i18n="previewHint">Живое превью (игра запускается как в Genially)</div>
+</div>
+<div class="muted">Башня + карточки + финальный экран</div>
+</div>
+<div class="panel-body" style="height:100%; padding-bottom:0">
+<div class="preview-stage" style="height:100%">
+<div class="preview-body"><iframe allow="autoplay; fullscreen" allowfullscreen="" id="livePreview" style="width:100%;height:100%;min-height:720px;border:0;background:transparent;border-radius:18px;overflow:hidden" title="Preview"></iframe></div>
+</div>
+</div>
+</div>
 
-      </div>
-    </div>
-
-    <div class="panel preview">
-      <div class="preview-top">
-        <div>
-          <div class="name" data-i18n="previewTitle">Просмотр</div>
-          <div class="hint" data-i18n="previewHint">Живое превью (игра запускается как в Genially)</div>
-        </div>
-        <div class="muted">Башня + карточки + финальный экран</div>
-      </div>
-
-      <div class="panel-body" style="height:100%; padding-bottom:0">
-        <div class="preview-stage" style="height:100%">
-          <div class="preview-body"><iframe id="livePreview" title="Preview" style="width:100%;height:100%;min-height:720px;border:0;background:transparent;border-radius:18px;overflow:hidden" allow="autoplay; fullscreen" allowfullscreen></iframe></div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <div id="gameRoot" style="display:none"></div>
-
-  <div class="modal-backdrop" id="modalBackdrop" aria-hidden="true">
-    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
-      <div class="modal-head">
-        <div class="h" id="modalTitle" data-i18n="modalAddTitle">Добавить вопрос</div>
-        <button class="btn small danger" id="btnCloseModal" type="button" data-i18n="btnClose">Закрыть</button>
-      </div>
-
-      <div class="modal-body">
-        <label data-i18n="qType">Тип вопроса</label>
-        <select id="selType">
-          <option value="choice" selected data-i18n="qTypeChoice">С выбором ответа</option>
-          <option value="text" data-i18n="qTypeText">С вводом ответа</option>
-        </select>
-
-        <label data-i18n="qPrompt">Вопрос</label>
-        <textarea id="inpPrompt" data-i18n-placeholder="qPromptPh" placeholder="Введите вопрос..."></textarea>
-
-        <div class="choiceBlock" style="margin-top:10px">
-          <div style="font-weight:900" data-i18n="qTimerTitle">Таймер для этого вопроса</div>
-          <div class="muted" data-i18n="qTimerHint">Можно задать время именно для этого вопроса (пусто = без таймера/по умолчанию).</div>
-
-          <div style="margin-top:10px">
-              <label data-i18n="qTimerLabel">Секунд на этот вопрос</label>
-              <input id="inpQSeconds" type="number" min="3" max="600" step="1" data-i18n-placeholder="qTimerPh" placeholder="например 20" />
-          </div>
-        </div>
-        
-        <div class="choiceBlock" style="margin-top:10px">
-          <div style="font-weight:900" data-i18n="mediaTitle">Медиа (ссылки)</div>
-          <div class="muted" data-i18n="mediaHint">Вставьте прямую ссылку (URL) на картинку или аудиофайл.</div>
-          
-          <div class="answerRow">
-            <span style="font-size:20px; line-height:1; cursor:help;" title="Ссылка на картинку">🖼️</span>
-            <input id="inpQImage" type="text" data-i18n-placeholder="imgUrlPh" placeholder="https://.../image.jpg" />
-            <button class="btn small danger" id="btnClearImage" type="button" data-i18n-title="btnDelImageT" title="Удалить картинку">✖</button>
-          </div>
-          
-          <div class="answerRow">
-            <span style="font-size:20px; line-height:1; cursor:help;" title="Ссылка на аудио">🎵</span>
-            <input id="inpQAudio" type="text" data-i18n-placeholder="audioUrlPh" placeholder="https://.../audio.mp3" />
-            <button class="btn small danger" id="btnClearAudio" type="button" data-i18n-title="btnDelAudioT" title="Удалить аудио">✖</button>
-          </div>
-        </div>
-
-        <div id="choiceWrap" class="choiceBlock">
-          <div style="font-weight:900" data-i18n="choicesTitle">Варианты ответа</div>
-          <div class="muted" data-i18n="choicesHint">Минимум 2 варианта. Отметь верный радиокнопкой.</div>
-          <div id="choiceList"></div>
-          <button class="btn small" id="btnAddChoice" type="button" style="margin-top:10px" data-i18n="btnAddVariant">➕ Добавить вариант</button>
-        </div>
-
-        <div id="textWrap" class="choiceBlock" style="display:none">
-          <div style="font-weight:900" data-i18n="acceptsTitle">Верные ответы (ввод)</div>
-          <div class="muted" data-i18n="acceptsHint">Можно несколько вариантов — принимается любой.</div>
-          <div id="textList"></div>
-          <button class="btn small" id="btnAddText" type="button" style="margin-top:10px" data-i18n="btnAddVariant">➕ Добавить вариант</button>
-        </div>
-      </div>
-
-      <div class="modal-foot">
-      <div style="margin-top:14px">
-        <div style="font-weight:900" data-i18n="fontTitle">Шрифт для вопроса и ответов</div>
-        <div class="muted" data-i18n="fontHint">Выбранный шрифт применяется к этому вопросу и его вариантам ответа в игре.</div>
-        <select id="selQFont" style="width:100%"></select>
-        <div class="muted" id="fontSampleTxt" style="margin-top:8px;font-size:16px">Пример шрифта</div>
-      </div>
-
-
-        <button class="btn" id="btnPreviewDraft" type="button" data-i18n="btnPreviewDraft">👁 Показать в превью</button>
-        <button class="btn primary" id="btnSaveQ" type="button" data-i18n="btnSave">💾 Сохранить</button>
-      </div>
-    </div>
-  </div>
-
-  
-  <div class="modal-backdrop" id="codeBackdrop" aria-hidden="true">
-    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="codeTitle">
-      <div class="modal-head">
-        <div class="h" id="codeTitle" data-i18n="codeModalTitle">Ссылка для запуска игры</div>
-        <button class="btn small danger" id="btnCloseCode" type="button" data-i18n="btnClose">Закрыть</button>
-      </div>
-      <div class="modal-body">
-        <div class="muted" style="margin-bottom:8px" data-i18n="codeModalHint">Это ссылка на игру. Её можно вставлять в Genially (через iframe) и куда угодно.</div>
-        <label style="margin-top:0" data-i18n="linkLabel">Ссылка</label>
+<div id="gameRoot" style="display:none"></div>
+<div aria-hidden="true" class="modal-backdrop" id="modalBackdrop">
+<div aria-labelledby="modalTitle" aria-modal="true" class="modal" role="dialog">
+<div class="modal-head">
+<div class="h" data-i18n="modalAddTitle" id="modalTitle">Добавить вопрос</div>
+<button class="btn small danger" data-i18n="btnClose" id="btnCloseModal" type="button">Закрыть</button>
+</div>
+<div class="modal-body">
+<label data-i18n="qType">Тип вопроса</label>
+<select id="selType">
+<option data-i18n="qTypeChoice" selected="" value="choice">С выбором ответа</option>
+<option data-i18n="qTypeText" value="text">С вводом ответа</option>
+</select>
+<label data-i18n="qPrompt">Вопрос</label>
+<textarea data-i18n-placeholder="qPromptPh" id="inpPrompt" placeholder="Введите вопрос..."></textarea>
+<div class="choiceBlock" style="margin-top:10px">
+<div data-i18n="qTimerTitle" style="font-weight:900">Таймер для этого вопроса</div>
+<div class="muted" data-i18n="qTimerHint">Можно задать время именно для этого вопроса (пусто = без таймера/по умолчанию).</div>
+<div style="margin-top:10px">
+<label data-i18n="qTimerLabel">Секунд на этот вопрос</label>
+<input data-i18n-placeholder="qTimerPh" id="inpQSeconds" max="600" min="3" placeholder="например 20" step="1" type="number"/>
+</div>
+</div>
+<div class="choiceBlock" style="margin-top:10px">
+<div data-i18n="mediaTitle" style="font-weight:900">Медиа (ссылки)</div>
+<div class="muted" data-i18n="mediaHint">Вставьте прямую ссылку (URL) на картинку или аудиофайл.</div>
+<div class="answerRow">
+<span style="font-size:20px; line-height:1; cursor:help;" title="Ссылка на картинку">🖼️</span>
+<input data-i18n-placeholder="imgUrlPh" id="inpQImage" placeholder="https://.../image.jpg" type="text"/>
+<button class="btn small danger" data-i18n-title="btnDelImageT" id="btnClearImage" title="Удалить картинку" type="button">✖</button>
+</div>
+<div class="answerRow">
+<span style="font-size:20px; line-height:1; cursor:help;" title="Ссылка на аудио">🎵</span>
+<input data-i18n-placeholder="audioUrlPh" id="inpQAudio" placeholder="https://.../audio.mp3" type="text"/>
+<button class="btn small danger" data-i18n-title="btnDelAudioT" id="btnClearAudio" title="Удалить аудио" type="button">✖</button>
+</div>
+</div>
+<div class="choiceBlock" id="choiceWrap">
+<div data-i18n="choicesTitle" style="font-weight:900">Варианты ответа</div>
+<div class="muted" data-i18n="choicesHint">Минимум 2 варианта. Отметь верный радиокнопкой.</div>
+<div id="choiceList"></div>
+<button class="btn small" data-i18n="btnAddVariant" id="btnAddChoice" style="margin-top:10px" type="button">➕ Добавить вариант</button>
+</div>
+<div class="choiceBlock" id="textWrap" style="display:none">
+<div data-i18n="acceptsTitle" style="font-weight:900">Верные ответы (ввод)</div>
+<div class="muted" data-i18n="acceptsHint">Можно несколько вариантов — принимается любой.</div>
+<div id="textList"></div>
+<button class="btn small" data-i18n="btnAddVariant" id="btnAddText" style="margin-top:10px" type="button">➕ Добавить вариант</button>
+</div>
+</div>
+<div class="modal-foot">
+<div style="margin-top:14px">
+<div data-i18n="fontTitle" style="font-weight:900">Шрифт для вопроса и ответов</div>
+<div class="muted" data-i18n="fontHint">Выбранный шрифт применяется к этому вопросу и его вариантам ответа в игре.</div>
+<select id="selQFont" style="width:100%"></select>
+<div class="muted" id="fontSampleTxt" style="margin-top:8px;font-size:16px">Пример шрифта</div>
+</div>
+<button class="btn" data-i18n="btnPreviewDraft" id="btnPreviewDraft" type="button">👁 Показать в превью</button>
+<button class="btn primary" data-i18n="btnSave" id="btnSaveQ" type="button">💾 Сохранить</button>
+</div>
+</div>
+</div>
+<div aria-hidden="true" class="modal-backdrop" id="codeBackdrop">
+<div aria-labelledby="codeTitle" aria-modal="true" class="modal" role="dialog">
+<div class="modal-head">
+<div class="h" data-i18n="codeModalTitle" id="codeTitle">Ссылка для запуска игры</div>
+<button class="btn small danger" data-i18n="btnClose" id="btnCloseCode" type="button">Закрыть</button>
+</div>
+<div class="modal-body">
+<div class="muted" data-i18n="codeModalHint" style="margin-bottom:8px">Это ссылка на игру. Её можно вставлять в Genially (через iframe) и куда угодно.</div>
+<label data-i18n="linkLabel" style="margin-top:0">Ссылка</label>
 <textarea id="taIframe" spellcheck="false" style="min-height:90px;font-family: ui-monospace, SFMono-Regular, Menlo, monospace;"></textarea>
 <label data-i18n="iframeLabel">iframe (если нужен)</label>
 <textarea id="taIframe2" spellcheck="false" style="min-height:120px;font-family: ui-monospace, SFMono-Regular, Menlo, monospace;"></textarea>
-        <div class="row" style="margin-top:10px">
-          <button class="btn primary" id="btnCopyFromModal" type="button" data-i18n="btnCopyLink">📋 Скопировать ссылку</button>
-          <button class="btn" id="btnCopyIframe" type="button" data-i18n="btnCopyIframe">📎 Скопировать iframe</button>
-          <button class="btn" id="btnDownloadGame" type="button" data-i18n="btnDownloadHtml">⬇ Скачать игру (HTML)</button>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <div class="toast" id="toast">Скопировано</div>
-
-
+<div class="row" style="margin-top:10px">
+<button class="btn primary" data-i18n="btnCopyLink" id="btnCopyFromModal" type="button">📋 Скопировать ссылку</button>
+<button class="btn" data-i18n="btnCopyIframe" id="btnCopyIframe" type="button">📎 Скопировать iframe</button>
+<button class="btn" data-i18n="btnDownloadHtml" id="btnDownloadGame" type="button">⬇ Скачать игру (HTML)</button>
+</div>
+</div>
+</div>
+</div>
+<div class="toast" id="toast">Скопировано</div>
 <script>
 (() => {
   "use strict";
@@ -1524,11 +1517,12 @@ renderList();
   function basePath(){ return location.origin + location.pathname.replace(/\/[^\/]*$/, "/"); }
   const BASE = basePath();
   function selfPageUrl(){
-    let p = location.pathname || "/";
-    if(p.endsWith("/")) p += "index.html";
-    return location.origin + p;
+    // Works for both https:// and file://
+    const u = new URL(location.href);
+    u.hash = "";
+    u.search = "";
+    return u.toString();
   }
-
   const repoBgUrl = BASE + "1.png";
   const blockUrls = Array.from({length:9}, (_,i)=> BASE + (i+3) + ".png");
 
