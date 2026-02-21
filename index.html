@@ -1846,18 +1846,8 @@ try{
         instruction: cfg.instruction 
     };
 
-    if(!window.__TOWER_GAME_RAN__){
-      window.__TOWER_GAME_RAN__ = true;
-      try{
-        eval(__GAME_JS__);
-      }catch(e){
-        showErr(e?.stack || e?.message || String(e));
-      }
-    } else {
-      try{
-        const playBtn = document.getElementById("play");
-        const startLayer = document.getElementById("start");
-        
+    // Обновляем стартовый экран СРАЗУ после вставки HTML
+    try{
         const instCfg = window.__CFG?.instruction || {};
         const instText = instCfg.text !== undefined ? instCfg.text : "Первый блок падает сам. Дальше — нажимай <b>Далее</b>.\nКогда блок остановится — ответь на вопрос.\nВерно → блок опускается и становится этажом (+100).\nНеверно → блок обугливается, взрывается и исчезает.";
         const instColor = instCfg.color || "#ffffff";
@@ -1874,7 +1864,20 @@ try{
                 startCard.style.boxShadow = "var(--shadow)";
             }
         }
+    }catch(e){}
 
+    if(!window.__TOWER_GAME_RAN__){
+      window.__TOWER_GAME_RAN__ = true;
+      try{
+        eval(__GAME_JS__);
+      }catch(e){
+        showErr(e?.stack || e?.message || String(e));
+      }
+    } else {
+      try{
+        const playBtn = document.getElementById("play");
+        const startLayer = document.getElementById("start");
+        
         if(startLayer) startLayer.style.display="flex";
         
         const qp = new URLSearchParams(location.search);
