@@ -122,6 +122,13 @@
     }
     textarea{min-height:84px; resize:vertical}
 
+    input[type="color"] {
+      width:100%; height:40px; border-radius:14px; padding:2px;
+      border:1px solid rgba(255,255,255,.14); background:rgba(0,0,0,.25); cursor:pointer;
+    }
+    input[type="color"]::-webkit-color-swatch-wrapper { padding:2px; }
+    input[type="color"]::-webkit-color-swatch { border-radius:10px; border:none; }
+
     .row{display:flex; gap:10px; flex-wrap:wrap}
     .row > *{flex:1; min-width:170px}
 
@@ -496,6 +503,25 @@
         </div>
 
         <div class="section">
+          <div class="title" data-i18n="secTitleInstruction">Стартовый экран</div>
+          <label data-i18n="lblInstructionText">Текст инструкции</label>
+          <textarea id="inpInstruction" style="min-height:90px;"></textarea>
+          
+          <div class="row" style="margin-top:10px; align-items:center;">
+            <div>
+              <label data-i18n="lblInstructionColor">Цвет рамки</label>
+              <input type="color" id="inpInstColor" value="#ffffff" />
+            </div>
+            <div class="toggle" style="margin-top:0;">
+              <input id="chkInstGlow" type="checkbox" />
+              <div>
+                <div style="font-weight:900" data-i18n="lblInstructionGlow">Свечение рамки</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="section">
           <div class="title"><span data-i18n="secTitleQuestions">Вопросы</span> <span class="pill" id="pillCount">0 / 9</span></div>
 
           <div class="row">
@@ -687,7 +713,8 @@
       toastMin2: "Нужно минимум 2 варианта ответа", toastAtLeast1: "Добавьте хотя бы один верный ответ", typeChoice: "Выбор", typeText: "Ввод",
       withMedia: " (+ медиа)", btnShow: "Показать в превью (первым вопросом)", btnEdit: "Редактировать", btnDel: "Удалить",
       toastDeleted: "Удалено", toastShown: "Показано в превью", lblFontTitle: "Оформление текста", lblFont: "Шрифт (вопрос и ответы)",
-      optFontDefault: "Стандартный", optFontHW1: "Caveat (Рукописный 1)", optFontHW2: "Neucha (Рукописный 2)", lblFontSize: "Размер шрифта вопроса (px)"
+      optFontDefault: "Стандартный", optFontHW1: "Caveat (Рукописный 1)", optFontHW2: "Neucha (Рукописный 2)", lblFontSize: "Размер шрифта вопроса (px)",
+      secTitleInstruction: "Стартовый экран", lblInstructionText: "Текст инструкции", lblInstructionColor: "Цвет рамки", lblInstructionGlow: "Свечение рамки"
     },
     en: {
       editorTitle: "Tower Editor", btnCopyCode: "📋 Copy code (iframe)", langTitle: "Interface Language",
@@ -715,7 +742,8 @@
       toastMin2: "Minimum 2 choices required", toastAtLeast1: "Add at least one correct answer", typeChoice: "Choice", typeText: "Input",
       withMedia: " (+ media)", btnShow: "Show in preview (first question)", btnEdit: "Edit", btnDel: "Delete",
       toastDeleted: "Deleted", toastShown: "Shown in preview", lblFontTitle: "Text Styling", lblFont: "Font (question & answers)",
-      optFontDefault: "System Default", optFontHW1: "Caveat (Handwritten 1)", optFontHW2: "Neucha (Handwritten 2)", lblFontSize: "Question Font Size (px)"
+      optFontDefault: "System Default", optFontHW1: "Caveat (Handwritten 1)", optFontHW2: "Neucha (Handwritten 2)", lblFontSize: "Question Font Size (px)",
+      secTitleInstruction: "Start Screen", lblInstructionText: "Instruction text", lblInstructionColor: "Border color", lblInstructionGlow: "Border glow"
     },
     de: {
       editorTitle: "Turm-Editor", btnCopyCode: "📋 Code kopieren (iframe)", langTitle: "Sprache der Benutzeroberfläche",
@@ -743,7 +771,8 @@
       toastMin2: "Mindestens 2 Auswahlmöglichkeiten erforderlich", toastAtLeast1: "Füge mindestens eine richtige Antwort hinzu", typeChoice: "Auswahl", typeText: "Eingabe",
       withMedia: " (+ Medien)", btnShow: "In Vorschau zeigen (erste Frage)", btnEdit: "Bearbeiten", btnDel: "Löschen",
       toastDeleted: "Gelöscht", toastShown: "In Vorschau gezeigt", lblFontTitle: "Textgestaltung", lblFont: "Schriftart (Frage & Antworten)",
-      optFontDefault: "Systemstandard", optFontHW1: "Caveat (Handschrift 1)", optFontHW2: "Neucha (Handschrift 2)", lblFontSize: "Schriftgröße der Frage (px)"
+      optFontDefault: "Systemstandard", optFontHW1: "Caveat (Handschrift 1)", optFontHW2: "Neucha (Handschrift 2)", lblFontSize: "Schriftgröße der Frage (px)",
+      secTitleInstruction: "Startbildschirm", lblInstructionText: "Anweisungstext", lblInstructionColor: "Randfarbe", lblInstructionGlow: "Randleuchten"
     },
     zh: {
       editorTitle: "塔楼编辑器", btnCopyCode: "📋 复制代码 (iframe)", langTitle: "界面语言",
@@ -771,7 +800,8 @@
       toastMin2: "需要至少 2 个选项", toastAtLeast1: "添加至少一个正确答案", typeChoice: "选择", typeText: "输入",
       withMedia: " (+ 媒体)", btnShow: "在预览中显示 (第一题)", btnEdit: "编辑", btnDel: "删除",
       toastDeleted: "已删除", toastShown: "已在预览中显示", lblFontTitle: "文本样式", lblFont: "问题和答案的字体",
-      optFontDefault: "系统默认", optFontHW1: "Caveat (手写 1)", optFontHW2: "Neucha (手写 2)", lblFontSize: "问题字体大小 (px)"
+      optFontDefault: "系统默认", optFontHW1: "Caveat (手写 1)", optFontHW2: "Neucha (手写 2)", lblFontSize: "问题字体大小 (px)",
+      secTitleInstruction: "开始屏幕", lblInstructionText: "指令文本", lblInstructionColor: "边框颜色", lblInstructionGlow: "边框发光"
     }
   };
 
@@ -1008,7 +1038,7 @@
       padding: 18px;
     }
     #startCard h1{ margin:0 0 8px 0; font-size:24px; }
-    #startCard p{ margin:0 0 14px 0; color: var(--muted); line-height:1.35; }
+    #startCard p{ margin:0 0 14px 0; color: var(--text); line-height:1.4; font-size: 16px; }
     #play{
       display:inline-flex; gap:10px; align-items:center;
       padding:12px 14px;
@@ -1163,12 +1193,7 @@
   <div id="start">
     <div id="startCard">
       <h1>Башня знаний</h1>
-      <p>
-        Первый блок падает сам. Дальше — нажимай <b>Далее</b>.
-        Когда блок остановится — ответь на вопрос.
-        <br/>Верно → блок опускается и становится этажом (+100).
-        <br/>Неверно → блок обугливается, взрывается и исчезает.
-      </p>
+      <p></p>
       <button id="play">▶ Начать</button>
       <div id="err">
         <b>Не получилось загрузить файлы.</b> Убедись, что они лежат рядом с <code>index.html</code> и имена совпадают.
@@ -1326,7 +1351,6 @@ function trimAndCentroidAndProfiles(img){
   let cx=w/2, cy=h/2;
   if(sumA>0){ cx = (sumX/sumA) - minX; cy = (sumY/sumA) - minY; }
 
-  // ОПТИМИЗАЦИЯ: возвращаем Canvas напрямую, без toDataURL (экономит кучу времени)
   return Promise.resolve({ img: outC, w, h, cx, cy, top, bottom });
 }
 
@@ -1337,7 +1361,6 @@ const state = {
   blockIndex:0, readyForNext:false, finished:false, score:0, scoreFloats:[], correct:0, wrong:0, landingBounce: null
 };
 
-// ... Вспомогательные функции отрисовки и физики ...
 function setNextEnabled(on){ state.readyForNext = on; nextBtn.disabled = !on; }
 function updateRemain(){ remainNum.textContent = String(Math.max(0, 9 - state.questionIndex)); }
 function groundY(){ return H - 70 + state.towerOffsetY; }
@@ -1581,7 +1604,7 @@ function showQuestion(){
     const timerEl = document.getElementById("qTimerBadge");
     const txtEl = timerEl ? timerEl.querySelector(".qTimerText") : null;
     const progEl = timerEl ? timerEl.querySelector(".qTimerProg") : null;
-    const C = 100.53; // 2 * pi * 16
+    const C = 100.53;
     if(progEl){ progEl.style.strokeDasharray = String(C); progEl.style.strokeDashoffset = String(C); }
     if(Number.isFinite(secs) && secs>0){
       const total = Math.max(1, Math.round(secs)); let left = total;
@@ -1607,20 +1630,6 @@ function showQuestion(){
 function __applyTitle__(title){
   const t = String(title || "Башня знаний"); document.title = t;
   const h1 = document.querySelector("#startCard h1"); if(h1) h1.textContent = t;
-}
-
-function __buildQuestionsFromCfg__(cfg){
-  const src = Array.isArray(cfg?.questions) ? cfg.questions : [];
-  if(src.length === 0) return Array.from({length:9}, (_,i)=>({ type:"choice", q:"(вопрос " + (i+1) + ")", options:["OK","..."], answer:"OK", font:"", fontSize:"" }));
-  return src.map((q,i)=>{
-    if(q && (q.type==="text" || q.type==="input")){
-      const acc = Array.isArray(q.accepts) ? q.accepts.map(String).filter(s=>s.trim()) : [];
-      return { type:"input", q:String(q.prompt||q.q||""), accepts: acc, answer: String(acc[0]||""), seconds:(q.seconds??null), image:(q.image||""), audio:(q.audio||""), font:(q.font||""), fontSize:(q.fontSize||"") };
-    }
-    const opts = Array.isArray(q.options) ? q.options.map(String).filter(s=>s.trim()) : [];
-    const ci = Number.isFinite(q.correctIndex) ? q.correctIndex : 0;
-    return { type:"choice", q:String(q.prompt||q.q||""), options: opts.length?opts:["OK","..."], answer: String(opts[ci] ?? opts[0] ?? "OK"), seconds:(q.seconds??null), image:(q.image||""), audio:(q.audio||""), font:(q.font||""), fontSize:(q.fontSize||"") };
-  });
 }
 
 function checkAnswer(userValue){
@@ -1670,7 +1679,6 @@ nextBtn.addEventListener("click", ()=>{
   spawnBlock();
 });
 
-// АСИНХРОННАЯ ПАРАЛЛЕЛЬНАЯ ЗАГРУЗКА (решает проблему 30 секунд)
 let __assetsPromise = null;
 function doPreload() {
     if (__assetsPromise) return __assetsPromise;
@@ -1683,7 +1691,7 @@ function doPreload() {
         const blockPromises = BLOCK_FILES.map(async f => {
             try {
                 const raw = await loadImage(assetUrl(f));
-                const t = await trimAndCentroidAndProfiles(raw); // Теперь без toDataURL, работает за миллисекунды!
+                const t = await trimAndCentroidAndProfiles(raw);
                 return { file:f, img:t.img, w:t.w, h:t.h, cx:t.cx, cy:t.cy, top:t.top, bottom:t.bottom };
             } catch (e) {
                 missing.push(f);
@@ -1699,7 +1707,6 @@ function doPreload() {
     return __assetsPromise;
 }
 
-// Начинаем загрузку картинок сразу же, как только скрипт прочтен браузером!
 doPreload();
 
 async function startGame(){
@@ -1710,13 +1717,44 @@ async function startGame(){
 
   try{
     if(typeof __applyTitle__ === "function") __applyTitle__(window.__CFG?.title || "Башня знаний");
-    if(typeof __buildQuestionsFromCfg__ === "function") QUESTIONS = __buildQuestionsFromCfg__(window.__CFG || {});
-    if(!Array.isArray(QUESTIONS) || QUESTIONS.length===0) QUESTIONS = Array.from({length:9}, (_,i)=>({type:"choice", q:"(вопрос "+(i+1)+")", options:["OK","..."], answer:"OK", font:"", fontSize:""}));
+    const src = Array.isArray(window.__CFG?.questions) ? window.__CFG.questions : [];
+    if(src.length === 0) QUESTIONS = Array.from({length:9}, (_,i)=>({type:"choice", q:"(вопрос "+(i+1)+")", options:["OK","..."], answer:"OK", font:"", fontSize:""}));
+    else QUESTIONS = src.map((q,i)=>{
+      if(q && (q.type==="text" || q.type==="input")){
+        const acc = Array.isArray(q.accepts) ? q.accepts.map(String).filter(s=>s.trim()) : [];
+        return { type:"input", q:String(q.prompt||q.q||""), accepts: acc, answer: String(acc[0]||""), seconds:(q.seconds??null), image:(q.image||""), audio:(q.audio||""), font:(q.font||""), fontSize:(q.fontSize||"") };
+      }
+      const opts = Array.isArray(q.options) ? q.options.map(String).filter(s=>s.trim()) : [];
+      const ci = Number.isFinite(q.correctIndex) ? q.correctIndex : 0;
+      return { type:"choice", q:String(q.prompt||q.q||""), options: opts.length?opts:["OK","..."], answer: String(opts[ci] ?? opts[0] ?? "OK"), seconds:(q.seconds??null), image:(q.image||""), audio:(q.audio||""), font:(q.font||""), fontSize:(q.fontSize||"") };
+    });
   }catch(e){}
 
-  ensureAudio(); if(audioCtx.state==="suspended"){ try{ await audioCtx.resume(); }catch(e){} }
+  // ПРИМЕНЕНИЕ НАСТРОЕК ИНСТРУКЦИИ К СТАРТОВОМУ ЭКРАНУ
+  try {
+    const instCfg = window.__CFG?.instruction || {};
+    const instText = instCfg.text !== undefined ? instCfg.text : "Первый блок падает сам. Дальше — нажимай <b>Далее</b>.\\nКогда блок остановится — ответь на вопрос.\\nВерно → блок опускается и становится этажом (+100).\\nНеверно → блок обугливается, взрывается и исчезает.";
+    const instColor = instCfg.color || "#ffffff";
+    const instGlow = instCfg.glow || false;
 
-  // Ждем результаты фоновой загрузки
+    const startCard = document.getElementById("startCard");
+    const startCardP = startCard ? startCard.querySelector("p") : null;
+    
+    if(startCardP) {
+      startCardP.innerHTML = String(instText).replace(/\\n/g, "<br/>");
+    }
+    if(startCard) {
+      startCard.style.borderColor = instColor;
+      if(instGlow) {
+         startCard.style.boxShadow = "0 0 25px " + instColor + ", inset 0 0 15px " + instColor + ", 0 18px 60px rgba(0,0,0,.5)";
+      } else {
+         startCard.style.boxShadow = "var(--shadow)";
+      }
+    }
+  } catch(e) {}
+
+  ensureAudio(); if(audioCtx && audioCtx.state==="suspended"){ try{ await audioCtx.resume(); }catch(e){} }
+
   const { bg, blocks, missing } = await doPreload();
 
   if(missing.length){
@@ -1740,7 +1778,7 @@ async function startGame(){
 
 playBtn.addEventListener("click", async ()=>{
   const origText = playBtn.innerHTML;
-  playBtn.innerHTML = "⏳ Загрузка..."; // Показываем индикатор
+  playBtn.innerHTML = "⏳ Загрузка...";
   playBtn.style.opacity = "0.7"; playBtn.style.pointerEvents = "none";
   
   const ok = await startGame();
@@ -1822,7 +1860,14 @@ try{
       }
     }catch(e){}
 
-    window.__CFG = { title: cfg.title || "Башня знаний", questions: cfg.questions || [], useLatex: !!cfg.useLatex, bgDataUrl: cfg.bgDataUrl || "", timer: cfg.timer };
+    window.__CFG = { 
+        title: cfg.title || "Башня знаний", 
+        questions: cfg.questions || [], 
+        useLatex: !!cfg.useLatex, 
+        bgDataUrl: cfg.bgDataUrl || "", 
+        timer: cfg.timer,
+        instruction: cfg.instruction 
+    };
 
     if(!window.__TOWER_GAME_RAN__){
       window.__TOWER_GAME_RAN__ = true;
@@ -1835,6 +1880,25 @@ try{
       try{
         const playBtn = document.getElementById("play");
         const startLayer = document.getElementById("start");
+        
+        // Перерисовываем стартовый экран с новыми настройками
+        const instCfg = window.__CFG?.instruction || {};
+        const instText = instCfg.text !== undefined ? instCfg.text : "Первый блок падает сам. Дальше — нажимай <b>Далее</b>.\nКогда блок остановится — ответь на вопрос.\nВерно → блок опускается и становится этажом (+100).\nНеверно → блок обугливается, взрывается и исчезает.";
+        const instColor = instCfg.color || "#ffffff";
+        const instGlow = instCfg.glow || false;
+
+        const startCard = document.getElementById("startCard");
+        const startCardP = startCard ? startCard.querySelector("p") : null;
+        if(startCardP) { startCardP.innerHTML = String(instText).replace(/\n/g, "<br/>"); }
+        if(startCard) {
+            startCard.style.borderColor = instColor;
+            if(instGlow) {
+                startCard.style.boxShadow = "0 0 25px " + instColor + ", inset 0 0 15px " + instColor + ", 0 18px 60px rgba(0,0,0,.5)";
+            } else {
+                startCard.style.boxShadow = "var(--shadow)";
+            }
+        }
+
         if(startLayer) startLayer.style.display="flex";
         
         const qp = new URLSearchParams(location.search);
@@ -1937,6 +2001,13 @@ try{
 
     const timerEnabled = !!cfg.timer?.enabled;
     const timerSeconds = Math.max(5, Math.min(600, Number(cfg.timer?.seconds || 30)));
+
+    const instruction = {
+      text: cfg.instruction?.text !== undefined ? String(cfg.instruction.text) : "Первый блок падает сам. Дальше — нажимай <b>Далее</b>.\nКогда блок остановится — ответь на вопрос.\nВерно → блок опускается и становится этажом (+100).\nНеверно → блок обугливается, взрывается и исчезает.",
+      color: String(cfg.instruction?.color || "#ffffff"),
+      glow: !!cfg.instruction?.glow
+    };
+
     let questions = Array.isArray(cfg.questions) ? cfg.questions.slice(0,9) : [];
 
     questions = questions.map(q=>{
@@ -1953,7 +2024,7 @@ try{
       }
       return { type:"choice", prompt:String(q?.prompt||""), options:(Array.isArray(q?.options)?q.options:[]).map(x=>String(x||"")), correctIndex:Number(q?.correctIndex||0), seconds, image, audio, font, fontSize };
     });
-    return { title, useRepoBg, bgDataUrl, timer: { enabled: timerEnabled, seconds: timerSeconds }, useImages, useLatex, blockUrls: blockUrls, questions };
+    return { title, useRepoBg, bgDataUrl, timer: { enabled: timerEnabled, seconds: timerSeconds }, useImages, useLatex, blockUrls: blockUrls, questions, instruction };
   }
 
   const Editor = {
@@ -1963,6 +2034,11 @@ try{
     timer: { enabled:false, seconds: 30 },
     useImages: true,
     useLatex: false,
+    instruction: {
+      text: "Первый блок падает сам. Дальше — нажимай <b>Далее</b>.\nКогда блок остановится — ответь на вопрос.\nВерно → блок опускается и становится этажом (+100).\nНеверно → блок обугливается, взрывается и исчезает.",
+      color: "#ffffff",
+      glow: false
+    },
     questions: [],
     draft: null,
     editingId: null
@@ -2263,6 +2339,7 @@ try{
       timer: { enabled: !!Editor.timer.enabled, seconds: Number(Editor.timer.seconds || 30) },
       useImages: !!Editor.useImages,
       useLatex: !!Editor.useLatex,
+      instruction: Editor.instruction,
       questions
     });
   }
@@ -2305,6 +2382,15 @@ try{
     if(_previewTid) clearTimeout(_previewTid);
     _previewTid = setTimeout(()=>updatePreview(false), 500);
   }
+
+  // Установка значений инструкции
+  $("inpInstruction").value = Editor.instruction.text;
+  $("inpInstColor").value = Editor.instruction.color;
+  $("chkInstGlow").checked = Editor.instruction.glow;
+
+  $("inpInstruction").addEventListener("input", ()=>{ Editor.instruction.text = $("inpInstruction").value; debouncedPreview(); });
+  $("inpInstColor").addEventListener("input", ()=>{ Editor.instruction.color = $("inpInstColor").value; debouncedPreview(); });
+  $("chkInstGlow").addEventListener("change", ()=>{ Editor.instruction.glow = $("chkInstGlow").checked; debouncedPreview(); });
 
   $("inpTitle").addEventListener("input", ()=>{ Editor.title = $("inpTitle").value || "Башня знаний"; debouncedPreview(); });
   $("inpBgUrl").addEventListener("input", ()=>{ Editor.bgDataUrl = $("inpBgUrl").value.trim(); debouncedPreview(); });
