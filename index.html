@@ -291,7 +291,7 @@
       flex-direction: column;
       border-radius:20px;
       border:1px solid rgba(255,255,255,.14);
-      background:linear-gradient(180deg, rgba(255,255,255,.10), rgba(255,255,255,.05));
+      background: #1a1d29; /* Убрана прозрачность, сплошной темный цвет */
       box-shadow: 0 30px 80px rgba(0,0,0,.55);
       overflow:hidden;
     }
@@ -371,60 +371,56 @@
     }
     .gameHost *{box-sizing:border-box;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
     
-    .panel{
-      border-color: rgba(214,177,74,.22);
-      box-shadow: 0 18px 60px rgba(0,0,0,.50);
-    }
-    .panel::before{
-      content:"";
-      position:absolute; inset:0;
-      background:
-        radial-gradient(900px 600px at 20% 10%, rgba(242,211,122,.08), rgba(0,0,0,0) 60%),
-        radial-gradient(700px 520px at 80% 20%, rgba(20,160,255,.10), rgba(0,0,0,0) 55%),
-        repeating-linear-gradient(135deg, rgba(214,177,74,.06) 0 2px, rgba(0,0,0,0) 2px 14px);
-      opacity:.45;
-      pointer-events:none;
-      mix-blend-mode: overlay;
-    }
-    .panel > *{position:relative; z-index:1}
-    .section{
-      border-color: rgba(214,177,74,.18);
-      background: rgba(0,0,0,.18);
-    }
-    input[type="text"], input[type="number"], textarea, select{
-      border-color: rgba(214,177,74,.20);
-      background: rgba(0,0,0,.28);
-    }
-    .btn{
-      border-color: rgba(214,177,74,.22);
-    }
-    .btn.primary{
-      background: linear-gradient(90deg, rgba(214,177,74,.42), rgba(242,211,122,.20));
-      border-color: rgba(242,211,122,.38);
-      box-shadow: 0 14px 34px rgba(214,177,74,.18);
-    }
-    .btn.primary:hover{
-      box-shadow: 0 18px 44px rgba(214,177,74,.22);
-    }
-    .pill{
-      border-color: rgba(242,211,122,.30);
-      background: rgba(0,0,0,.24);
+    /* --- СТИЛИЗАЦИЯ ОРАНЖЕВЫМ НЕОНОМ --- */
+    :root{
+      --neon-orange-base: #ffae00;
+      --neon-orange-glow: rgba(255, 136, 0, 0.6);
+      --neon-box-shadow: 0 0 5px var(--neon-orange-glow), 0 0 15px var(--neon-orange-glow), inset 0 0 5px rgba(255, 136, 0, 0.2);
     }
 
-    .modal{
-      box-shadow:
-        0 30px 80px rgba(0,0,0,.55),
-        0 0 0 1px rgba(255,150,0,.22),
-        0 0 32px rgba(255,130,0,.14);
+    /* Основные панели */
+    .panel {
+        border-color: var(--neon-orange-base) !important;
+        box-shadow: var(--neon-box-shadow), var(--shadow2) !important;
     }
-    .modal .choiceBlock{
-      border:1px solid rgba(255,150,0,.18);
-      box-shadow: 0 0 18px rgba(255,130,0,.10) inset;
+    .panel::before {
+        background:
+        radial-gradient(900px 600px at 20% 10%, rgba(255, 170, 0, 0.15), rgba(0,0,0,0) 60%),
+        radial-gradient(700px 520px at 80% 20%, rgba(255, 100, 0, 0.15), rgba(0,0,0,0) 55%),
+        repeating-linear-gradient(135deg, rgba(255, 170, 0, 0.08) 0 2px, rgba(0,0,0,0) 2px 14px) !important;
+        mix-blend-mode: screen !important;
     }
-    .modal input:focus, .modal textarea:focus, .modal select:focus{
-      outline:none;
-      border-color: rgba(255,170,0,.55) !important;
-      box-shadow: 0 0 0 3px rgba(255,150,0,.18) !important;
+
+    /* Внутренние секции */
+    .section {
+        border-color: rgba(255, 174, 0, 0.5) !important;
+        box-shadow: 0 0 8px rgba(255, 136, 0, 0.3) !important;
+        background: rgba(20, 10, 0, 0.3) !important;
+    }
+
+    /* Кнопки */
+    .btn {
+        border-color: var(--neon-orange-base) !important;
+    }
+    .btn:hover {
+         box-shadow: 0 0 10px var(--neon-orange-glow) !important;
+         background: rgba(255, 136, 0, 0.15) !important;
+    }
+    .btn.primary {
+         background: linear-gradient(90deg, rgba(255, 174, 0, 0.4), rgba(255, 136, 0, 0.3)) !important;
+    }
+
+    /* Поля ввода при фокусе */
+    input:focus, textarea:focus, select:focus {
+        border-color: var(--neon-orange-base) !important;
+        box-shadow: 0 0 8px var(--neon-orange-glow), inset 0 0 4px rgba(255, 136, 0, 0.2) !important;
+    }
+
+    /* Модальные окна */
+    .modal {
+         background: #1a1d29 !important; /* Убираем прозрачность и делаем сплошным */
+         border-color: var(--neon-orange-base) !important;
+         box-shadow: var(--neon-box-shadow), 0 30px 80px rgba(0,0,0,.7) !important;
     }
 </style>
 </head>
@@ -435,7 +431,10 @@
       <div class="panel-header">
         <div class="h">
           <img src="63.png" alt="Логотип" />
-          <span data-i18n="editorTitle">Редактор «Башня»</span>
+          <div style="display:flex; flex-direction:column; justify-content:center;">
+            <span style="font-size: 16px; font-weight: 900; line-height: 1.2;">Светлана Быкова</span>
+            <span data-i18n="editorTitle" style="font-size: 12px; color: var(--neon-orange-base); font-weight: 700; line-height: 1.2;">Редактор «Башня»</span>
+          </div>
         </div>
         <div class="row" style="margin:0">
           <button class="btn primary" id="btnCopyCode" type="button" data-i18n="btnCopyCode">📋 Скопировать код (iframe)</button>
@@ -519,6 +518,12 @@
               </div>
             </div>
           </div>
+        </div>
+
+        <div class="section">
+          <div class="title" data-i18n="secTitleFinish">Финальный экран</div>
+          <label data-i18n="lblFeedbackText">Дополнительный текст</label>
+          <textarea id="inpFeedback" style="min-height:70px;" data-i18n="phFeedbackText" placeholder="Например: Переходи к следующему заданию..."></textarea>
         </div>
 
         <div class="section">
@@ -714,7 +719,8 @@
       withMedia: " (+ медиа)", btnShow: "Показать в превью (первым вопросом)", btnEdit: "Редактировать", btnDel: "Удалить",
       toastDeleted: "Удалено", toastShown: "Показано в превью", lblFontTitle: "Оформление текста", lblFont: "Шрифт (вопрос и ответы)",
       optFontDefault: "Стандартный", optFontHW1: "Caveat (Рукописный 1)", optFontHW2: "Neucha (Рукописный 2)", lblFontSize: "Размер шрифта вопроса (px)",
-      secTitleInstruction: "Стартовый экран", lblInstructionText: "Текст инструкции", lblInstructionColor: "Цвет рамки", lblInstructionGlow: "Свечение рамки"
+      secTitleInstruction: "Стартовый экран", lblInstructionText: "Текст инструкции", lblInstructionColor: "Цвет рамки", lblInstructionGlow: "Свечение рамки",
+      secTitleFinish: "Финальный экран", lblFeedbackText: "Дополнительный текст", phFeedbackText: "Например: Переходи к следующему заданию..."
     },
     en: {
       editorTitle: "Tower Editor", btnCopyCode: "📋 Copy code (iframe)", langTitle: "Interface Language",
@@ -743,7 +749,8 @@
       withMedia: " (+ media)", btnShow: "Show in preview (first question)", btnEdit: "Edit", btnDel: "Delete",
       toastDeleted: "Deleted", toastShown: "Shown in preview", lblFontTitle: "Text Styling", lblFont: "Font (question & answers)",
       optFontDefault: "System Default", optFontHW1: "Caveat (Handwritten 1)", optFontHW2: "Neucha (Handwritten 2)", lblFontSize: "Question Font Size (px)",
-      secTitleInstruction: "Start Screen", lblInstructionText: "Instruction text", lblInstructionColor: "Border color", lblInstructionGlow: "Border glow"
+      secTitleInstruction: "Start Screen", lblInstructionText: "Instruction text", lblInstructionColor: "Border color", lblInstructionGlow: "Border glow",
+      secTitleFinish: "Final Screen", lblFeedbackText: "Additional text", phFeedbackText: "E.g. Go to the next task..."
     },
     de: {
       editorTitle: "Turm-Editor", btnCopyCode: "📋 Code kopieren (iframe)", langTitle: "Sprache der Benutzeroberfläche",
@@ -772,7 +779,8 @@
       withMedia: " (+ Medien)", btnShow: "In Vorschau zeigen (erste Frage)", btnEdit: "Bearbeiten", btnDel: "Löschen",
       toastDeleted: "Gelöscht", toastShown: "In Vorschau gezeigt", lblFontTitle: "Textgestaltung", lblFont: "Schriftart (Frage & Antworten)",
       optFontDefault: "Systemstandard", optFontHW1: "Caveat (Handschrift 1)", optFontHW2: "Neucha (Handschrift 2)", lblFontSize: "Schriftgröße der Frage (px)",
-      secTitleInstruction: "Startbildschirm", lblInstructionText: "Anweisungstext", lblInstructionColor: "Randfarbe", lblInstructionGlow: "Randleuchten"
+      secTitleInstruction: "Startbildschirm", lblInstructionText: "Anweisungstext", lblInstructionColor: "Randfarbe", lblInstructionGlow: "Randleuchten",
+      secTitleFinish: "Endbildschirm", lblFeedbackText: "Zusätzlicher Text", phFeedbackText: "Z.B.: Gehen Sie zur nächsten Aufgabe..."
     },
     zh: {
       editorTitle: "塔楼编辑器", btnCopyCode: "📋 复制代码 (iframe)", langTitle: "界面语言",
@@ -801,7 +809,8 @@
       withMedia: " (+ 媒体)", btnShow: "在预览中显示 (第一题)", btnEdit: "编辑", btnDel: "删除",
       toastDeleted: "已删除", toastShown: "已在预览中显示", lblFontTitle: "文本样式", lblFont: "问题和答案的字体",
       optFontDefault: "系统默认", optFontHW1: "Caveat (手写 1)", optFontHW2: "Neucha (手写 2)", lblFontSize: "问题字体大小 (px)",
-      secTitleInstruction: "开始屏幕", lblInstructionText: "指令文本", lblInstructionColor: "边框颜色", lblInstructionGlow: "边框发光"
+      secTitleInstruction: "开始屏幕", lblInstructionText: "指令文本", lblInstructionColor: "边框颜色", lblInstructionGlow: "边框发光",
+      secTitleFinish: "最终屏幕", lblFeedbackText: "附加文本", phFeedbackText: "例如：进入下一个任务..."
     }
   };
 
@@ -1204,8 +1213,9 @@
 
   <div id="finish">
     <div id="finishCard">
-      <div id="finishTitle">Молодец!</div>
-      <div id="finishText">Тобой заработано: <b id="finishScore">0</b> баллов</div>
+      <div id="finishTitle">Отлично!</div>
+      <div id="finishText">Заработано <b id="finishScore">0</b> баллов из 900</div>
+      <div id="finishCustomText" style="color:var(--text); margin-bottom:14px; font-size:16px; line-height:1.4; display:none;"></div>
 
       <div id="stats">
         <div class="stat"><b id="stCorrect">0</b><div>правильных ответов</div></div>
@@ -1449,6 +1459,14 @@ function finishGame(){
   state.finished = true; setNextEnabled(false);
   finishScoreEl.textContent = String(state.score); stCorrect.textContent = String(state.correct);
   stWrong.textContent = String(state.wrong); stHeight.textContent = String(state.tower.length);
+  
+  const fCustom = document.getElementById("finishCustomText");
+  if(fCustom){
+     const txt = window.__CFG?.feedback?.text || "";
+     fCustom.innerHTML = String(txt).replace(/\\n/g, "<br/>");
+     fCustom.style.display = txt.trim() ? "block" : "none";
+  }
+
   finishLayer.style.display="flex";
 }
 
@@ -1843,10 +1861,10 @@ try{
         useLatex: !!cfg.useLatex, 
         bgDataUrl: cfg.bgDataUrl || "", 
         timer: cfg.timer,
-        instruction: cfg.instruction 
+        instruction: cfg.instruction,
+        feedback: cfg.feedback
     };
 
-    // Обновляем стартовый экран СРАЗУ после вставки HTML
     try{
         const instCfg = window.__CFG?.instruction || {};
         const instText = instCfg.text !== undefined ? instCfg.text : "Первый блок падает сам. Дальше — нажимай <b>Далее</b>.\nКогда блок остановится — ответь на вопрос.\nВерно → блок опускается и становится этажом (+100).\nНеверно → блок обугливается, взрывается и исчезает.";
@@ -1864,6 +1882,14 @@ try{
                 startCard.style.boxShadow = "var(--shadow)";
             }
         }
+        
+        const fCustom = document.getElementById("finishCustomText");
+        if(fCustom){
+            const txt = window.__CFG?.feedback?.text || "";
+            fCustom.innerHTML = String(txt).replace(/\n/g, "<br/>");
+            fCustom.style.display = txt.trim() ? "block" : "none";
+        }
+        
     }catch(e){}
 
     if(!window.__TOWER_GAME_RAN__){
@@ -1986,6 +2012,10 @@ try{
       color: String(cfg.instruction?.color || "#ffffff"),
       glow: !!cfg.instruction?.glow
     };
+    
+    const feedback = {
+      text: cfg.feedback?.text !== undefined ? String(cfg.feedback.text) : ""
+    };
 
     let questions = Array.isArray(cfg.questions) ? cfg.questions.slice(0,9) : [];
 
@@ -2003,7 +2033,7 @@ try{
       }
       return { type:"choice", prompt:String(q?.prompt||""), options:(Array.isArray(q?.options)?q.options:[]).map(x=>String(x||"")), correctIndex:Number(q?.correctIndex||0), seconds, image, audio, font, fontSize };
     });
-    return { title, useRepoBg, bgDataUrl, timer: { enabled: timerEnabled, seconds: timerSeconds }, useImages, useLatex, blockUrls: blockUrls, questions, instruction };
+    return { title, useRepoBg, bgDataUrl, timer: { enabled: timerEnabled, seconds: timerSeconds }, useImages, useLatex, blockUrls: blockUrls, questions, instruction, feedback };
   }
 
   const Editor = {
@@ -2017,6 +2047,9 @@ try{
       text: "Первый блок падает сам. Дальше — нажимай <b>Далее</b>.\nКогда блок остановится — ответь на вопрос.\nВерно → блок опускается и становится этажом (+100).\nНеверно → блок обугливается, взрывается и исчезает.",
       color: "#ffffff",
       glow: false
+    },
+    feedback: {
+      text: ""
     },
     questions: [],
     draft: null,
@@ -2319,6 +2352,7 @@ try{
       useImages: !!Editor.useImages,
       useLatex: !!Editor.useLatex,
       instruction: Editor.instruction,
+      feedback: Editor.feedback,
       questions
     });
   }
@@ -2343,7 +2377,6 @@ try{
     const jsonStr = JSON.stringify(payload);
     const useKey = jsonStr.length > 1800;
     
-    // ДОБАВЛЕН ФЛАГ AUTOSTART только если смотрим конкретный вопрос (глазок)
     let urlParams = "?preview=1";
     if (previewWithDraft) urlParams += "&autostart=1";
 
@@ -2369,10 +2402,12 @@ try{
   $("inpInstruction").value = Editor.instruction.text;
   $("inpInstColor").value = Editor.instruction.color;
   $("chkInstGlow").checked = Editor.instruction.glow;
+  $("inpFeedback").value = Editor.feedback.text;
 
   $("inpInstruction").addEventListener("input", ()=>{ Editor.instruction.text = $("inpInstruction").value; debouncedPreview(); });
   $("inpInstColor").addEventListener("input", ()=>{ Editor.instruction.color = $("inpInstColor").value; debouncedPreview(); });
   $("chkInstGlow").addEventListener("change", ()=>{ Editor.instruction.glow = $("chkInstGlow").checked; debouncedPreview(); });
+  $("inpFeedback").addEventListener("input", ()=>{ Editor.feedback.text = $("inpFeedback").value; debouncedPreview(); });
 
   $("inpTitle").addEventListener("input", ()=>{ Editor.title = $("inpTitle").value || "Башня знаний"; debouncedPreview(); });
   $("inpBgUrl").addEventListener("input", ()=>{ Editor.bgDataUrl = $("inpBgUrl").value.trim(); debouncedPreview(); });
