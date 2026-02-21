@@ -291,7 +291,7 @@
       flex-direction: column;
       border-radius:20px;
       border:1px solid rgba(255,255,255,.14);
-      background: #1a1d29; /* Убрана прозрачность, сплошной темный цвет */
+      background:linear-gradient(180deg, rgba(255,255,255,.10), rgba(255,255,255,.05));
       box-shadow: 0 30px 80px rgba(0,0,0,.55);
       overflow:hidden;
     }
@@ -418,7 +418,6 @@
 
     /* Модальные окна */
     .modal {
-         background: #1a1d29 !important; /* Убираем прозрачность и делаем сплошным */
          border-color: var(--neon-orange-base) !important;
          box-shadow: var(--neon-box-shadow), 0 30px 80px rgba(0,0,0,.7) !important;
     }
@@ -1865,6 +1864,7 @@ try{
         feedback: cfg.feedback
     };
 
+    // Обновляем стартовый экран СРАЗУ после вставки HTML
     try{
         const instCfg = window.__CFG?.instruction || {};
         const instText = instCfg.text !== undefined ? instCfg.text : "Первый блок падает сам. Дальше — нажимай <b>Далее</b>.\nКогда блок остановится — ответь на вопрос.\nВерно → блок опускается и становится этажом (+100).\nНеверно → блок обугливается, взрывается и исчезает.";
@@ -1883,6 +1883,7 @@ try{
             }
         }
         
+        // Предварительное применение текста фидбека для надежности
         const fCustom = document.getElementById("finishCustomText");
         if(fCustom){
             const txt = window.__CFG?.feedback?.text || "";
