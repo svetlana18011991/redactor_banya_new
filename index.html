@@ -1730,29 +1730,6 @@ async function startGame(){
     });
   }catch(e){}
 
-  // ПРИМЕНЕНИЕ НАСТРОЕК ИНСТРУКЦИИ К СТАРТОВОМУ ЭКРАНУ
-  try {
-    const instCfg = window.__CFG?.instruction || {};
-    const instText = instCfg.text !== undefined ? instCfg.text : "Первый блок падает сам. Дальше — нажимай <b>Далее</b>.\\nКогда блок остановится — ответь на вопрос.\\nВерно → блок опускается и становится этажом (+100).\\nНеверно → блок обугливается, взрывается и исчезает.";
-    const instColor = instCfg.color || "#ffffff";
-    const instGlow = instCfg.glow || false;
-
-    const startCard = document.getElementById("startCard");
-    const startCardP = startCard ? startCard.querySelector("p") : null;
-    
-    if(startCardP) {
-      startCardP.innerHTML = String(instText).replace(/\\n/g, "<br/>");
-    }
-    if(startCard) {
-      startCard.style.borderColor = instColor;
-      if(instGlow) {
-         startCard.style.boxShadow = "0 0 25px " + instColor + ", inset 0 0 15px " + instColor + ", 0 18px 60px rgba(0,0,0,.5)";
-      } else {
-         startCard.style.boxShadow = "var(--shadow)";
-      }
-    }
-  } catch(e) {}
-
   ensureAudio(); if(audioCtx && audioCtx.state==="suspended"){ try{ await audioCtx.resume(); }catch(e){} }
 
   const { bg, blocks, missing } = await doPreload();
@@ -1794,7 +1771,7 @@ requestAnimationFrame(draw);
 
 try{
   const __qp = new URLSearchParams(location.search);
-  if(__qp.get("preview")==="1"){
+  if(__qp.get("autostart")==="1"){
     setTimeout(()=>{ const pBtn = document.getElementById("play"); if(pBtn) pBtn.click(); }, 150);
   }
 }catch(e){}
@@ -1881,7 +1858,6 @@ try{
         const playBtn = document.getElementById("play");
         const startLayer = document.getElementById("start");
         
-        // Перерисовываем стартовый экран с новыми настройками
         const instCfg = window.__CFG?.instruction || {};
         const instText = instCfg.text !== undefined ? instCfg.text : "Первый блок падает сам. Дальше — нажимай <b>Далее</b>.\nКогда блок остановится — ответь на вопрос.\nВерно → блок опускается и становится этажом (+100).\nНеверно → блок обугливается, взрывается и исчезает.";
         const instColor = instCfg.color || "#ffffff";
@@ -1902,7 +1878,7 @@ try{
         if(startLayer) startLayer.style.display="flex";
         
         const qp = new URLSearchParams(location.search);
-        if(qp.get("preview")==="1"){
+        if(qp.get("autostart")==="1"){
             if(playBtn) playBtn.click();
         }
       }catch(e){}
@@ -2363,27 +2339,30 @@ try{
     const payload = buildPayload(previewWithDraft);
     const jsonStr = JSON.stringify(payload);
     const useKey = jsonStr.length > 1800;
+    
+    // ДОБАВЛЕН ФЛАГ AUTOSTART только если смотрим конкретный вопрос (глазок)
+    let urlParams = "?preview=1";
+    if (previewWithDraft) urlParams += "&autostart=1";
+
     if(useKey){
       const key = storePreviewCfg(payload);
       if(key){
-        const src = selfPageUrl() + "?cfgkey=" + encodeURIComponent(key) + "&preview=1#cfgkey=" + encodeURIComponent(key);
+        const src = selfPageUrl() + urlParams + "&cfgkey=" + encodeURIComponent(key) + "#cfgkey=" + encodeURIComponent(key);
         $("livePreview").src = src;
         return;
       }
     }
     const data = b64urlEncode(jsonStr);
-    const src = selfPageUrl() + "?game=" + data + "&preview=1#game=" + data;
+    const src = selfPageUrl() + urlParams + "&game=" + data + "#game=" + data;
     $("livePreview").src = src;
   }
 
-  // ЗАЩИТА ОТ ЛИШНИХ ПЕРЕЗАГРУЗОК (debounce)
   let _previewTid = null;
   function debouncedPreview(){
     if(_previewTid) clearTimeout(_previewTid);
     _previewTid = setTimeout(()=>updatePreview(false), 500);
   }
 
-  // Установка значений инструкции
   $("inpInstruction").value = Editor.instruction.text;
   $("inpInstColor").value = Editor.instruction.color;
   $("chkInstGlow").checked = Editor.instruction.glow;
