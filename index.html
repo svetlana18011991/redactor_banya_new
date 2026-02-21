@@ -850,6 +850,25 @@
       white-space:normal;
     }
 
+
+    /* Better spacing for language section title */
+    .section .title{ padding-left:10px; }
+
+
+    #langSection .sub{ padding-left:18px !important; }
+
+
+    
+    #langSection select{
+      margin-left: 22px !important;
+      width: calc(100% - 22px) !important;
+    }
+
+
+    /* Language selector inside main menu */
+    #langSection .panel{ margin: 0; }
+    #langSection .panel .title{ margin-top: 0; }
+
 </style>
 </head>
 
@@ -870,7 +889,13 @@
       </div>
 
 
-      <div class="panel">
+      
+
+      <div class="errbar" id="errbar"></div>
+
+      <div class="panel-body">
+        <div class="section" id="langSection">
+          <div class="panel">
         <div class="title" data-i18n="ui_lang_title">Язык интерфейса</div>
         <div class="muted" style="margin-top:-6px;margin-bottom:10px" data-i18n="ui_lang_hint">Выбрать язык</div>
         <select class="select" id="uiLangSelect" aria-label="Interface language">
@@ -880,10 +905,8 @@
           <option value="zh">中文</option>
         </select>
       </div>
+        </div>
 
-      <div class="errbar" id="errbar"></div>
-
-      <div class="panel-body">
 
         <div class="section">
           <div class="title" data-i18n="sec_game_title">Название</div>
@@ -892,7 +915,7 @@
         </div>
 
         <div class="section">
-          <div class="title">Оформление</div>
+          <div class="title" data-i18n="sec_style">Оформление</div>
           <label>Выбрать свой фон</label>
           <div class="row" style="gap:10px; align-items:center; margin-top:6px">
             <input id="fileBg" type="file" accept="image/*" />
@@ -911,7 +934,7 @@
             <input id="chkUseLatex" type="checkbox" />
             <div>
               <div style="font-weight:900">Использовать LaTeX</div>
-              <div class="muted">Включает поддержку математических формул (например, $x^2$)</div>
+              <div class="muted" data-i18n="use_latex_hint">Включает поддержку математических формул (например, $x^2$)</div>
             </div>
           </div>
         </div>
@@ -932,7 +955,7 @@
         </div>
 
         <div class="section">
-          <div class="title">Вопросы <span class="pill" id="pillCount">0 / 9</span></div>
+          <div class="title" data-i18n="sec_questions">Вопросы <span class="pill" id="pillCount">0 / 9</span></div>
 
           <div class="row">
             <button class="btn primary" id="btnAddQ" type="button">➕ Добавить</button>
@@ -986,54 +1009,54 @@
       </div>
 
       <div class="modal-body">
-        <label>Тип вопроса</label>
+        <label data-i18n="modal_type_label">Тип вопроса</label>
         <select id="selType">
-          <option value="choice" selected>С выбором ответа</option>
-          <option value="text">С вводом ответа</option>
+          <option value="choice" selected data-i18n="modal_type_choice">С выбором ответа</option>
+          <option value="text" data-i18n="modal_type_text">С вводом ответа</option>
         </select>
 
-        <label>Вопрос</label>
-        <textarea id="inpPrompt" placeholder="Введите вопрос..."></textarea>
+        <label data-i18n="modal_q_label">Вопрос</label>
+        <textarea id="inpPrompt" data-i18n-placeholder="modal_q_ph" placeholder="Введите вопрос..."></textarea>
 
         <div class="choiceBlock" style="margin-top:10px">
-          <div style="font-weight:900">Таймер для этого вопроса</div>
-          <div class="muted">Можно задать время именно для этого вопроса (пусто = без таймера/по умолчанию).</div>
+          <div style="font-weight:900" data-i18n="modal_timer_title">Таймер для этого вопроса</div>
+          <div class="muted" data-i18n="modal_timer_desc">Можно задать время именно для этого вопроса (пусто = без таймера/по умолчанию).</div>
 
           <div style="margin-top:10px">
-              <label>Секунд на этот вопрос</label>
-              <input id="inpQSeconds" type="number" min="3" max="600" step="1" placeholder="например 20" />
+              <label data-i18n="modal_seconds_label">Секунд на этот вопрос</label>
+              <input id="inpQSeconds" type="number" min="3" max="600" step="1" data-i18n-placeholder="modal_seconds_ph" placeholder="например 20" />
           </div>
         </div>
         
         <div class="choiceBlock" style="margin-top:10px">
           <div style="font-weight:900"><span data-i18n="modal_media_title">Медиа (ссылки)</span></div>
-          <div class="muted">Вставьте прямую ссылку (URL) на картинку или аудиофайл.</div>
+          <div class="muted" data-i18n="modal_media_desc">Вставьте прямую ссылку (URL) на картинку или аудиофайл.</div>
           
           <div class="answerRow">
-            <span style="font-size:20px; line-height:1; cursor:help;" title="Ссылка на картинку">🖼️</span>
+            <span style="font-size:20px; line-height:1; cursor:help;" data-i18n-title="modal_img_title" title="Ссылка на картинку">🖼️</span>
             <input id="inpQImage" type="text" placeholder="https://.../image.jpg" />
-            <button class="btn small danger" id="btnClearImage" type="button" title="Удалить картинку">✖</button>
+            <button class="btn small danger" id="btnClearImage" type="button" data-i18n-title="modal_clear_img" title="Удалить картинку">✖</button>
           </div>
           
           <div class="answerRow">
-            <span style="font-size:20px; line-height:1; cursor:help;" title="Ссылка на аудио">🎵</span>
+            <span style="font-size:20px; line-height:1; cursor:help;" data-i18n-title="modal_audio_title" title="Ссылка на аудио">🎵</span>
             <input id="inpQAudio" type="text" placeholder="https://.../audio.mp3" />
-            <button class="btn small danger" id="btnClearAudio" type="button" title="Удалить аудио">✖</button>
+            <button class="btn small danger" id="btnClearAudio" type="button" data-i18n-title="modal_clear_audio" title="Удалить аудио">✖</button>
           </div>
         </div>
 
         <div id="choiceWrap" class="choiceBlock">
           <div style="font-weight:900"><span data-i18n="modal_answers_title">Варианты ответа</span></div>
-          <div class="muted">Минимум 2 варианта. Отметь верный радиокнопкой.</div>
+          <div class="muted" data-i18n="modal_answers_hint">Минимум 2 варианта. Отметь верный радиокнопкой.</div>
           <div id="choiceList"></div>
           <button class="btn small" id="btnAddChoice" type="button" style="margin-top:10px">➕ <span data-i18n="btn_add_option">Добавить вариант</span></button>
         </div>
 
         <div id="textWrap" class="choiceBlock" style="display:none">
-          <div style="font-weight:900">Верные ответы (ввод)</div>
-          <div class="muted">Можно несколько вариантов — принимается любой.</div>
+          <div style="font-weight:900" data-i18n="modal_text_answers_title">Верные ответы (ввод)</div>
+          <div class="muted" data-i18n="modal_text_answers_hint">Можно несколько вариантов — принимается любой.</div>
           <div id="textList"></div>
-          <button class="btn small" id="btnAddText" type="button" style="margin-top:10px">➕ Добавить вариант</button>
+          <button class="btn small" id="btnAddText" type="button" style="margin-top:10px" data-i18n="btn_add_option">➕ Добавить вариант</button>
         </div>
       </div>
 
@@ -1089,6 +1112,13 @@
     showErr(m);
   });
   const $ = (id)=>document.getElementById(id);
+  const getDict = ()=> (window.I18N && (window.I18N[getUILang()] || window.I18N.ru)) || {};
+  const tr = (key)=> {
+    const d = getDict();
+    const v = d[key];
+    return (typeof v === "string") ? v : (window.I18N?.ru?.[key] || key);
+  };
+
 
   const __GAME_CSS__ = "\n    :root{\n      --hud-bg: rgba(10, 12, 18, .55);\n      --panel-bg: rgba(20, 22, 30, .78);\n      --panel-stroke: rgba(255,255,255,.12);\n      --text: rgba(255,255,255,.92);\n      --muted: rgba(255,255,255,.72);\n      --good: rgba(120, 255, 170, .95);\n      --bad: rgba(255, 120, 140, .95);\n      --shadow: 0 18px 60px rgba(0,0,0,.35);\n    }\n    html,body{height:100%;margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;color:var(--text);overflow:hidden;background:#000;}\n    #wrap{position:relative;width:100%;height:100%;}\n    canvas{width:100%;height:100%;display:block;}\n\n    #hud{\n      position:absolute; left:12px; right:12px; top:12px;\n      display:flex; gap:12px; align-items:center;\n      pointer-events:none;\n      z-index: 3;\n    }\n    .pill{\n      background:var(--hud-bg);\n      border:1px solid rgba(255,255,255,.10);\n      border-radius:999px;\n      padding:10px 14px;\n      box-shadow:var(--shadow);\n      backdrop-filter: blur(10px);\n      display:flex; gap:10px; align-items:center;\n      white-space:nowrap;\n    }\n    #progressWrap{\n      flex:1;\n      background:var(--hud-bg);\n      border:1px solid rgba(255,255,255,.10);\n      border-radius:999px;\n      padding:10px 14px;\n      box-shadow:var(--shadow);\n      backdrop-filter: blur(10px);\n      display:flex; align-items:center; gap:10px;\n      min-width:160px;\n      pointer-events:none;\n    }\n    #bar{\n      height:10px; flex:1;\n      background:rgba(255,255,255,.12);\n      border-radius:999px;\n      overflow:hidden;\n      border:1px solid rgba(255,255,255,.10);\n    }\n    #bar>div{\n      height:100%; width:0%;\n      background: linear-gradient(90deg, rgba(120,190,255,.9), rgba(120,255,170,.85));\n      border-radius:999px;\n    }\n\n    #scorePill{ margin-left:auto; }\n    #scoreNum{ font-weight:900; letter-spacing:.2px; }\n    #leftPill{ gap:12px; }\n    #remainNum{ font-weight:900; }\n\n    #nextBtn{\n      position:absolute;\n      left:50%;\n      bottom:88px;\n      transform: translateX(160px);\n      pointer-events:auto;\n      border-radius:16px;\n      padding:12px 14px;\n      border:1px solid rgba(120,190,255,.35);\n      background: rgba(120,190,255,.22);\n      color: var(--text);\n      font-weight: 900;\n      cursor:pointer;\n      box-shadow: var(--shadow);\n      backdrop-filter: blur(10px);\n      transition: transform .08s ease, filter .12s ease, opacity .12s ease;\n      user-select:none;\n      z-index: 4;\n    }\n    #nextBtn:active{ transform: translateX(160px) scale(.99); }\n    #nextBtn[disabled]{ opacity:.45; cursor:not-allowed; filter:saturate(.7); }\n\n    #overlay{\n      position:absolute; inset:0;\n      display:none; align-items:center; justify-content:center;\n      background: rgba(0,0,0,.25);\n      backdrop-filter: blur(6px);\n      z-index: 5;\n    }\n    #card{\n      width:min(640px, calc(100% - 24px));\n      background:var(--panel-bg);\n      border:1px solid var(--panel-stroke);\n      border-radius:18px;\n      box-shadow:var(--shadow);\n      padding:18px 18px 14px;\n\n      transform: translateY(10px) scale(.96);\n      opacity: 0;\n      transition: transform .18s ease, opacity .18s ease;\n      will-change: transform, opacity;\n    }\n    #overlay.show #card{\n      transform: translateY(0) scale(1);\n      opacity: 1;\n    }\n\n    #cardHeader{\n      display:flex; align-items:flex-start; justify-content:space-between;\n      gap:12px; margin-bottom:12px;\n    }\n    #title{ font-size:16px; color:var(--muted); letter-spacing:.2px; }\n    #q{ font-size:20px; line-height:1.25; margin-top:6px; }\n    #badge{\n      border-radius:999px; padding:6px 10px;\n      border:1px solid rgba(255,255,255,.12);\n      color:var(--muted); font-size:12px; white-space:nowrap;\n    }\n    #answers{ display:flex; flex-direction:column; gap:10px; margin-top:14px; }\n    .btn{\n      width:100%; text-align:left;\n      background:rgba(255,255,255,.08);\n      border:1px solid rgba(255,255,255,.12);\n      border-radius:14px;\n      padding:12px 12px;\n      color:var(--text);\n      cursor:pointer;\n      transition: transform .08s ease, background .12s ease;\n    }\n    .btn:hover{ background:rgba(255,255,255,.11); }\n    .btn:active{ transform:scale(.99); }\n\n    #inputRow{ display:none; gap:10px; align-items:center; margin-top:12px; }\n    #ansInput{\n      flex:1;\n      background:rgba(255,255,255,.07);\n      border:1px solid rgba(255,255,255,.14);\n      border-radius:14px;\n      padding:12px 12px;\n      color:var(--text);\n      outline:none;\n      font-size:16px;\n    }\n    #submit{\n      background:rgba(120,190,255,.20);\n      border:1px solid rgba(120,190,255,.35);\n      border-radius:14px;\n      padding:12px 14px;\n      cursor:pointer;\n      color:var(--text);\n      font-weight:800;\n    }\n    #submit:hover{ background:rgba(120,190,255,.26); }\n\n    #msg{ margin-top:12px; min-height:18px; font-size:14px; color:var(--muted); }\n    #hint{ margin-top:10px; font-size:12px; color:rgba(255,255,255,.55); }\n\n    #start{\n      position:absolute; inset:0;\n      display:flex; align-items:center; justify-content:center;\n      background: radial-gradient(1200px 800px at 50% 45%, rgba(0,0,0,.15), rgba(0,0,0,.55));\n      backdrop-filter: blur(3px);\n      z-index: 6;\n    }\n    #startCard{\n      width:min(700px, calc(100% - 24px));\n      background: rgba(20, 22, 30, .75);\n      border: 1px solid rgba(255,255,255,.12);\n      border-radius: 18px;\n      box-shadow: var(--shadow);\n      padding: 18px;\n    }\n    #startCard h1{ margin:0 0 8px 0; font-size:24px; }\n    #startCard p{ margin:0 0 14px 0; color: var(--muted); line-height:1.35; }\n    #play{\n      display:inline-flex; gap:10px; align-items:center;\n      padding:12px 14px;\n      border-radius:14px;\n      border:1px solid rgba(120,190,255,.35);\n      background: rgba(120,190,255,.22);\n      color: var(--text);\n      font-weight:900;\n      cursor:pointer;\n    }\n    #play:hover{ background: rgba(120,190,255,.28); }\n\n    #err{\n      display:none;\n      margin-top:12px;\n      padding:12px;\n      border-radius:14px;\n      border:1px solid rgba(255,120,140,.35);\n      background: rgba(255,120,140,.12);\n      color: rgba(255,235,238,.95);\n      font-size:13px;\n      line-height:1.35;\n    }\n    #err ul{ margin:8px 0 0 18px; }\n    code{background:rgba(255,255,255,.08); padding:2px 6px; border-radius:8px; border:1px solid rgba(255,255,255,.12);}\n\n    #finish{\n      position:absolute; inset:0;\n      display:none; align-items:center; justify-content:center;\n      background: rgba(0,0,0,.35);\n      backdrop-filter: blur(8px);\n      z-index: 7;\n    }\n    #finishCard{\n      width:min(720px, calc(100% - 24px));\n      border-radius:20px;\n      border:1px solid rgba(255,255,255,.14);\n      background: rgba(18, 20, 28, .75);\n      box-shadow: var(--shadow);\n      padding: 18px 18px 16px;\n      text-align:center;\n    }\n    #finishTitle{\n      font-size:30px; font-weight:1000; letter-spacing:.3px;\n      margin: 4px 0 8px;\n      background: linear-gradient(90deg, rgba(120,190,255,.95), rgba(120,255,170,.95));\n      -webkit-background-clip:text;\n      background-clip:text;\n      color:transparent;\n    }\n    #finishText{\n      color: rgba(255,255,255,.82);\n      font-size:18px;\n      margin: 0 0 10px;\n    }\n    #stats{\n      display:flex;\n      justify-content:center;\n      gap:12px;\n      flex-wrap:wrap;\n      margin: 10px 0 14px;\n    }\n    .stat{\n      background: rgba(255,255,255,.07);\n      border: 1px solid rgba(255,255,255,.12);\n      border-radius: 14px;\n      padding: 10px 12px;\n      min-width: 160px;\n      text-align:left;\n    }\n    .stat b{ font-size:18px; }\n    .stat div{ color: rgba(255,255,255,.70); font-size:12px; margin-top:4px; }\n    #restart{\n      display:inline-flex; gap:10px; align-items:center;\n      padding:12px 14px;\n      border-radius:14px;\n      border:1px solid rgba(120,190,255,.35);\n      background: rgba(120,190,255,.22);\n      color: var(--text);\n      font-weight:900;\n      cursor:pointer;\n    }\n    #restart:hover{ background: rgba(120,190,255,.28); }\n  \n/* per-question timer badge */\n.qTimer{\n  padding:8px 10px;\n  border-radius:999px;\n  border:1px solid rgba(242,211,122,.35);\n  background: rgba(0,0,0,.35);\n  color: rgba(255,255,255,.95);\n  font-weight:900;\n  font-size:12px;\n  box-shadow: 0 10px 30px rgba(0,0,0,.35);\n  backdrop-filter: blur(10px);\n}\n";
   const __GAME_HTML__ = "<div id=\"wrap\">\n  <canvas id=\"c\"></canvas>\n\n  <div id=\"hud\">\n    <div class=\"pill\" id=\"leftPill\">\n      Башня: <b id=\"heightTxt\">0</b>\n      <span style=\"opacity:.5\">|</span>\n      Осталось: <b id=\"remainNum\">9</b>\n    </div>\n\n    <div id=\"progressWrap\">\n      Прогресс\n      <div id=\"bar\"><div></div></div>\n      <span id=\"pct\">0%</span>\n    </div>\n\n    <div class=\"pill\" id=\"scorePill\">Счёт: <b id=\"scoreNum\">0</b></div>\n  </div>\n\n  <button id=\"nextBtn\" disabled>Далее →</button>\n\n  <div id=\"overlay\" role=\"dialog\" aria-modal=\"true\">\n    <div id=\"card\">\n      <div id=\"cardHeader\">\n        <div>\n          <div id=\"title\">Вопрос</div>\n          <div id=\"q\">...</div>\n        </div>\n        <div style=\"display:flex;flex-direction:column;align-items:flex-end;gap:8px\">\n          <div id=\"badge\">1 / 9</div>\n          <div id=\"qTimerBadge\" class=\"qTimer\" style=\"display:none\">⏳ 10</div>\n        </div>\n      </div>\n\n      <div id=\"qMedia\" style=\"display:none; margin-top:10px; margin-bottom:14px; text-align:center;\">\n        <img id=\"qImg\" src=\"\" style=\"max-width:100%; max-height:160px; border-radius:12px; display:none; margin: 0 auto; border:1px solid rgba(255,255,255,.1);\" />\n        <audio id=\"qAudio\" controls style=\"width:100%; height:36px; display:none; margin-top:8px; border-radius:12px;\"></audio>\n      </div>\n\n      <div id=\"answers\"></div>\n\n      <div id=\"inputRow\">\n        <input id=\"ansInput\" type=\"text\" placeholder=\"Введите ответ...\" autocomplete=\"off\" />\n        <button id=\"submit\">ОК</button>\n      </div>\n\n      <div id=\"msg\"></div>\n      <div id=\"hint\">Верно → блок опускается и становится этажом (+100). Неверно → обугливание, взрыв и исчезает.</div>\n    </div>\n  </div>\n\n  <div id=\"start\">\n    <div id=\"startCard\">\n      <h1>Башня знаний</h1>\n      <p class=\"lead\">Собери башню из блоков: каждый уровень появляется после правильного ответа.</p>\n      <div class=\"rules\">\n        <ul>\n          <li>Первый блок падает сам.</li>\n          <li>Дальше нажимай <b>Далее</b>, чтобы запускать следующий блок.</li>\n          <li>Когда блок остановится — ответь на вопрос.</li>\n          <li><b>Верно</b> → блок становится этажом (+100).</li>\n          <li><b>Неверно</b> → блок обугливается, взрывается и исчезает.</li>\n        </ul>\n      </div>\n      <button id=\"play\">▶ Начать</button>\n      <div id=\"err\">\n        <b>Не получилось загрузить файлы.</b> Убедись, что они лежат рядом с <code>index.html</code> и имена совпадают.\n        <ul id=\"errList\"></ul>\n      </div>\n    </div>\n  </div>\n\n  <div id=\"finish\">\n    <div id=\"finishCard\">\n      <div id=\"finishTitle\">Молодец!</div>\n      <div id=\"finishText\">Тобой заработано: <b id=\"finishScore\">0</b> баллов</div>\n\n      <div id=\"stats\">\n        <div class=\"stat\"><b id=\"stCorrect\">0</b><div>правильных ответов</div></div>\n        <div class=\"stat\"><b id=\"stWrong\">0</b><div>неправильных ответов</div></div>\n        <div class=\"stat\"><b id=\"stHeight\">0</b><div>блоков в башне</div></div>\n      </div>\n\n      <button id=\"restart\">↻ Сыграть ещё раз</button>\n    </div>\n  </div>\n</div>";
@@ -1341,8 +1371,7 @@
     if(Editor.questions.length === 0){
       const d = document.createElement("div");
       d.className = "muted";
-      d.textContent = (I18N[getUILang()]?.hint_no_questions || I18N.ru.hint_no_questions);
-      list.appendChild(d);
+      d.textContent = tr("hint_no_questions");list.appendChild(d);
       return;
     }
 
@@ -1494,7 +1523,7 @@
     if(existing){
       Editor.draft = deepClone(existing);
       Editor.editingId = existing.id;
-      $("modalTitle").textContent = (I18N[getUILang()]?.modal_edit_title || I18N.ru.modal_edit_title);
+      $("modalTitle").textContent = tr("modal_edit_title");
     } else {
       Editor.draft = {
         id: uid(), type: "choice", prompt: "", options: ["",""], correctIndex: 0, seconds: null, image: "", audio: ""
@@ -1519,6 +1548,8 @@
     else renderTextUI();
 
     showModal();
+    const __lang = getUILang();
+    try{ syncLang(__lang); }catch(e){}
     setTimeout(()=>$("inpPrompt").focus(), 40);
   }
 
@@ -1620,21 +1651,50 @@
     catch(e){ return ""; }
   }
 
+  function makePreviewDoc(payload){
+    // Build a self-contained HTML for iframe preview (works in file:// too)
+    const cfg = payload || {};
+    const safe = (s)=>String(s||"").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+    const cfgJson = JSON.stringify(cfg).replace(/</g,"\u003c");
+    return `<!doctype html>
+<html lang="${safe(cfg.lang||"ru")}">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<style>${__GAME_CSS__}</style>
+</head>
+<body>
+<div id="gameRoot"></div>
+<script>
+window.__CFG = ${cfgJson};
+</script>
+<script>${__GAME_JS__}</script>
+</body>
+</html>`;
+  }
+
   function updatePreview(previewWithDraft){
     const payload = buildPayload(previewWithDraft);
+    // Local preview should work even when opened from file://
+    const iframe = $("livePreview");
+    if(location.protocol === "file:"){
+      iframe.removeAttribute("src");
+      iframe.srcdoc = makePreviewDoc(payload);
+      return;
+    }
     const jsonStr = JSON.stringify(payload);
     const useKey = jsonStr.length > 1800;
     if(useKey){
       const key = storePreviewCfg(payload);
       if(key){
         const src = selfPageUrl() + "?cfgkey=" + encodeURIComponent(key) + "&preview=1#cfgkey=" + encodeURIComponent(key);
-        $("livePreview").src = src;
+        iframe.src = src;
         return;
       }
     }
     const data = b64urlEncode(jsonStr);
     const src = selfPageUrl() + "?game=" + data + "&preview=1#game=" + data;
-    $("livePreview").src = src;
+    iframe.src = src;
   }
 
   $("inpTitle").addEventListener("input", ()=>{ Editor.title = $("inpTitle").value || "Башня знаний"; updatePreview(false); });
@@ -1759,7 +1819,7 @@
 
 
   // --- i18n (ru/en/de/zh) ---
-  const I18N = {
+  window.I18N = {
     ru: {
       editor_title: "Редактор «Башня»",
       btn_copy: "📋 Скопировать код (iframe)",
@@ -1802,7 +1862,16 @@
       hud_tower: "Башня",
       hud_left: "Осталось",
       hud_progress: "Прогресс",
-      hud_score: "Счёт"
+      hud_score: "Счёт",
+      sec_style: "Оформление",
+      style_pick_bg: "Выбрать свой фон",
+      btn_reset_bg: "Сбросить фон",
+      use_latex: "Использовать LaTeX",
+      use_latex_hint: "Включает поддержку математических формул (например, $x^2$)",
+      modal_type_label: "Тип вопроса",
+      modal_q_label: "Вопрос",
+      modal_q_ph: "Введите вопрос…",
+      modal_seconds_ph: "например 20",
     },
     en: {
       editor_title: "Tower Editor",
@@ -1846,7 +1915,22 @@
       hud_tower: "Tower",
       hud_left: "Left",
       hud_progress: "Progress",
-      hud_score: "Score"
+      hud_score: "Score",
+      modal_type_label: "Question type",
+      modal_type_choice: "Multiple choice",
+      modal_type_text: "Text input",
+      modal_q_label: "Question",
+      modal_q_ph: "Type your question…",
+      modal_timer_desc: "You can set time for this question (empty = no timer / default).",
+      modal_seconds_ph: "e.g. 20",
+      modal_media_desc: "Paste direct URL to an image or an audio file.",
+      modal_text_answers_title: "Correct answers (text)",
+      modal_text_answers_hint: "You can add several variants — any of them will be accepted.",
+      sec_style: "Design",
+      style_pick_bg: "Choose background",
+      btn_reset_bg: "Reset background",
+      use_latex: "Use LaTeX",
+      use_latex_hint: "Enable math formulas (e.g., $x^2$)",
     },
     de: {
       editor_title: "Turm‑Editor",
@@ -1890,7 +1974,22 @@
       hud_tower: "Turm",
       hud_left: "Übrig",
       hud_progress: "Fortschritt",
-      hud_score: "Punkte"
+      hud_score: "Punkte",
+      modal_type_label: "Fragetyp",
+      modal_type_choice: "Multiple Choice",
+      modal_type_text: "Texteingabe",
+      modal_q_label: "Frage",
+      modal_q_ph: "Gib deine Frage ein…",
+      modal_timer_desc: "Du kannst die Zeit für diese Frage setzen (leer = kein Timer / Standard).",
+      modal_seconds_ph: "z.B. 20",
+      modal_media_desc: "Füge eine direkte URL zu einem Bild oder einer Audiodatei ein.",
+      modal_text_answers_title: "Richtige Antworten (Text)",
+      modal_text_answers_hint: "Du kannst mehrere Varianten hinzufügen — jede wird akzeptiert.",
+      sec_style: "Design",
+      style_pick_bg: "Hintergrund wählen",
+      btn_reset_bg: "Hintergrund zurücksetzen",
+      use_latex: "LaTeX verwenden",
+      use_latex_hint: "Matheformeln aktivieren (z.B. $x^2$)",
     },
     zh: {
       editor_title: "塔楼编辑器",
@@ -1934,14 +2033,27 @@
       hud_tower: "塔",
       hud_left: "剩余",
       hud_progress: "进度",
-      hud_score: "得分"
+      hud_score: "得分",
+      modal_type_label: "题目类型",
+      modal_q_label: "题目",
+      modal_q_ph: "请输入题目…",
+      modal_seconds_ph: "例如 20",
     }
   };
 
-  function getUILang() {
-    const stored = localStorage.getItem("tower_ui_lang");
-    return (stored && I18N[stored]) ? stored : "ru";
-  }
+  const UI_LANG_KEY = "tower_ui_lang";
+function getUILang(){
+  const sel = document.getElementById("uiLangSelect");
+  const vSel = sel ? sel.value : null;
+  const vStore = (()=>{ try{return localStorage.getItem(UI_LANG_KEY);}catch(e){return null;} })();
+  return (vSel || vStore || "ru");
+}
+function setUILang(lang){
+  try{ localStorage.setItem(UI_LANG_KEY, lang);}catch(e){}
+  const sel = document.getElementById("uiLangSelect");
+  if(sel) sel.value = lang;
+}
+
 
   function setNodeText(el, txt) {
     if (!el) return;
@@ -1949,14 +2061,107 @@
   }
 
   function applyLang(lang) {
-    const dict = I18N[lang] || I18N.ru;
+    const dict = (window.I18N && (window.I18N[lang] || window.I18N.ru)) || {};
+
+    // --- Robust modal i18n (force-update even if some elements miss data-i18n) ---
+    try{
+      const setText = (sel, key)=>{
+        const el = document.querySelector(sel);
+        const v = dict[key] ?? window.I18N?.ru?.[key];
+        if(el && typeof v === "string") el.textContent = v;
+      };
+      const setHTML = (sel, key)=>{
+        const el = document.querySelector(sel);
+        const v = dict[key] ?? window.I18N?.ru?.[key];
+        if(el && typeof v === "string") el.innerHTML = v;
+      };
+      const setPH = (sel, key)=>{
+        const el = document.querySelector(sel);
+        const v = dict[key] ?? window.I18N?.ru?.[key];
+        if(el && typeof v === "string") el.setAttribute("placeholder", v);
+      };
+      const setTitle = (sel, key)=>{
+        const el = document.querySelector(sel);
+        const v = dict[key] ?? window.I18N?.ru?.[key];
+        if(el && typeof v === "string") el.setAttribute("title", v);
+      };
+
+      // Modal header + close
+      // modalTitle is set dynamically in openModal, but we still translate close button
+      setText("#btnCloseModal", "btn_close");
+
+      // Modal labels
+      setText('#modalBackdrop label[data-i18n="modal_type_label"]', "modal_type_label");
+      // if label not tagged, fallback by position (first label in modal body)
+      const modal = document.querySelector("#modalBackdrop .modal-body");
+      if(modal){
+        const labels = modal.querySelectorAll("label");
+        if(labels[0]){ const v = dict["modal_type_label"] ?? window.I18N?.ru?.["modal_type_label"]; if(typeof v==="string") labels[0].textContent=v; }
+        if(labels[1]){ const v = dict["modal_q_label"] ?? window.I18N?.ru?.["modal_q_label"]; if(typeof v==="string") labels[1].textContent=v; }
+      }
+
+      // Question placeholder
+      setPH("#inpPrompt", "modal_q_ph");
+
+      // Timer block
+      setText('#modalBackdrop [data-i18n="modal_timer_title"]', "modal_timer_title");
+      setText('#modalBackdrop [data-i18n="modal_seconds_label"]', "modal_seconds_label");
+      setPH("#inpSeconds", "modal_seconds_ph");
+      setText('#modalBackdrop [data-i18n="modal_timer_desc"]', "modal_timer_desc");
+
+      // Media block
+      setText('#modalBackdrop [data-i18n="modal_media_title"]', "modal_media_title");
+      setText('#modalBackdrop [data-i18n="modal_media_desc"]', "modal_media_desc");
+      setTitle('#modalBackdrop [data-i18n-title="modal_img_title"]', "modal_img_title");
+      setTitle('#modalBackdrop [data-i18n-title="modal_audio_title"]', "modal_audio_title");
+      setTitle('#modalBackdrop [data-i18n-title="modal_clear_img"]', "modal_clear_img");
+      setTitle('#modalBackdrop [data-i18n-title="modal_clear_audio"]', "modal_clear_audio");
+
+      // Answers block
+      setText('#modalBackdrop [data-i18n="modal_answers_title"]', "modal_answers_title");
+      setText('#modalBackdrop [data-i18n="modal_answers_hint"]', "modal_answers_hint");
+      setText("#btnAddChoice", "btn_add_option");
+      setText('#modalBackdrop [data-i18n="modal_text_answers_title"]', "modal_text_answers_title");
+      setText('#modalBackdrop [data-i18n="modal_text_answers_hint"]', "modal_text_answers_hint");
+      setText("#btnAddText", "btn_add_option");
+
+      // Footer buttons
+      setText("#btnPreviewDraft", "btn_show_in_preview");
+      setText("#btnSaveQ", "btn_save");
+
+      // Type select options
+      const sel = document.getElementById("selType");
+      if(sel){
+        const o1 = sel.querySelector('option[value="choice"]');
+        const o2 = sel.querySelector('option[value="text"]');
+        const v1 = dict["modal_type_choice"] ?? window.I18N?.ru?.["modal_type_choice"];
+        const v2 = dict["modal_type_text"] ?? window.I18N?.ru?.["modal_type_text"];
+        if(o1 && typeof v1==="string") o1.textContent=v1;
+        if(o2 && typeof v2==="string") o2.textContent=v2;
+      }
+    }catch(e){}
 
     // generic: data-i18n text
     document.querySelectorAll("[data-i18n]").forEach(el => {
       const key = el.getAttribute("data-i18n");
       const val = dict[key];
       if (typeof val === "string") el.textContent = val;
+    // titles / tooltips
+    document.querySelectorAll("[data-i18n-title]").forEach(el => {
+      const key = el.getAttribute("data-i18n-title");
+      const val = dict[key];
+      if (typeof val === "string") el.setAttribute("title", val);
     });
+
+    // dynamic placeholders inside modal (options / answers)
+    try{
+      const optInputs = document.querySelectorAll("#modalBackdrop .optText");
+      optInputs.forEach((inp,i)=>{ inp.placeholder = (typeof dict.ph_option==='function') ? dict.ph_option(i+1) : (dict.ph_option||"Option"); });
+      const correctInputs = document.querySelectorAll("#modalBackdrop .correctText");
+      correctInputs.forEach((inp)=>{ inp.placeholder = dict.ph_correct || "Correct"; });
+    }catch(e){}
+
+  });
 
     // placeholders
     document.querySelectorAll("[data-i18n-placeholder]").forEach(el => {
@@ -2021,30 +2226,62 @@
       // i=0 should be correct, others generic
       if (i === 0) inp.placeholder = dict.ph_correct;
       else inp.placeholder = dict.ph_option(i+1);
-    });
+    // placeholders for modal inputs (question + options)
+    try{
+      const dict = (window.I18N && (window.I18N[lang] || window.I18N.ru)) || {};
+      const q = document.getElementById("inpPrompt");
+      if(q) q.setAttribute("placeholder", dict.modal_q_ph || dict.ph_question || q.getAttribute("placeholder") || "");
+      const opt = document.querySelectorAll("#modalBackdrop .optText");
+      opt.forEach((inp,i)=>{
+        const ph = (typeof dict.ph_option === "function") ? dict.ph_option(i+1) : (dict.modal_option_ph || dict.ph_option || `Option ${i+1}`);
+        inp.setAttribute("placeholder", ph);
+      });
+      const corr = document.querySelectorAll("#modalBackdrop .correctText");
+      corr.forEach(inp=>{
+        inp.setAttribute("placeholder", dict.ph_correct || dict.modal_correct_ph || "Correct");
+      });
+    }catch(e){}
+
+  });
   }
+  function syncLang(lang){
+    try{ setUILang(lang); }catch(e){}
+    try{ applyLang(lang); }catch(e){}
+    try{ translateDynamicModalPlaceholders(lang); }catch(e){}
+    // re-render list text that is created dynamically
+    try{ renderList(); }catch(e){}
+    // if modal visible, force update again (some elements are created after showModal)
+    try{
+      const mb = document.getElementById("modalBackdrop");
+      if(mb && mb.style.display !== "none"){
+        applyLang(lang);
+        translateDynamicModalPlaceholders(lang);
+      }
+    }catch(e){}
+    try{ updatePreview(false); }catch(e){}
+  }
+
+
 
   // Initialize language selector
   const langSel = document.getElementById("uiLangSelect");
   if (langSel) {
     const initLang = getUILang();
     langSel.value = initLang;
-    applyLang(initLang);
+    syncLang(initLang);
 
     langSel.addEventListener("change", () => {
       const lang = langSel.value;
-      localStorage.setItem("tower_ui_lang", lang);
-      applyLang(lang);
-      translateDynamicModalPlaceholders(lang);
+      syncLang(lang);
     });
   }
 
-  // When modal opens, refresh placeholders
+  // When modal opens, refresh placeholders & language
   const modal = document.getElementById("modalBackdrop");
   if (modal) {
     const obs = new MutationObserver(() => {
       if (modal.style.display !== "none") {
-        translateDynamicModalPlaceholders(getUILang());
+        syncLang(getUILang());
       }
     });
     obs.observe(modal, {attributes:true, attributeFilter:["style"]});
