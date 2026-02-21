@@ -1,582 +1,2419 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ru">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Gold Tower Editor (Fixed Preview)</title>
-<style>
-  /* --- СТИЛИ РЕДАКТОРА --- */
-  :root { --bg: #050505; --panel: #0f1219; --gold: #d4af37; --text: #e2e8f0; --border: #333; }
-  body { margin:0; font-family: 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); height: 100vh; display: flex; overflow: hidden; }
-  
-  /* Левая панель */
-  .editor { width: 420px; background: var(--panel); border-right: 1px solid var(--border); display: flex; flex-direction: column; z-index: 10; box-shadow: 5px 0 30px #000; }
-  .header { padding: 15px; background: #080a0f; border-bottom: 1px solid var(--gold); display:flex; justify-content:space-between; align-items:center; }
-  .logo { font-weight: 800; color: var(--gold); letter-spacing: 1px; font-size: 16px; text-transform: uppercase; }
-  
-  .scroll-area { flex: 1; overflow-y: auto; padding: 15px; }
-  .section { margin-bottom: 20px; border: 1px solid #222; padding: 10px; border-radius: 6px; background: rgba(255,255,255,0.02); }
-  .label { color: #888; font-size: 10px; text-transform: uppercase; font-weight: bold; display: block; margin-bottom: 5px; }
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Башня — Editor + Game (один файл)</title>
 
-  /* Элементы управления */
-  input, textarea, select { width: 100%; background: #000; border: 1px solid #444; color: #fff; padding: 8px; border-radius: 4px; box-sizing: border-box; font-size: 13px; margin-bottom: 8px; }
-  input:focus { border-color: var(--gold); outline: none; }
-  
-  button { cursor: pointer; border: none; font-weight: bold; border-radius: 4px; transition:0.2s; }
-  .btn-gold { background: linear-gradient(135deg, #b8860b, #d4af37); color: #000; padding: 8px 15px; font-size: 11px; text-transform: uppercase; }
-  .btn-add { background: rgba(212, 175, 55, 0.1); border: 1px dashed var(--gold); color: var(--gold); width: 100%; padding: 10px; font-size: 12px; }
-  .btn-add:hover { background: var(--gold); color: #000; }
-  
-  .file-row { display: flex; gap: 10px; align-items: center; background: #111; padding: 5px; border: 1px dashed #444; border-radius: 4px; }
-  .file-row label { cursor: pointer; color: var(--gold); font-size: 11px; flex: 1; text-align: center; }
-  .file-row input { display: none; }
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Caveat:wght@500&family=Neucha&display=swap');
+    html, body{height:100%}
 
-  /* Список вопросов */
-  .q-item { background: #1a1d26; padding: 8px; border-radius: 4px; margin-bottom: 5px; display: flex; justify-content: space-between; align-items: center; border-left: 2px solid transparent; font-size: 12px; }
-  .q-item:hover { border-left-color: var(--gold); background: #222; }
+    :root{
+      --text:#eaf0ff;
+      --muted:#a9b6e6;
+      --border: rgba(255,255,255,.10);
+      --shadow2: 0 12px 34px rgba(0,0,0,.40);
+      --radius: 18px;
+      --radius2: 22px;
 
-  /* Правая панель (Превью) */
-  .preview { flex: 1; background: #000; position: relative; display: flex; flex-direction: column; }
-  .preview-head { height: 25px; background: #111; border-bottom: 1px solid #333; display: flex; align-items: center; justify-content: center; color: #666; font-size: 10px; letter-spacing: 2px; text-transform: uppercase; }
-  iframe { flex: 1; width: 100%; border: none; background: #000; display: block; }
+      --neon:#d6b14a;
+      --neon2:#f2d37a;
+      --danger:#ff4d4d;
+      --ok:#2dd27d;
+    }
 
-  /* Модальное окно */
-  .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 999; display: none; align-items: center; justify-content: center; }
-  .modal { background: #0f1219; width: 500px; border: 1px solid var(--gold); padding: 20px; border-radius: 8px; box-shadow: 0 0 50px rgba(212,175,55,0.3); }
-  
-  .opt-row { display: flex; gap: 5px; margin-bottom: 5px; }
-  .radio { width: 20px; accent-color: var(--gold); }
+    *{box-sizing:border-box;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
 
-  .toast { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); background: var(--gold); color: #000; padding: 10px 20px; border-radius: 20px; font-weight: bold; opacity: 0; pointer-events: none; transition: 0.3s; z-index: 2000; }
-  .toast.show { opacity: 1; bottom: 50px; }
+    body{
+      margin:0;color:var(--text);
+      background:
+        radial-gradient(1100px 700px at 12% 18%, rgba(35,82,200,.28) 0%, rgba(5,8,22,0) 58%),
+        radial-gradient(900px 640px at 88% 16%, rgba(20,160,255,.18) 0%, rgba(5,8,22,0) 62%),
+        radial-gradient(1000px 780px at 55% 112%, rgba(214,177,74,.14) 0%, rgba(5,8,22,0) 58%),
+        linear-gradient(180deg, rgba(4,10,32,.92), rgba(3,6,18,1));
+      min-height:100vh;
+    }
+    body.gameOnly{background:transparent}
+
+    .app{
+      display:grid;
+      grid-template-columns: 460px 1fr;
+      gap:14px;
+      padding:14px;
+      max-width: 1540px;
+      margin: 0 auto;
+    }
+    @media (max-width: 1020px){
+      .app{grid-template-columns:1fr}
+    }
+
+    .panel{
+      background:linear-gradient(180deg, rgba(255,255,255,.07), rgba(255,255,255,.04));
+      border:1px solid var(--border);
+      border-radius:var(--radius2);
+      box-shadow:var(--shadow2);
+      backdrop-filter: blur(10px);
+      overflow:hidden;
+      position:relative;
+    }
+
+    .panel-header{
+      padding:12px 14px;
+      border-bottom:1px solid rgba(255,255,255,.10);
+      display:flex;align-items:center;justify-content:space-between;gap:10px;
+    }
+    .panel-header .h{font-weight:950;letter-spacing:.2px; display:flex; align-items:center;
+      gap:10px;}
+    .panel-header .h img { height: 32px; width: auto; border-radius: 6px; object-fit: contain;
+    }
+    .panel-body{padding:14px}
+
+    .settings{
+      height: calc(100vh - 28px);
+      display:flex;
+      flex-direction:column;
+      min-height: 560px;
+    }
+    .settings .panel-body{
+      overflow:auto;
+      padding:14px;
+    }
+
+    .settings .panel-body::-webkit-scrollbar { width: 8px; }
+    .settings .panel-body::-webkit-scrollbar-track { background: rgba(0,0,0,0.1); border-radius: 4px;
+    }
+    .settings .panel-body::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 4px; }
+    .settings .panel-body::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.3);
+    }
+
+    [data-section="timer"]{display:none !important}
+    [data-hide="blocks"]{display:none !important}
+
+    .section{
+      padding:12px 12px;
+      border-radius:16px;
+      border:1px solid rgba(255,255,255,.10);
+      background:rgba(0,0,0,.16);
+      margin-bottom:12px;
+    }
+    .section .title{
+      font-weight:950;
+      font-size:13.5px;
+      margin-bottom:10px;
+      color:rgba(255,255,255,.92);
+      display:flex;align-items:center;justify-content:space-between;gap:8px;
+    }
+
+    .muted{color:var(--muted); font-size:12.5px; line-height:1.35}
+
+    label{
+      display:block;
+      font-size:12.5px;
+      color:rgba(255,255,255,.86);
+      margin:10px 0 6px
+    }
+
+    input[type="text"], input[type="number"], textarea, select{
+      width:100%;
+      border-radius:14px;
+      padding:10px 11px;
+      border:1px solid rgba(255,255,255,.14);
+      background:rgba(0,0,0,.25);
+      color:var(--text);
+      outline:none;
+    }
+    textarea{min-height:84px;
+      resize:vertical}
+
+    input[type="color"] {
+      width:100%; height:40px; border-radius:14px; padding:2px;
+      border:1px solid rgba(255,255,255,.14); background:rgba(0,0,0,.25); cursor:pointer;
+    }
+    input[type="color"]::-webkit-color-swatch-wrapper { padding:2px; }
+    input[type="color"]::-webkit-color-swatch { border-radius:10px; border:none; }
+
+    .row{display:flex;
+      gap:10px; flex-wrap:wrap}
+    .row > *{flex:1; min-width:170px}
+
+    .toggle{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      padding:10px 10px;
+      border-radius:14px;
+      border:1px solid rgba(255,255,255,.12);
+      background:rgba(255,255,255,.04);
+      margin-top:8px;
+    }
+    .toggle input{width:18px;
+      height:18px}
+
+    .btn{
+      padding:11px 12px;
+      border-radius:14px;
+      border:1px solid rgba(255,255,255,.14);
+      background:rgba(255,255,255,.06);
+      color:var(--text);
+      cursor:pointer;
+      font-weight:950;
+      font-size:14px;
+      transition:transform .08s ease, background .15s ease, border-color .15s ease, box-shadow .2s ease;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      gap:8px;
+      user-select:none;
+      white-space:nowrap;
+    }
+    .btn:hover{background:rgba(255,255,255,.10);border-color:rgba(255,255,255,.24)}
+    .btn:active{transform:translateY(1px)}
+    .btn:disabled{opacity:.45;
+      cursor:not-allowed}
+
+    .btn.primary{
+      background:linear-gradient(90deg, rgba(214,177,74,.35), rgba(242,211,122,.22));
+      border-color:rgba(214,177,74,.40);
+      box-shadow: 0 10px 26px rgba(214,177,74,.18);
+    }
+    .btn.danger{border-color:rgba(255,77,77,.35); background:rgba(255,77,77,.08)}
+    .btn.small{padding:8px 10px; font-size:12.5px; border-radius:12px}
+
+    .q-list{display:flex; flex-direction:column;
+      gap:10px;}
+    .q-item{
+      padding:10px 10px;
+      border-radius:14px;
+      border:1px solid rgba(255,255,255,.12);
+      background:rgba(255,255,255,.04);
+      display:flex;
+      gap:10px;
+      align-items:center;
+      justify-content:space-between;
+    }
+    .q-item .meta{
+      display:flex;
+      flex-direction:column;
+      gap:4px;
+      min-width:0;
+      padding-top:3px;
+    }
+    .q-item .meta .t{
+      font-weight:900;
+      font-size:13px;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis
+    }
+    .q-item .meta .s{
+      color:var(--muted);
+      font-size:12px;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis
+    }
+
+    .pill{
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      padding:6px 8px;
+      border-radius:999px;
+      font-size:12px;
+      font-weight:900;
+      border:1px solid rgba(255,255,255,.14);
+      background:rgba(0,0,0,.18);
+      color:rgba(255,255,255,.92);
+    }
+
+    .preview{
+      min-height: calc(100vh - 28px);
+      display:flex;
+      flex-direction:column;
+      gap:12px;
+      padding:0;
+      overflow:hidden;
+    }
+    .preview-top{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      padding:12px 14px;
+      border-bottom:1px solid rgba(255,255,255,.10);
+      background:linear-gradient(180deg, rgba(255,255,255,.07), rgba(255,255,255,.04));
+    }
+    .preview-top .name{font-weight:950; letter-spacing:.2px}
+    .preview-top .hint{color:var(--muted);
+      font-size:12.5px}
+
+    .preview-stage{
+      position:relative;
+      border-radius:var(--radius2);
+      border:1px solid rgba(255,255,255,.10);
+      overflow:hidden;
+      min-height: 720px;
+      height: calc(100vh - 80px);
+      background:rgba(0,0,0,.18);
+      box-shadow: var(--shadow2);
+    }
+
+    .toast{
+      position:fixed;
+      left:50%;
+      bottom:16px;
+      transform:translateX(-50%);
+      background:rgba(0,0,0,.55);
+      border:1px solid rgba(255,255,255,.14);
+      color:var(--text);
+      padding:10px 12px;
+      border-radius:14px;
+      backdrop-filter: blur(10px);
+      box-shadow: var(--shadow2);
+      opacity:0;
+      pointer-events:none;
+      transition:opacity .18s ease, transform .18s ease;
+      z-index:999999;
+    }
+    .toast.show{
+      opacity:1;
+      transform:translateX(-50%) translateY(-4px)
+    }
+
+    .modal-backdrop{
+      position:fixed;
+      inset:0;
+      background:rgba(0,0,0,.55);
+      backdrop-filter: blur(8px);
+      display:none;
+      align-items:center;
+      justify-content:center;
+      z-index:999998;
+      padding:14px;
+    }
+
+    .modal{
+      width:min(820px, 100%);
+      max-height: calc(100vh - 40px);
+      display: flex;
+      flex-direction: column;
+      border-radius:20px;
+      border:1px solid rgba(255,255,255,.14);
+      background:linear-gradient(180deg, rgba(255,255,255,.10), rgba(255,255,255,.05));
+      box-shadow: 0 30px 80px rgba(0,0,0,.55);
+      overflow:hidden;
+    }
+    .modal-head{
+      padding:12px 14px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      border-bottom:1px solid rgba(255,255,255,.10);
+      flex-shrink: 0;
+    }
+    .modal-head .h{font-weight:950}
+    .modal-body{
+      padding:14px;
+      overflow-y: auto;
+      flex: 1;
+      min-height: 0;
+    }
+    
+    .modal-body::-webkit-scrollbar { width: 8px;
+    }
+    .modal-body::-webkit-scrollbar-track { background: rgba(0,0,0,0.1); border-radius: 4px; }
+    .modal-body::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 4px;
+    }
+    .modal-body::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.3); }
+
+    .modal-foot{
+      padding:12px 14px;
+      border-top:1px solid rgba(255,255,255,.10);
+      display:flex;
+      gap:10px;
+      justify-content:flex-end;
+      flex-wrap:wrap;
+      flex-shrink: 0;
+    }
+
+    .choiceBlock{
+      border:1px solid rgba(255,255,255,.10);
+      background:rgba(0,0,0,.14);
+      border-radius:14px;
+      padding:10px;
+      margin-top:10px;
+    }
+
+    .answerRow{
+      display:flex;
+      gap:8px;
+      align-items:center;
+      margin-top:8px;
+    }
+    .answerRow input[type="text"]{flex:1; min-width:0}
+
+    .radio{
+      width:18px;
+      height:18px;
+      accent-color: var(--neon);
+      flex:0 0 auto;
+    }
+
+    .errbar{
+      display:none;
+      margin:12px 14px 0;
+      padding:10px 12px;
+      border-radius:14px;
+      border:1px solid rgba(255,77,77,.35);
+      background:rgba(255,77,77,.10);
+      color:#ffd6d6;
+      font-size:13px;
+      line-height:1.35;
+      white-space:pre-wrap;
+    }
+    .errbar.show{display:block}
+
+    .gameHost{
+      width:100%;
+      height:100%;
+      min-height:0;
+    }
+    .gameHost *{box-sizing:border-box;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
+    
+    /* --- СТИЛИЗАЦИЯ ОРАНЖЕВЫМ НЕОНОМ --- */
+    :root{
+      --neon-orange-base: #ffae00;
+      --neon-orange-glow: rgba(255, 136, 0, 0.6);
+      --neon-box-shadow: 0 0 5px var(--neon-orange-glow), 0 0 15px var(--neon-orange-glow), inset 0 0 5px rgba(255, 136, 0, 0.2);
+    }
+
+    /* Основные панели */
+    .panel {
+        border-color: var(--neon-orange-base) !important;
+        box-shadow: var(--neon-box-shadow), var(--shadow2) !important;
+    }
+    .panel::before {
+        background:
+        radial-gradient(900px 600px at 20% 10%, rgba(255, 170, 0, 0.15), rgba(0,0,0,0) 60%),
+        radial-gradient(700px 520px at 80% 20%, rgba(255, 100, 0, 0.15), rgba(0,0,0,0) 55%),
+        repeating-linear-gradient(135deg, rgba(255, 170, 0, 0.08) 0 2px, rgba(0,0,0,0) 2px 14px) !important;
+        mix-blend-mode: screen !important;
+    }
+
+    /* Внутренние секции */
+    .section {
+        border-color: rgba(255, 174, 0, 0.5) !important;
+        box-shadow: 0 0 8px rgba(255, 136, 0, 0.3) !important;
+        background: rgba(20, 10, 0, 0.3) !important;
+    }
+
+    /* Кнопки */
+    .btn {
+        border-color: var(--neon-orange-base) !important;
+    }
+    .btn:hover {
+         box-shadow: 0 0 10px var(--neon-orange-glow) !important;
+         background: rgba(255, 136, 0, 0.15) !important;
+    }
+    .btn.primary {
+         background: linear-gradient(90deg, rgba(255, 174, 0, 0.4), rgba(255, 136, 0, 0.3)) !important;
+    }
+
+    /* Поля ввода при фокусе */
+    input:focus, textarea:focus, select:focus {
+        border-color: var(--neon-orange-base) !important;
+        box-shadow: 0 0 8px var(--neon-orange-glow), inset 0 0 4px rgba(255, 136, 0, 0.2) !important;
+    }
+
+    /* Модальные окна: убрана прозрачность фона */
+    .modal {
+         border-color: var(--neon-orange-base) !important;
+         box-shadow: var(--neon-box-shadow), 0 30px 80px rgba(0,0,0,.7) !important;
+         background: #16110c !important; /* Непрозрачный темный фон */
+    }
 </style>
 </head>
-<body>
 
-<div class="editor">
-  <div class="header">
-    <span class="logo">🏗️ GOLD EDITOR</span>
-    <button class="btn-gold" onclick="generateCode()">СКОПИРОВАТЬ КОД</button>
-  </div>
-  
-  <div class="scroll-area">
-    <div class="section">
-      <span class="label">1. Фон игры</span>
-      <div class="file-row">
-        <label>
-          <span id="bgStatus">ЗАГРУЗИТЬ КАРТИНКУ</span>
-          <input type="file" accept="image/*" onchange="uploadBg(this)">
-        </label>
-        <button onclick="clearBg()" style="background:none; color:#ef4444; font-size:14px">✕</button>
+<body>
+  <div class="app" id="editorRoot">
+    <div class="panel settings">
+      <div class="panel-header">
+        <div class="h">
+          <img src="63.png" alt="Логотип" />
+          <div style="display:flex; flex-direction:column; justify-content:center;">
+            <span style="font-size: 16px; font-weight: 900; line-height: 1.2;">Светлана Быкова</span>
+            <span data-i18n="editorTitle" style="font-size: 12px; color: var(--neon-orange-base); font-weight: 700; line-height: 1.2;">Редактор «Башня»</span>
+          </div>
+        </div>
+        <div class="row" style="margin:0">
+          <button class="btn primary" id="btnCopyCode" type="button" data-i18n="btnCopyCode">📋 Скопировать код (iframe)</button>
+        </div>
+      </div>
+
+      <div class="errbar" id="errbar"></div>
+
+      <div class="panel-body">
+
+        <div class="section">
+          <div class="title" data-i18n="langTitle">Язык интерфейса</div>
+          <select id="selLang" style="margin-top:6px;">
+            <option value="ru" selected>Русский</option>
+            <option value="en">English</option>
+            <option value="de">Deutsch</option>
+            <option value="zh">中文</option>
+          </select>
+        </div>
+
+        <div class="section">
+          <div class="title" data-i18n="secTitleName">Название</div>
+          <label data-i18n="lblTitleInGame">Заголовок в игре</label>
+          <input id="inpTitle" type="text" value="Башня знаний" />
+        </div>
+
+        <div class="section">
+          <div class="title" data-i18n="secTitleDesign">Оформление</div>
+          <label data-i18n="lblCustomBg">Фон игры (ссылка)</label>
+          <div class="row" style="gap:10px; align-items:center; margin-top:6px">
+            <input id="inpBgUrl" type="text" placeholder="https://.../bg.jpg" data-i18n="phBgUrl" />
+            <button id="btnResetBg" type="button" class="btn small" data-i18n="btnResetBg">↩ Сбросить фон</button>
+          </div>
+
+          <div class="toggle" data-hide="blocks">
+            <input id="chkUseImages" type="checkbox" checked />
+            <div>
+              <div style="font-weight:900" data-i18n="lblBlocksStd">Блоки: стандартные</div>
+              <div class="muted"></div>
+            </div>
+          </div>
+          
+          <div class="toggle">
+            <input id="chkUseLatex" type="checkbox" />
+            <div>
+              <div style="font-weight:900" data-i18n="lblUseLatex">Использовать LaTeX</div>
+              <div class="muted" data-i18n="lblLatexHint">Включает поддержку математических формул (например, $x^2$)</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="section" data-section="timer">
+          <div class="title" data-i18n="secTitleTimer">Таймер</div>
+
+          <div class="toggle">
+            <input id="chkTimer" type="checkbox" />
+            <div>
+              <div style="font-weight:900" data-i18n="lblEnableTimer">Включить таймер</div>
+              <div class="muted" data-i18n="lblTimerHint">Если время вышло — ответ неверный, блок сгорает.</div>
+            </div>
+          </div>
+
+          <label data-i18n="lblSecPerQ">Секунд на вопрос</label>
+          <input id="inpSeconds" type="number" min="5" max="600" step="1" value="30" />
+        </div>
+
+        <div class="section">
+          <div class="title" data-i18n="secTitleInstruction">Стартовый экран</div>
+          <label data-i18n="lblInstructionText">Текст инструкции</label>
+          <textarea id="inpInstruction" style="min-height:90px;"></textarea>
+          
+          <div class="row" style="margin-top:10px; align-items:center;">
+            <div>
+              <label data-i18n="lblInstructionColor">Цвет рамки</label>
+              <input type="color" id="inpInstColor" value="#ffffff" />
+            </div>
+            <div class="toggle" style="margin-top:0;">
+              <input id="chkInstGlow" type="checkbox" />
+              <div>
+                <div style="font-weight:900" data-i18n="lblInstructionGlow">Свечение рамки</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="section">
+          <div class="title" data-i18n="secTitleFinish">Финальный экран</div>
+          <label data-i18n="lblFeedbackText">Дополнительный текст</label>
+          <textarea id="inpFeedback" style="min-height:70px;" data-i18n="phFeedbackText" placeholder="Например: Переходи к следующему заданию..."></textarea>
+        </div>
+
+        <div class="section">
+          <div class="title"><span data-i18n="secTitleQuestions">Вопросы</span> <span class="pill" id="pillCount">0 / 9</span></div>
+
+          <div class="row">
+            <button class="btn primary" id="btnAddQ" type="button" data-i18n="btnAdd">➕ Добавить</button>
+            <button class="btn" id="btnClearQs" type="button" data-i18n="btnClear">🧹 Очистить</button>
+          </div>
+
+          <div class="q-list" id="qList" style="margin-top:12px"></div>
+
+          <div class="muted" style="margin-top:10px" data-i18n="lblExact9" data-i18n-html="true">Строго <b>9 вопросов</b>.</div>
+          <div class="muted" data-i18n="lblTypes" data-i18n-html="true">Можно: <b>выбор</b> или <b>ввод</b> (несколько правильных вариантов).</div>
+        </div>
+
+        <div class="section">
+          <div class="title" data-hide="exportTitle" data-i18n="secTitleExport">Экспорт в Genially</div>
+          <div class="muted">
+            <span data-i18n="lblExportHint" data-i18n-html="true">Нажми <b>«📋 Скопировать iframe»</b> — в буфере будет короткий код вида:</span>
+            <div style="margin-top:8px; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size:12px; color:rgba(255,255,255,.86)">
+               .../index.html?game=...
+            </div>
+          </div>
+        </div>
+
       </div>
     </div>
 
-    <div class="section">
-      <span class="label">2. Вопросы (<span id="qCount">0</span>/9)</span>
-      <div id="qList"></div>
-      <button class="btn-add" onclick="openModal()">+ ДОБАВИТЬ ВОПРОС</button>
-      <button onclick="config.qs=[];renderList();updatePreview()" style="width:100%; background:none; color:#666; font-size:10px; margin-top:5px">Очистить список</button>
+    <div class="panel preview">
+      <div class="preview-top">
+        <div>
+          <div class="name" data-i18n="previewTitle">Просмотр</div>
+          <div class="hint" data-i18n="previewHint">Живое превью (игра запускается как в Genially)</div>
+        </div>
+        <div class="muted" data-i18n="previewSub">Башня + карточки + финальный экран</div>
+      </div>
+
+      <div class="panel-body" style="height:100%; padding-bottom:0">
+        <div class="preview-stage" style="height:100%">
+          <iframe id="livePreview" title="Preview" style="width:100%;height:100%;min-height:720px;border:0;background:transparent;border-radius:18px;overflow:hidden" allow="autoplay; fullscreen" allowfullscreen></iframe>
+        </div>
+      </div>
     </div>
   </div>
-</div>
 
-<div class="preview">
-  <div class="preview-head">ЖИВОЙ ПРОСМОТР</div>
-  <iframe id="previewFrame"></iframe>
-</div>
+  <div id="gameRoot" style="display:none"></div>
 
-<div class="modal-overlay" id="modal">
-  <div class="modal">
-    <h3 style="color:var(--gold); margin-top:0">РЕДАКТОР</h3>
-    
-    <label class="label">Тип вопроса</label>
-    <select id="mType" onchange="renderOpts()">
-      <option value="choice">Выбор ответа</option>
-      <option value="input">Ввод текста</option>
-    </select>
+  <div class="modal-backdrop" id="modalBackdrop" aria-hidden="true">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+      <div class="modal-head">
+        <div class="h" id="modalTitle" data-i18n="modalTitleAdd">Добавить вопрос</div>
+        <button class="btn small danger" id="btnCloseModal" type="button" data-i18n="btnClose">Закрыть</button>
+      </div>
 
-    <label class="label">Текст вопроса</label>
-    <textarea id="mText" rows="2"></textarea>
+      <div class="modal-body">
+        <label data-i18n="lblQType">Тип вопроса</label>
+        <select id="selType">
+          <option value="choice" selected data-i18n="optChoice">С выбором ответа</option>
+          <option value="text" data-i18n="optText">С вводом ответа</option>
+        </select>
 
-    <label class="label">Медиа (Картинка/Звук)</label>
-    <div class="file-row" style="margin-bottom:15px">
-      <label>
-        <span id="mMediaStatus">Загрузить файл...</span>
-        <input type="file" accept="image/*,audio/*" onchange="uploadMedia(this)">
-      </label>
-      <button onclick="clearMedia()" style="background:none; color:#ef4444">✕</button>
-    </div>
+        <label data-i18n="lblQuestionText">Вопрос</label>
+        <textarea id="inpPrompt" placeholder="Введите вопрос..." data-i18n="phQuestion"></textarea>
 
-    <div id="mOptsArea" style="border-top:1px solid #333; padding-top:10px"></div>
+        <div class="choiceBlock" style="margin-top:10px">
+          <div style="font-weight:900" data-i18n="lblFontTitle">Оформление текста</div>
+          
+          <div class="row" style="margin-top:10px; align-items:flex-end">
+            <div>
+              <label data-i18n="lblFont">Шрифт (вопрос и ответы)</label>
+              <select id="inpQFont">
+                <option value="" data-i18n="optFontDefault" style="font-family: system-ui, sans-serif;">Стандартный</option>
+                <option value="Arial, sans-serif" style="font-family: Arial, sans-serif;">Arial</option>
+                <option value="Verdana, sans-serif" style="font-family: Verdana, sans-serif;">Verdana</option>
+                <option value="Tahoma, sans-serif" style="font-family: Tahoma, sans-serif;">Tahoma</option>
+                <option value="'Trebuchet MS', sans-serif" style="font-family: 'Trebuchet MS', sans-serif;">Trebuchet MS</option>
+                <option value="'Times New Roman', serif" style="font-family: 'Times New Roman', serif;">Times New Roman</option>
+                <option value="Georgia, serif" style="font-family: Georgia, serif;">Georgia</option>
+                <option value="'Courier New', monospace" style="font-family: 'Courier New', monospace;">Courier New</option>
+                <option value="'Caveat', cursive" data-i18n="optFontHW1" style="font-family: 'Caveat', cursive;">Caveat (Рукописный 1)</option>
+                <option value="'Neucha', cursive" data-i18n="optFontHW2" style="font-family: 'Neucha', cursive;">Neucha (Рукописный 2)</option>
+              </select>
+            </div>
+            <div>
+              <label data-i18n="lblFontSize">Размер шрифта вопроса (px)</label>
+              <input id="inpQFontSize" type="number" min="12" max="60" step="1" value="20" />
+            </div>
+          </div>
+        </div>
 
-    <div style="text-align:right; margin-top:15px">
-      <button class="btn-gold" onclick="saveQ()">СОХРАНИТЬ</button>
-      <button onclick="closeModal()" style="background:none; color:#fff; margin-left:10px">ОТМЕНА</button>
+        <div class="choiceBlock" style="margin-top:10px">
+          <div style="font-weight:900" data-i18n="lblTimerForThis">Таймер для этого вопроса</div>
+          <div class="muted" data-i18n="lblTimerForThisHint">Можно задать время именно для этого вопроса (пусто = без таймера/по умолчанию).</div>
+
+          <div style="margin-top:10px">
+              <label data-i18n="lblSecForThis">Секунд на этот вопрос</label>
+              <input id="inpQSeconds" type="number" min="3" max="600" step="1" placeholder="например 20" data-i18n="phTimer" />
+          </div>
+        </div>
+        
+        <div class="choiceBlock" style="margin-top:10px">
+          <div style="font-weight:900" data-i18n="lblMedia">Медиа (ссылки)</div>
+          <div class="muted" data-i18n="lblMediaHint">Вставьте прямую ссылку (URL) на картинку или аудиофайл.</div>
+          
+          <div class="answerRow">
+            <span style="font-size:20px; line-height:1; cursor:help;" title="Ссылка на картинку">🖼️</span>
+            <input id="inpQImage" type="text" placeholder="https://.../image.jpg" />
+            <button class="btn small danger" id="btnClearImage" type="button" title="Удалить картинку">✖</button>
+          </div>
+          
+          <div class="answerRow">
+            <span style="font-size:20px; line-height:1; cursor:help;" title="Ссылка на аудио">🎵</span>
+            <input id="inpQAudio" type="text" placeholder="https://.../audio.mp3" />
+            <button class="btn small danger" id="btnClearAudio" type="button" title="Удалить аудио">✖</button>
+          </div>
+        </div>
+
+        <div id="choiceWrap" class="choiceBlock">
+          <div style="font-weight:900" data-i18n="lblChoices">Варианты ответа</div>
+          <div class="muted" data-i18n="lblChoicesHint">Минимум 2 варианта. Отметь верные чекбоксом. (В игре они будут перемешаны).</div>
+          <div id="choiceList"></div>
+          <button class="btn small" id="btnAddChoice" type="button" style="margin-top:10px" data-i18n="btnAddChoice">➕ Добавить вариант</button>
+        </div>
+
+        <div id="textWrap" class="choiceBlock" style="display:none">
+          <div style="font-weight:900" data-i18n="lblTextAns">Верные ответы (ввод)</div>
+          <div class="muted" data-i18n="lblTextAnsHint">Можно несколько вариантов — принимается любой.</div>
+          <div id="textList"></div>
+          <button class="btn small" id="btnAddText" type="button" style="margin-top:10px" data-i18n="btnAddText">➕ Добавить вариант</button>
+        </div>
+      </div>
+
+      <div class="modal-foot">
+        <button class="btn" id="btnPreviewDraft" type="button" data-i18n="btnPreviewDraft">👁 Показать в превью</button>
+        <button class="btn primary" id="btnSaveQ" type="button" data-i18n="btnSaveQ">💾 Сохранить</button>
+      </div>
     </div>
   </div>
-</div>
 
-<div class="toast" id="toast">Код скопирован!</div>
+  <div class="modal-backdrop" id="codeBackdrop" aria-hidden="true">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="codeTitle">
+      <div class="modal-head">
+        <div class="h" id="codeTitle" data-i18n="lblCodeTitle">Ссылка для запуска игры</div>
+        <button class="btn small danger" id="btnCloseCode" type="button" data-i18n="btnClose">Закрыть</button>
+      </div>
+      <div class="modal-body">
+        <div class="muted" style="margin-bottom:8px" data-i18n="lblCodeHint">Это ссылка на игру. Её можно вставлять в Genially (через iframe) и куда угодно.</div>
+        <label style="margin-top:0" data-i18n="lblLink">Ссылка</label>
+        <textarea id="taIframe" spellcheck="false" style="min-height:90px;font-family: ui-monospace, SFMono-Regular, Menlo, monospace;"></textarea>
+        <label data-i18n="lblIframe">iframe (если нужен)</label>
+        <textarea id="taIframe2" spellcheck="false" style="min-height:120px;font-family: ui-monospace, SFMono-Regular, Menlo, monospace;"></textarea>
+        <div class="row" style="margin-top:10px">
+          <button class="btn primary" id="btnCopyFromModal" type="button" data-i18n="btnCopyLink">📋 Скопировать ссылку</button>
+          <button class="btn" id="btnCopyIframe" type="button" data-i18n="btnCopyIframe">📎 Скопировать iframe</button>
+          <button class="btn" id="btnDownloadGame" type="button" data-i18n="btnDownload">⬇ Скачать игру (HTML)</button>
+        </div>
+      </div>
+    </div>
+  </div>
 
-<script id="gameTemplate" type="text/template">
-<!DOCTYPE html>
-<html lang="ru">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
-<style>
-  :root { --gold: #d4af37; --bg: #050505; }
-  body { margin:0; overflow:hidden; background: var(--bg); font-family: 'Segoe UI', sans-serif; user-select:none; }
-  
-  /* Сцена */
-  #stage { 
-    position: absolute; inset: 0; overflow: hidden; 
-    transition: transform 0.5s ease; /* Плавный зум */
-    transform-origin: center bottom;
-  }
-  #bg { position: absolute; inset: 0; background-size: cover; background-position: center; opacity: 0.5; }
-  
-  /* Башня */
-  .block { 
-    position: absolute; height: 50px; 
-    background: linear-gradient(to bottom, #fde68a, #d4af37);
-    border: 1px solid #fff; 
-    box-shadow: 0 4px 10px rgba(0,0,0,0.5);
-    border-radius: 4px;
-    background-size: 100% 100%; /* Для картинок */
-  }
-  .base {
-    position: absolute; bottom: 0; left: 50%; transform: translateX(-50%);
-    width: 350px; height: 40px; background: #333; 
-    border-top: 3px solid var(--gold); border-radius: 4px 4px 0 0;
-    z-index: 10;
-  }
-
-  /* HUD */
-  .hud { position: fixed; top: 10px; left: 10px; right: 10px; display: flex; justify-content: space-between; z-index: 50; pointer-events:none; }
-  .pill { background: rgba(0,0,0,0.8); color: var(--gold); padding: 5px 15px; border-radius: 20px; border: 1px solid var(--gold); font-weight: bold; font-size: 14px; }
-
-  /* Экраны */
-  .screen { position: fixed; inset: 0; background: rgba(5,5,5,0.95); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 100; }
-  h1 { font-size: 40px; color: var(--gold); margin-bottom: 20px; letter-spacing: 3px; text-transform: uppercase; }
-  
-  .btn-big { 
-    padding: 15px 50px; background: var(--gold); color: #000; border: none; 
-    border-radius: 50px; font-size: 20px; font-weight: 900; cursor: pointer; 
-    box-shadow: 0 0 20px rgba(212,175,55,0.5); animation: pulse 2s infinite;
-  }
-  @keyframes pulse { 0%{transform:scale(1);} 50%{transform:scale(1.05);} 100%{transform:scale(1);} }
-
-  /* Карточка вопроса */
-  #card { 
-    position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0.9); 
-    width: 90%; max-width: 400px; background: #111; border: 2px solid var(--gold); 
-    border-radius: 15px; padding: 20px; text-align: center; z-index: 90; 
-    opacity: 0; pointer-events: none; transition: 0.3s; box-shadow: 0 0 50px #000;
-  }
-  #card.show { opacity: 1; pointer-events: auto; transform: translate(-50%, -50%) scale(1); }
-  #cardOverlay { position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 80; display: none; }
-
-  .ans-btn { width: 100%; padding: 12px; background: #222; border: 1px solid #444; color: #fff; margin-bottom: 8px; border-radius: 8px; cursor: pointer; text-align: left; transition:0.2s; font-size: 14px; }
-  .ans-btn:hover { border-color: var(--gold); background: #333; }
-  input.inp { width: 100%; padding: 12px; background: #000; border: 1px solid var(--gold); color: #fff; margin-bottom: 10px; text-align: center; font-size: 16px; outline: none; }
-  
-  #mediaBox img { max-width: 100%; max-height: 150px; border-radius: 5px; margin-bottom: 10px; border: 1px solid #333; }
-  #qText { font-size: 18px; color: #fff; margin-bottom: 15px; font-weight: bold; line-height: 1.4; }
-
-</style>
-</head>
-<body>
-
-<div id="stage">
-  <div id="bg"></div>
-  <div class="base"></div>
-</div>
-
-<div class="hud">
-  <div class="pill">Очки: <span id="score">0</span></div>
-  <div class="pill">Этаж: <span id="level">0</span></div>
-</div>
-
-<div id="startScreen" class="screen">
-  <h1>БАШНЯ</h1>
-  <button class="btn-big" id="startBtn">НАЧАТЬ</button>
-</div>
-
-<div id="endScreen" class="screen" style="display:none">
-  <h1 id="endTitle">ФИНАЛ</h1>
-  <p style="color:#fff; font-size:18px; margin-bottom:30px">Счёт: <span id="finalScore">0</span></p>
-  <button class="btn-big" onclick="location.reload()">ЕЩЕ РАЗ</button>
-</div>
-
-<div id="cardOverlay"></div>
-<div id="card">
-  <div id="mediaBox"></div>
-  <div id="qText"></div>
-  <div id="ansArea"></div>
-  <div id="feedback" style="height:20px; font-weight:bold; margin-top:10px"></div>
-</div>
+  <div class="toast" id="toast">Скопировано</div>
 
 <script>
-// === СЮДА БУДЕТ ВСТАВЛЕН КОНФИГ ИЗ РЕДАКТОРА ===
-const CFG = {{CONFIG}}; 
-// ===============================================
+(() => {
+  "use strict";
+  const i18n = {
+    ru: {
+      editorTitle: "Редактор «Башня»", btnCopyCode: "📋 Скопировать код (iframe)", langTitle: "Язык интерфейса",
+      secTitleName: "Название", lblTitleInGame: "Заголовок в игре", secTitleDesign: "Оформление",
+      lblCustomBg: "Фон игры (ссылка)", btnResetBg: "↩ Сбросить фон", lblBlocksStd: "Блоки: стандартные",
+      lblUseLatex: "Использовать LaTeX", lblLatexHint: "Включает поддержку математических формул (например, $x^2$)",
+      secTitleTimer: "Таймер", lblEnableTimer: "Включить таймер", lblTimerHint: "Если время вышло — ответ неверный, блок сгорает.",
+      lblSecPerQ: "Секунд на вопрос", secTitleQuestions: "Вопросы", btnAdd: "➕ Добавить", btnClear: "🧹 Очистить",
+      lblExact9: "Строго <b>9 вопросов</b>.", lblTypes: "Можно: <b>выбор</b> или <b>ввод</b> (несколько правильных вариантов).",
+      secTitleExport: "Экспорт в Genially", lblExportHint: "Нажми <b>«📋 Скопировать iframe»</b> — в буфере будет короткий код вида:",
+      previewTitle: "Просмотр", previewHint: "Живое превью (игра запускается как в Genially)", previewSub: "Башня + карточки + финальный экран",
+      modalTitleAdd: "Добавить вопрос", modalTitleEdit: "Редактировать вопрос", btnClose: "Закрыть",
+      lblQType: "Тип вопроса", optChoice: "С выбором ответа", optText: "С вводом ответа", lblQuestionText: "Вопрос", phQuestion: "Введите вопрос...",
+      lblTimerForThis: "Таймер для этого вопроса", lblTimerForThisHint: "Можно задать время именно для этого вопроса (пусто = без таймера/по умолчанию).",
+      lblSecForThis: "Секунд на этот вопрос", phTimer: "например 20", phBgUrl: "https://.../bg.jpg", lblMedia: "Медиа (ссылки)", lblMediaHint: "Вставьте прямую ссылку (URL) на картинку или аудиофайл.",
+      lblChoices: "Варианты ответа", lblChoicesHint: "Минимум 2 варианта. Отметь верные чекбоксом. (В игре они будут перемешаны).", btnAddChoice: "➕ Добавить вариант",
+      lblTextAns: "Верные ответы (ввод)", lblTextAnsHint: "Можно несколько вариантов — принимается любой.", btnAddText: "➕ Добавить вариант",
+      btnPreviewDraft: "👁 Показать в превью", btnSaveQ: "💾 Сохранить", lblCodeTitle: "Ссылка для запуска игры",
+      lblCodeHint: "Это ссылка на игру. Её можно вставлять в Genially (через iframe) и куда угодно.", lblLink: "Ссылка", lblIframe: "iframe (если нужен)",
+      btnCopyLink: "📋 Скопировать ссылку", btnCopyIframe: "📎 Скопировать iframe", btnDownload: "⬇ Скачать игру (HTML)",
+      noQs: "Пока нет вопросов. Нажмите «Добавить» и заполните 9 вопросов.", rightAns: "✅ Верный ответ", optionN: "Вариант ",
+      rightOptionN: "Верный вариант ", toastCopied: "Скопировано ✅", toastError: "Не удалось скопировать", toastBgLoaded: "Фон загружен",
+      toast9Q: "Вопросов уже 9 🙂", toastCleared: "Очищено", toastQAdded: "Вопрос добавлен", toastQUpdated: "Вопрос обновлён",
+      toastDraft: "Черновик показан в превью", toastEmptyQ: "Пустой вопрос", toastNoText: "Введите текст вопроса",
+      toastMin2: "Нужно минимум 2 варианта ответа", toastAtLeast1: "Добавьте хотя бы один верный ответ", typeChoice: "Выбор", typeText: "Ввод",
+      withMedia: " (+ медиа)", btnShow: "Показать в превью (первым вопросом)", btnEdit: "Редактировать", btnDel: "Удалить",
+      toastDeleted: "Удалено", toastShown: "Показано в превью", lblFontTitle: "Оформление текста", lblFont: "Шрифт (вопрос и ответы)",
+      optFontDefault: "Стандартный", optFontHW1: "Caveat (Рукописный 1)", optFontHW2: "Neucha (Рукописный 2)", lblFontSize: "Размер шрифта вопроса (px)",
+      secTitleInstruction: "Стартовый экран", lblInstructionText: "Текст инструкции", lblInstructionColor: "Цвет рамки", lblInstructionGlow: "Свечение рамки",
+      secTitleFinish: "Финальный экран", lblFeedbackText: "Дополнительный текст", phFeedbackText: "Например: Переходи к следующему заданию..."
+    },
+    en: {
+      editorTitle: "Tower Editor", btnCopyCode: "📋 Copy code (iframe)", langTitle: "Interface Language",
+      secTitleName: "Name", lblTitleInGame: "In-game Title", secTitleDesign: "Design",
+      lblCustomBg: "Background URL", btnResetBg: "↩ Reset background", lblBlocksStd: "Blocks: standard",
+      lblUseLatex: "Use LaTeX", lblLatexHint: "Enables support for math formulas (e.g., $x^2$)",
+      secTitleTimer: "Timer", lblEnableTimer: "Enable timer", lblTimerHint: "If time runs out — wrong answer, block burns.",
+      lblSecPerQ: "Seconds per question", secTitleQuestions: "Questions", btnAdd: "➕ Add", btnClear: "🧹 Clear",
+      lblExact9: "Strictly <b>9 questions</b>.", lblTypes: "Allowed: <b>choice</b> or <b>input</b> (multiple correct options).",
+      secTitleExport: "Export to Genially", lblExportHint: "Click <b>«📋 Copy iframe»</b> — a short code will be in your clipboard:",
+      previewTitle: "Preview", previewHint: "Live preview (game runs as in Genially)", previewSub: "Tower + cards + final screen",
+      modalTitleAdd: "Add question", modalTitleEdit: "Edit question", btnClose: "Close",
+      lblQType: "Question type", optChoice: "Multiple choice", optText: "Text input", lblQuestionText: "Question", phQuestion: "Enter question...",
+      lblTimerForThis: "Timer for this question", lblTimerForThisHint: "You can set time specifically for this question (empty = no timer/default).",
+      lblSecForThis: "Seconds for this question", phTimer: "e.g., 20", phBgUrl: "https://.../bg.jpg", lblMedia: "Media (links)", lblMediaHint: "Insert a direct link (URL) to an image or audio file.",
+      lblChoices: "Answer choices", lblChoicesHint: "Minimum 2 options. Mark correct ones with checkboxes. (Shuffled in game).", btnAddChoice: "➕ Add option",
+      lblTextAns: "Correct answers (input)", lblTextAnsHint: "Multiple options allowed — any will be accepted.", btnAddText: "➕ Add option",
+      btnPreviewDraft: "👁 Show in preview", btnSaveQ: "💾 Save", lblCodeTitle: "Game Launch Link",
+      lblCodeHint: "This is the link to the game. It can be embedded in Genially (via iframe) or anywhere else.", lblLink: "Link", lblIframe: "iframe (if needed)",
+      btnCopyLink: "📋 Copy link", btnCopyIframe: "📎 Copy iframe", btnDownload: "⬇ Download game (HTML)",
+      noQs: "No questions yet. Click «Add» and fill in 9 questions.", rightAns: "✅ Correct answer", optionN: "Option ",
+      rightOptionN: "Correct option ", toastCopied: "Copied ✅", toastError: "Failed to copy", toastBgLoaded: "Background set",
+      toast9Q: "Already 9 questions 🙂", toastCleared: "Cleared", toastQAdded: "Question added", toastQUpdated: "Question updated",
+      toastDraft: "Draft shown in preview", toastEmptyQ: "Empty question", toastNoText: "Enter question text",
+      toastMin2: "Minimum 2 choices required", toastAtLeast1: "Add at least one correct answer", typeChoice: "Choice", typeText: "Input",
+      withMedia: " (+ media)", btnShow: "Show in preview (first question)", btnEdit: "Edit", btnDel: "Delete",
+      toastDeleted: "Deleted", toastShown: "Shown in preview", lblFontTitle: "Text Styling", lblFont: "Font (question & answers)",
+      optFontDefault: "System Default", optFontHW1: "Caveat (Handwritten 1)", optFontHW2: "Neucha (Handwritten 2)", lblFontSize: "Question Font Size (px)",
+      secTitleInstruction: "Start Screen", lblInstructionText: "Instruction text", lblInstructionColor: "Border color", lblInstructionGlow: "Border glow",
+      secTitleFinish: "Final Screen", lblFeedbackText: "Additional text", phFeedbackText: "E.g. Go to the next task..."
+    },
+    de: {
+      editorTitle: "Turm-Editor", btnCopyCode: "📋 Code kopieren (iframe)", langTitle: "Sprache der Benutzeroberfläche",
+      secTitleName: "Name", lblTitleInGame: "Titel im Spiel", secTitleDesign: "Design",
+      lblCustomBg: "Hintergrund-URL", btnResetBg: "↩ Hintergrund zurücksetzen", lblBlocksStd: "Blöcke: Standard",
+      lblUseLatex: "LaTeX verwenden", lblLatexHint: "Aktiviert die Unterstützung für mathematische Formeln (z.B. $x^2$)",
+      secTitleTimer: "Timer", lblEnableTimer: "Timer aktivieren", lblTimerHint: "Wenn die Zeit abläuft — falsche Antwort, Block verbrennt.",
+      lblSecPerQ: "Sekunden pro Frage", secTitleQuestions: "Fragen", btnAdd: "➕ Hinzufügen", btnClear: "🧹 Leeren",
+      lblExact9: "Streng <b>9 Fragen</b>.", lblTypes: "Erlaubt: <b>Auswahl</b> oder <b>Eingabe</b> (mehrere richtige Optionen).",
+      secTitleExport: "Export nach Genially", lblExportHint: "Klicke auf <b>«📋 iframe kopieren»</b> — ein kurzer Code befindet sich in der Zwischenablage:",
+      previewTitle: "Vorschau", previewHint: "Live-Vorschau (Spiel läuft wie in Genially)", previewSub: "Turm + Karten + Endbildschirm",
+      modalTitleAdd: "Frage hinzufügen", modalTitleEdit: "Frage bearbeiten", btnClose: "Schließen",
+      lblQType: "Fragetyp", optChoice: "Mehrfachauswahl", optText: "Texteingabe", lblQuestionText: "Frage", phQuestion: "Frage eingeben...",
+      lblTimerForThis: "Timer für diese Frage", lblTimerForThisHint: "Du kannst die Zeit speziell für diese Frage einstellen (leer = kein Timer/Standard).",
+      lblSecForThis: "Sekunden für diese Frage", phTimer: "z.B. 20", phBgUrl: "https://.../bg.jpg", lblMedia: "Medien (Links)", lblMediaHint: "Füge einen direkten Link (URL) zu einem Bild oder einer Audiodatei ein.",
+      lblChoices: "Antwortmöglichkeiten", lblChoicesHint: "Mindestens 2 Optionen. Markiere die richtige (Werden im Spiel gemischt).", btnAddChoice: "➕ Option hinzufügen",
+      lblTextAns: "Richtige Antworten (Eingabe)", lblTextAnsHint: "Mehrere Optionen erlaubt — jede wird akzeptiert.", btnAddText: "➕ Option hinzufügen",
+      btnPreviewDraft: "👁 In Vorschau zeigen", btnSaveQ: "💾 Speichern", lblCodeTitle: "Spielstart-Link",
+      lblCodeHint: "Dies ist der Link zum Spiel. Er kann in Genially (über iframe) oder anderswo eingebettet werden.", lblLink: "Link", lblIframe: "iframe (falls benötigt)",
+      btnCopyLink: "📋 Link kopieren", btnCopyIframe: "📎 iframe kopieren", btnDownload: "⬇ Spiel herunterladen (HTML)",
+      noQs: "Noch keine Fragen. Klicke auf «Hinzufügen» und fülle 9 Fragen aus.", rightAns: "✅ Richtige Antwort", optionN: "Option ",
+      rightOptionN: "Richtige Option ", toastCopied: "Kopiert ✅", toastError: "Kopieren fehlgeschlagen", toastBgLoaded: "Hintergrund gesetzt",
+      toast9Q: "Schon 9 Fragen 🙂", toastCleared: "Geleert", toastQAdded: "Frage hinzugefügt", toastQUpdated: "Frage aktualisiert",
+      toastDraft: "Entwurf in Vorschau gezeigt", toastEmptyQ: "Leere Frage", toastNoText: "Fragentext eingeben",
+      toastMin2: "Mindestens 2 Auswahlmöglichkeiten erforderlich", toastAtLeast1: "Füge mindestens eine richtige Antwort hinzu", typeChoice: "Auswahl", typeText: "Eingabe",
+      withMedia: " (+ Medien)", btnShow: "In Vorschau zeigen (erste Frage)", btnEdit: "Bearbeiten", btnDel: "Löschen",
+      toastDeleted: "Gelöscht", toastShown: "In Vorschau gezeigt", lblFontTitle: "Textgestaltung", lblFont: "Schriftart (Frage & Antworten)",
+      optFontDefault: "Systemstandard", optFontHW1: "Caveat (Handschrift 1)", optFontHW2: "Neucha (Handschrift 2)", lblFontSize: "Schriftgröße der Frage (px)",
+      secTitleInstruction: "Startbildschirm", lblInstructionText: "Anweisungstext", lblInstructionColor: "Randfarbe", lblInstructionGlow: "Randleuchten",
+      secTitleFinish: "Endbildschirm", lblFeedbackText: "Zusätzlicher Text", phFeedbackText: "Z.B.: Gehen Sie zur nächsten Aufgabe..."
+    },
+    zh: {
+      editorTitle: "塔楼编辑器", btnCopyCode: "📋 复制代码 (iframe)", langTitle: "界面语言",
+      secTitleName: "名称", lblTitleInGame: "游戏内标题", secTitleDesign: "设计",
+      lblCustomBg: "背景图片链接", btnResetBg: "↩ 重置背景", lblBlocksStd: "方块：标准",
+      lblUseLatex: "使用 LaTeX", lblLatexHint: "启用对数学公式的支持 (例如 $x^2$)",
+      secTitleTimer: "计时器", lblEnableTimer: "启用计时器", lblTimerHint: "如果时间用完 — 回答错误，方块烧毁。",
+      lblSecPerQ: "每题秒数", secTitleQuestions: "问题", btnAdd: "➕ 添加", btnClear: "🧹 清除",
+      lblExact9: "严格 <b>9 个问题</b>.", lblTypes: "允许：<b>选择</b> 或 <b>输入</b> (多个正确选项)。",
+      secTitleExport: "导出到 Genially", lblExportHint: "点击 <b>«📋 复制 iframe»</b> — 简短的代码将在您的剪贴板中：",
+      previewTitle: "预览", previewHint: "实时预览 (游戏如在 Genially 中运行)", previewSub: "塔楼 + 卡片 + 最终屏幕",
+      modalTitleAdd: "添加问题", modalTitleEdit: "编辑问题", btnClose: "关闭",
+      lblQType: "问题类型", optChoice: "选择题", optText: "文本输入", lblQuestionText: "问题", phQuestion: "输入问题...",
+      lblTimerForThis: "此题计时器", lblTimerForThisHint: "您可以专门为此题设置时间 (空 = 无计时器/默认)。",
+      lblSecForThis: "此题秒数", phTimer: "例如 20", phBgUrl: "https://.../bg.jpg", lblMedia: "媒体 (链接)", lblMediaHint: "插入图片或音频文件的直接链接 (URL)。",
+      lblChoices: "选项", lblChoicesHint: "最少 2 个选项。用复选框标记正确选项（游戏中会打乱）。", btnAddChoice: "➕ 添加选项",
+      lblTextAns: "正确答案 (输入)", lblTextAnsHint: "允许多个选项 — 任何一个都将被接受。", btnAddText: "➕ 添加选项",
+      btnPreviewDraft: "👁 在预览中显示", btnSaveQ: "💾 保存", lblCodeTitle: "游戏启动链接",
+      lblCodeHint: "这是游戏的链接。它可以嵌入到 Genially (通过 iframe) 或其他任何地方。", lblLink: "链接", lblIframe: "iframe (如果需要)",
+      btnCopyLink: "📋 复制链接", btnCopyIframe: "📎 复制 iframe", btnDownload: "⬇ 下载游戏 (HTML)",
+      noQs: "目前没有问题。点击“添加”并填写 9 个问题。", rightAns: "✅ 正确答案", optionN: "选项 ",
+      rightOptionN: "正确选项 ", toastCopied: "已复制 ✅", toastError: "复制失败", toastBgLoaded: "背景已设置",
+      toast9Q: "已有 9 个问题 🙂", toastCleared: "已清除", toastQAdded: "已添加问题", toastQUpdated: "问题已更新",
+      toastDraft: "草稿在预览中显示", toastEmptyQ: "空问题", toastNoText: "请输入问题内容",
+      toastMin2: "需要至少 2 个选项", toastAtLeast1: "添加至少一个正确答案", typeChoice: "选择", typeText: "输入",
+      withMedia: " (+ 媒体)", btnShow: "在预览中显示 (第一题)", btnEdit: "编辑", btnDel: "删除",
+      toastDeleted: "已删除", toastShown: "已在预览中显示", lblFontTitle: "文本样式", lblFont: "问题和答案的字体",
+      optFontDefault: "系统默认", optFontHW1: "Caveat (手写 1)", optFontHW2: "Neucha (手写 2)", lblFontSize: "问题字体大小 (px)",
+      secTitleInstruction: "开始屏幕", lblInstructionText: "指令文本", lblInstructionColor: "边框颜色", lblInstructionGlow: "边框发光",
+      secTitleFinish: "最终屏幕", lblFeedbackText: "附加文本", phFeedbackText: "例如：进入下一个任务..."
+    }
+  };
+  let currentLang = "ru";
 
-// АВТО-ОПРЕДЕЛЕНИЕ ПУТИ (Чтобы работали картинки с Гитхаба)
-function getBaseUrl() {
-  const url = window.location.href;
-  if(url.startsWith('blob:')) return CFG.repo || ''; // Если blob, берем из конфига
-  return url.substring(0, url.lastIndexOf('/') + 1);
-}
-const BASE = getBaseUrl();
+  function t(key) {
+    const dict = i18n[currentLang] || i18n.ru;
+    return dict[key] || i18n.ru[key] || key;
+  }
 
-// ИМЕНА БЛОКОВ
-const BLOCK_FILES = ["3.png","4.png","5.png","6.png","7.png","8.png","9.png","10.png","11.png"];
+  function setLanguage(lang) {
+    currentLang = lang;
+    const dict = i18n[lang] || i18n.ru;
+    document.querySelectorAll("[data-i18n]").forEach(el => {
+      const key = el.getAttribute("data-i18n");
+      if (dict[key]) {
+        if (el.tagName === "INPUT" || el.tagName === "TEXTAREA") {
+          el.placeholder = dict[key];
+        } else if (el.hasAttribute("data-i18n-html")) {
+          el.innerHTML = dict[key];
+        } else {
+          if (el.tagName === "OPTION") el.textContent = dict[key];
+          else if (el.childNodes.length) {
+            let foundTextNode = false;
+            for (let node of el.childNodes) {
+              if (node.nodeType === 3 && node.nodeValue.trim().length > 0) {
+                node.nodeValue = dict[key];
+                foundTextNode = true;
+                break;
+              }
+            }
+            if(!foundTextNode) el.textContent = dict[key];
+          } else {
+            el.textContent = dict[key];
+          }
+        }
+      }
+    });
 
-// ИГРОВАЯ ЛОГИКА
-const game = {
-  running: false,
-  level: 0,
-  width: 300, // Начальная ширина (чуть меньше базы 350)
-  pos: 0,     // Позиция X текущего блока
-  speed: 4,
-  dir: 1,
-  current: null, // DOM элемент
+    renderList();
+    if($("selType") && $("selType").value === "choice") renderChoiceUI();
+    else if($("selType") && $("selType").value === "text") renderTextUI();
+  }
+
+  const selLang = document.getElementById("selLang");
+  if (selLang) {
+    selLang.addEventListener("change", (e) => setLanguage(e.target.value));
+  }
+
+  const errbar = document.getElementById("errbar");
+  function showErr(msg){
+    if (!errbar) return;
+    errbar.classList.add("show");
+    errbar.textContent = "Ошибка JS:\n" + msg;
+  }
+  window.addEventListener("error", (e) => { showErr(e?.error?.stack || e?.message || String(e)); });
+  window.addEventListener("unhandledrejection", (e) => { showErr(e?.reason?.stack || e?.reason?.message || String(e?.reason || e)); });
   
-  start: function() {
-    document.getElementById('startScreen').style.display = 'none';
-    
-    // Фон
-    let bgUrl = CFG.bg || (BASE + "1.png");
-    document.getElementById('bg').style.backgroundImage = `url('${bgUrl}')`;
+  const $ = (id)=>document.getElementById(id);
+  const __GAME_CSS__ = `@import url('https://fonts.googleapis.com/css2?family=Caveat:wght@500&family=Neucha&display=swap');
+    :root{
+      --hud-bg: rgba(10, 12, 18, .55);
+      --panel-bg: rgba(20, 22, 30, .78);
+      --panel-stroke: rgba(255,255,255,.12);
+      --text: rgba(255,255,255,.92);
+      --muted: rgba(255,255,255,.72);
+      --good: rgba(120, 255, 170, .95);
+      --bad: rgba(255, 120, 140, .95);
+      --shadow: 0 18px 60px rgba(0,0,0,.35);
+    }
+    html,body{height:100%;margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;color:var(--text);overflow:hidden;background:#000;}
+    #wrap{position:relative;width:100%;height:100%;}
+    canvas{width:100%;height:100%;display:block;}
 
-    this.running = true;
-    this.level = 0;
-    this.width = 300;
-    this.spawn();
-    this.loop();
-  },
-
-  spawn: function() {
-    if(this.level >= 9 || this.level >= CFG.qs.length) {
-      this.over(true);
-      return;
+    #hud{
+      position:absolute;
+      left:12px; right:12px; top:12px;
+      display:flex; gap:12px; align-items:center;
+      pointer-events:none;
+      z-index: 3;
+    }
+    .pill{
+      background:var(--hud-bg);
+      border:1px solid rgba(255,255,255,.10);
+      border-radius:999px;
+      padding:10px 14px;
+      box-shadow:var(--shadow);
+      backdrop-filter: blur(10px);
+      display:flex; gap:10px; align-items:center;
+      white-space:nowrap;
+    }
+    #progressWrap{
+      flex:1;
+      background:var(--hud-bg);
+      border:1px solid rgba(255,255,255,.10);
+      border-radius:999px;
+      padding:10px 14px;
+      box-shadow:var(--shadow);
+      backdrop-filter: blur(10px);
+      display:flex; align-items:center; gap:10px;
+      min-width:160px;
+      pointer-events:none;
+    }
+    #bar{
+      height:10px; flex:1;
+      background:rgba(255,255,255,.12);
+      border-radius:999px;
+      overflow:hidden;
+      border:1px solid rgba(255,255,255,.10);
+    }
+    #bar>div{
+      height:100%; width:0%;
+      background: linear-gradient(90deg, rgba(120,190,255,.9), rgba(120,255,170,.85));
+      border-radius:999px;
     }
 
-    // Создаем блок
-    const el = document.createElement('div');
-    el.className = 'block';
-    el.style.width = this.width + 'px';
-    // Позиция Y: база(40) + уровень*50
-    el.style.bottom = (40 + this.level * 50) + 'px'; 
-    el.style.left = '50%';
-    
-    // Картинка блока
-    const imgName = BLOCK_FILES[this.level % BLOCK_FILES.length];
-    const imgUrl = BASE + imgName;
-    
-    // Пробуем загрузить картинку, если нет - останется градиент
-    const img = new Image();
-    img.onload = () => { el.style.backgroundImage = `url('${imgUrl}')`; el.style.border='none'; };
-    img.src = imgUrl;
+    #scorePill{ margin-left:auto; }
+    #scoreNum{ font-weight:900; letter-spacing:.2px; }
+    #leftPill{ gap:12px; }
+    #remainNum{ font-weight:900; }
 
-    document.getElementById('stage').appendChild(el);
-    
-    this.current = el;
-    this.pos = -250; // Старт слева
-    this.dir = 1;
-    this.running = true;
-    
-    this.fitCamera();
-  },
+    #nextBtn{
+      position:absolute;
+      left:50%;
+      bottom:88px;
+      transform: translateX(160px);
+      pointer-events:auto;
+      border-radius:16px;
+      padding:12px 14px;
+      border:1px solid rgba(120,190,255,.35);
+      background: rgba(120,190,255,.22);
+      color: var(--text);
+      font-weight: 900;
+      cursor:pointer;
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(10px);
+      transition: transform .08s ease, filter .12s ease, opacity .12s ease;
+      user-select:none;
+      z-index: 4;
+    }
+    #nextBtn:active{ transform: translateX(160px) scale(.99); }
+    #nextBtn[disabled]{ opacity:.45; cursor:not-allowed; filter:saturate(.7); }
 
-  loop: function() {
-    if(!game.running || !game.current) return;
-    
-    game.pos += game.speed * game.dir;
-    // Границы движения
-    if(game.pos > 250) game.dir = -1;
-    if(game.pos < -250) game.dir = 1;
-    
-    game.current.style.transform = `translateX(calc(-50% + ${game.pos}px))`;
-    
-    requestAnimationFrame(game.loop);
-  },
-
-  stop: function() {
-    if(!this.running || !this.current) return;
-    this.running = false; // Пауза
-    this.showQuestion();
-  },
-
-  showQuestion: function() {
-    const q = CFG.qs[this.level];
-    const card = document.getElementById('card');
-    const over = document.getElementById('cardOverlay');
-    const area = document.getElementById('ansArea');
-    const media = document.getElementById('mediaBox');
-    
-    document.getElementById('qText').innerText = q.q;
-    document.getElementById('feedback').innerText = '';
-    area.innerHTML = '';
-    media.innerHTML = '';
-
-    // Медиа
-    if(q.media) {
-      if(q.media.startsWith('data:audio')) media.innerHTML = `<audio controls autoplay src="${q.media}"></audio>`;
-      else media.innerHTML = `<img src="${q.media}">`;
+    #overlay{
+      position:absolute; inset:0;
+      display:none; align-items:center; justify-content:center;
+      background: rgba(0,0,0,.25);
+      backdrop-filter: blur(6px);
+      z-index: 5;
+    }
+    #card{
+      width:min(640px, calc(100% - 24px));
+      background:var(--panel-bg);
+      border:1px solid var(--panel-stroke);
+      border-radius:18px;
+      box-shadow:var(--shadow);
+      padding:18px 18px 14px;
+      transform: translateY(10px) scale(.96);
+      opacity: 0;
+      transition: transform .18s ease, opacity .18s ease;
+      will-change: transform, opacity;
+    }
+    #overlay.show #card{
+      transform: translateY(0) scale(1);
+      opacity: 1;
     }
 
-    // Кнопки
-    if(q.type === 'choice') {
-      q.o.forEach(opt => {
-        const btn = document.createElement('button');
-        btn.className = 'ans-btn';
-        btn.innerText = opt;
-        btn.onclick = () => this.check(opt);
-        area.appendChild(btn);
-      });
-    } else {
-      const inp = document.createElement('input');
-      inp.className = 'inp'; inp.placeholder = 'Ответ...';
-      const btn = document.createElement('button');
-      btn.className = 'ans-btn';
-      btn.style.textAlign='center'; btn.innerText='ОТВЕТИТЬ';
-      btn.onclick = () => this.check(inp.value);
-      area.appendChild(inp); area.appendChild(btn);
+    #cardHeader{
+      display:flex; align-items:flex-start; justify-content:space-between;
+      gap:12px; margin-bottom:12px;
+    }
+    #title{ font-size:16px; color:var(--muted); letter-spacing:.2px; font-family: system-ui, sans-serif; }
+    #q{ font-size:20px; line-height:1.25; margin-top:6px; }
+    #badge{
+      border-radius:999px; padding:6px 10px;
+      border:1px solid rgba(255,255,255,.12);
+      color:var(--muted); font-size:12px; white-space:nowrap;
+      font-family: system-ui, sans-serif;
+    }
+    #answers{ display:flex; flex-direction:column; gap:10px; margin-top:14px; }
+    .btn{
+      width:100%; text-align:left;
+      background:rgba(255,255,255,.08);
+      border:1px solid rgba(255,255,255,.12);
+      border-radius:14px;
+      padding:12px 12px;
+      color:var(--text);
+      cursor:pointer;
+      transition: transform .08s ease, background .12s ease;
+      font-size: 16px;
+    }
+    .btn:hover{ background:rgba(255,255,255,.11); }
+    .btn:active{ transform:scale(.99); }
+    /* Для мульти-выбора: */
+    .btn.selected {
+      background: rgba(120,255,170,.25) !important;
+      border-color: rgba(120,255,170,.5) !important;
+      transform: scale(0.98);
     }
 
-    over.style.display = 'block';
-    card.classList.add('show');
-  },
-
-  check: function(val) {
-    const q = CFG.qs[this.level];
-    let ok = false;
-    if(Array.isArray(q.a)) ok = q.a.some(x => x.toLowerCase().trim() == String(val).toLowerCase().trim());
-    else ok = String(q.a).toLowerCase().trim() == String(val).toLowerCase().trim();
-
-    const fb = document.getElementById('feedback');
-    if(ok) {
-      fb.innerText = "ВЕРНО!";
-      fb.style.color = "#4ade80";
-      setTimeout(() => {
-        document.getElementById('cardOverlay').style.display='none';
-        document.getElementById('card').classList.remove('show');
-        this.placeBlock();
-      }, 1000);
-    } else {
-      fb.innerText = "ОШИБКА!";
-      fb.style.color = "#ef4444";
-      setTimeout(() => this.over(false), 1000);
+    #inputRow{ display:none; gap:10px; align-items:center; margin-top:12px; flex-wrap:wrap;}
+    #ansInput{
+      flex:1;
+      background:rgba(255,255,255,.07);
+      border:1px solid rgba(255,255,255,.14);
+      border-radius:14px;
+      padding:12px 12px;
+      color:var(--text);
+      outline:none;
+      font-size:16px;
     }
-  },
-
-  placeBlock: function() {
-    // Расчет наложения (Stack logic)
-    // Предыдущая позиция X (центр экрана = 0)
-    // У нас pos - это смещение от центра.
-    // Если уровень 0, центр 0. Иначе берем предыдущий x.
-    
-    // Но для упрощения: мы всегда центрируем предыдущий блок визуально?
-    // Нет, это "Stack". Нужно обрезать.
-    
-    // Немного упростим логику: 
-    // Если pos > width/2 -> промах.
-    // Иначе уменьшаем width.
-    
-    const offset = Math.abs(this.pos);
-    
-    if(offset > this.width) {
-      this.over(false);
-      return;
+    #submit{
+      background:rgba(120,190,255,.20);
+      border:1px solid rgba(120,190,255,.35);
+      border-radius:14px;
+      padding:12px 14px;
+      cursor:pointer;
+      color:var(--text);
+      font-weight:800;
+      min-width: 80px;
     }
-    
-    // Обрезаем
-    const newWidth = this.width - offset;
-    this.width = newWidth;
-    
-    // Визуально обновляем текущий блок
-    this.current.style.width = newWidth + 'px';
-    // Сдвигаем его, чтобы край совпадал
-    // (В полной версии Stack надо сдвигать центр, тут оставим центровку по pos для простоты визуала, 
-    // так как мы не сохраняем X предыдущего в этой упрощенной версии, а просто сужаем)
-    
-    this.level++;
-    this.speed += 0.2;
-    
-    document.getElementById('score').innerText = this.level * 100;
-    document.getElementById('level').innerText = this.level;
-    
-    setTimeout(() => this.spawn(), 300);
-  },
+    #submit:hover{ background:rgba(120,190,255,.26); }
 
-  over: function(win) {
-    document.getElementById('cardOverlay').style.display='none';
-    document.getElementById('card').classList.remove('show');
-    document.getElementById('endScreen').style.display='flex';
-    const t = document.getElementById('endTitle');
-    
-    if(win) { t.innerText="ПОБЕДА!"; t.style.color="#4ade80"; }
-    else { t.innerText="УПАЛА..."; t.style.color="#ef4444"; }
-    
-    document.getElementById('finalScore').innerText = this.level * 100;
-  },
+    #msg{ margin-top:12px; min-height:18px; font-size:14px; color:var(--muted); font-family: system-ui, sans-serif; }
+    #hint{ margin-top:10px; font-size:12px; color:rgba(255,255,255,.55); font-family: system-ui, sans-serif; }
 
-  fitCamera: function() {
-    // Зум чтобы влезало
-    const h = (this.level + 2) * 50;
-    const wh = window.innerHeight;
-    if(h > wh * 0.7) {
-      const s = (wh * 0.7) / h;
-      document.getElementById('stage').style.transform = `scale(${s})`;
+    #start{
+      position:absolute; inset:0;
+      display:flex; align-items:center; justify-content:center;
+      background: radial-gradient(1200px 800px at 50% 45%, rgba(0,0,0,.15), rgba(0,0,0,.55));
+      backdrop-filter: blur(3px);
+      z-index: 6;
+    }
+    #startCard{
+      width:min(700px, calc(100% - 24px));
+      background: rgba(20, 22, 30, .75);
+      border: 1px solid rgba(255,255,255,.12);
+      border-radius: 18px;
+      box-shadow: var(--shadow);
+      padding: 18px;
+    }
+    #startCard h1{ margin:0 0 8px 0; font-size:24px; }
+    #startCard p{ margin:0 0 14px 0; color: var(--text); line-height:1.4; font-size: 16px; }
+    #play{
+      display:inline-flex; gap:10px; align-items:center;
+      padding:12px 14px;
+      border-radius:14px;
+      border:1px solid rgba(120,190,255,.35);
+      background: rgba(120,190,255,.22);
+      color: var(--text);
+      font-weight:900;
+      cursor:pointer;
+    }
+    #play:hover{ background: rgba(120,190,255,.28); }
+
+    #err{
+      display:none;
+      margin-top:12px;
+      padding:12px;
+      border-radius:14px;
+      border:1px solid rgba(255,120,140,.35);
+      background: rgba(255,120,140,.12);
+      color: rgba(255,235,238,.95);
+      font-size:13px;
+      line-height:1.35;
+    }
+    #err ul{ margin:8px 0 0 18px; }
+    code{background:rgba(255,255,255,.08); padding:2px 6px; border-radius:8px; border:1px solid rgba(255,255,255,.12);}
+
+    #finish{
+      position:absolute; inset:0;
+      display:none; align-items:center; justify-content:center;
+      background: rgba(0,0,0,.35);
+      backdrop-filter: blur(8px);
+      z-index: 7;
+    }
+    #finishCard{
+      width:min(720px, calc(100% - 24px));
+      border-radius:20px;
+      border:1px solid rgba(255,255,255,.14);
+      background: rgba(18, 20, 28, .75);
+      box-shadow: var(--shadow);
+      padding: 18px 18px 16px;
+      text-align:center;
+    }
+    #finishTitle{
+      font-size:30px; font-weight:1000; letter-spacing:.3px;
+      margin: 4px 0 8px;
+      background: linear-gradient(90deg, rgba(120,190,255,.95), rgba(120,255,170,.95));
+      -webkit-background-clip:text;
+      background-clip:text;
+      color:transparent;
+    }
+    #finishText{
+      color: rgba(255,255,255,.82);
+      font-size:18px;
+      margin: 0 0 10px;
+    }
+    #stats{
+      display:flex;
+      justify-content:center;
+      gap:12px;
+      flex-wrap:wrap;
+      margin: 10px 0 14px;
+    }
+    .stat{
+      background: rgba(255,255,255,.07);
+      border: 1px solid rgba(255,255,255,.12);
+      border-radius: 14px;
+      padding: 10px 12px;
+      min-width: 160px;
+      text-align:left;
+    }
+    .stat b{ font-size:18px; }
+    .stat div{ color: rgba(255,255,255,.70); font-size:12px; margin-top:4px; }
+    #restart{
+      display:inline-flex; gap:10px; align-items:center;
+      padding:12px 14px;
+      border-radius:14px;
+      border:1px solid rgba(120,190,255,.35);
+      background: rgba(120,190,255,.22);
+      color: var(--text);
+      font-weight:900;
+      cursor:pointer;
+    }
+    #restart:hover{ background: rgba(120,190,255,.28); }
+  
+/* per-question timer badge */
+.qTimer{
+  padding:8px 10px;
+  border-radius:999px;
+  border:1px solid rgba(242,211,122,.35);
+  background: rgba(0,0,0,.35);
+  color: rgba(255,255,255,.95);
+  font-weight:900;
+  font-size:12px;
+  box-shadow: 0 10px 30px rgba(0,0,0,.35);
+  backdrop-filter: blur(10px);
+  font-family: system-ui, sans-serif;
+}
+`;
+  const __GAME_HTML__ = `
+<div id="wrap">
+  <canvas id="c"></canvas>
+
+  <div id="hud">
+    <div class="pill" id="leftPill">
+      Башня: <b id="heightTxt">0</b>
+      <span style="opacity:.5">|</span>
+      Осталось: <b id="remainNum">9</b>
+    </div>
+
+    <div id="progressWrap">
+      Прогресс
+      <div id="bar"><div></div></div>
+      <span id="pct">0%</span>
+    </div>
+
+    <div class="pill" id="scorePill">Счёт: <b id="scoreNum">0</b></div>
+  </div>
+
+  <button id="nextBtn" disabled>Далее →</button>
+
+  <div id="overlay" role="dialog" aria-modal="true">
+    <div id="card">
+      <div id="cardHeader">
+        <div>
+          <div id="title">Вопрос</div>
+          <div id="q">...</div>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:8px">
+          <div id="badge">1 / 9</div>
+          <div id="qTimerBadge" class="qTimer" style="display:none">⏳ 10</div>
+        </div>
+      </div>
+
+      <div id="qMedia" style="display:none; margin-top:10px; margin-bottom:14px; text-align:center;">
+        <img id="qImg" src="" style="max-width:100%; max-height:160px; border-radius:12px; display:none; margin: 0 auto; border:1px solid rgba(255,255,255,.1);" />
+        <audio id="qAudio" controls style="width:100%; height:36px; display:none; margin-top:8px; border-radius:12px;"></audio>
+      </div>
+
+      <div id="answers"></div>
+
+      <div id="inputRow">
+        <input id="ansInput" type="text" placeholder="Введите ответ..." autocomplete="off" />
+        <button id="submit">ОК</button>
+      </div>
+
+      <div id="msg"></div>
+      <div id="hint">Верно → блок опускается и становится этажом (+100). Неверно → обугливание, взрыв и исчезает.</div>
+    </div>
+  </div>
+
+  <div id="start">
+    <div id="startCard">
+      <h1>Башня знаний</h1>
+      <p></p>
+      <button id="play">▶ Начать</button>
+      <div id="err">
+        <b>Не получилось загрузить файлы.</b> Убедись, что они лежат рядом с <code>index.html</code> и имена совпадают.
+        <ul id="errList"></ul>
+      </div>
+    </div>
+  </div>
+
+  <div id="finish">
+    <div id="finishCard">
+      <div id="finishTitle">Отлично!</div>
+      <div id="finishText">Заработано <b id="finishScore">0</b> баллов из 900</div>
+      <div id="finishCustomText" style="color:var(--text); margin-bottom:14px; font-size:16px; line-height:1.4; display:none;"></div>
+
+      <div id="stats">
+        <div class="stat"><b id="stCorrect">0</b><div>правильных ответов</div></div>
+        <div class="stat"><b id="stWrong">0</b><div>неправильных ответов</div></div>
+        <div class="stat"><b id="stHeight">0</b><div>блоков в башне</div></div>
+      </div>
+
+      <button id="restart">↻ Сыграть ещё раз</button>
+    </div>
+  </div>
+</div>
+`;
+
+  const __GAME_JS__ = `
+function thudSound(){try{const ctx=window.__audioCtx||(window.__audioCtx=new (window.AudioContext||window.webkitAudioContext)());const o=ctx.createOscillator();const g=ctx.createGain();o.type='sine';o.frequency.setValueAtTime(120,ctx.currentTime);o.frequency.exponentialRampToValueAtTime(55,ctx.currentTime+0.10);g.gain.setValueAtTime(0.0001,ctx.currentTime);g.gain.exponentialRampToValueAtTime(0.22,ctx.currentTime+0.015);g.gain.exponentialRampToValueAtTime(0.0001,ctx.currentTime+0.18);o.connect(g);g.connect(ctx.destination);o.start();o.stop(ctx.currentTime+0.20);}catch(e){}}
+
+const BG_FILE = "1.png";
+const BLOCK_FILES = ["3.png","4.png","5.png","6.png","7.png","8.png","9.png","10.png","11.png"];
+const SCORE_PER_BLOCK = 100;
+let QUESTIONS = [];
+
+const FALL_SPEED = 620;
+const DROP_SPEED = 900;
+const SHAKE_ON_BOOM = 18;
+const SHAKE_ON_LAND = 7;
+const TARGET_BLOCKS_FOR_100 = 9;
+const SAFE_TOP_MARGIN = 86;
+const SAFE_BOTTOM_MARGIN = 100;
+const DESIRED_TOWER_WIDTH = () => Math.min(window.innerWidth * 0.38, 360);
+const TRIM_ALPHA_MIN = 34;
+const PROFILE_ALPHA_MIN = 22;
+const CENTROID_ALPHA_MIN = 24;
+const LAND_BOUNCE_UP = 10; 
+const LAND_BOUNCE_TIME = 0.10;  
+
+const canvas = document.getElementById("c");
+const ctx = canvas.getContext("2d", {alpha: false});
+
+const overlay = document.getElementById("overlay");
+const qEl = document.getElementById("q");
+const badgeEl = document.getElementById("badge");
+const answersEl = document.getElementById("answers");
+const inputRow = document.getElementById("inputRow");
+const ansInput = document.getElementById("ansInput");
+const submitBtn = document.getElementById("submit");
+const msgEl = document.getElementById("msg");
+const startLayer = document.getElementById("start");
+const playBtn = document.getElementById("play");
+const finishLayer = document.getElementById("finish");
+const finishScoreEl = document.getElementById("finishScore");
+const stCorrect = document.getElementById("stCorrect");
+const stWrong = document.getElementById("stWrong");
+const stHeight = document.getElementById("stHeight");
+const restartBtn = document.getElementById("restart");
+const errBox = document.getElementById("err");
+const errList = document.getElementById("errList");
+const heightTxt = document.getElementById("heightTxt");
+const remainNum = document.getElementById("remainNum");
+const pctTxt = document.getElementById("pct");
+const barFill = document.querySelector("#bar > div");
+const scoreNum = document.getElementById("scoreNum");
+const nextBtn = document.getElementById("nextBtn");
+
+let W=0,H=0,DPR=1;
+function resize(){
+  DPR = Math.max(1, Math.floor(window.devicePixelRatio || 1));
+  W = Math.floor(window.innerWidth);
+  H = Math.floor(window.innerHeight);
+  canvas.width = W * DPR;
+  canvas.height = H * DPR;
+  ctx.setTransform(DPR,0,0,DPR,0,0);
+}
+window.addEventListener("resize", resize);
+resize();
+let audioCtx=null;
+function ensureAudio(){ if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)(); }
+function playBoom(){ /* audio logic */ }
+function playGood(){ /* audio logic */ }
+
+function assetUrl(file){ return new URL(file, new URL(".", window.location.href)).toString(); }
+function loadImage(url){
+  return new Promise((resolve, reject)=>{
+    const img=new Image();
+    img.crossOrigin="anonymous";
+    img.onload=()=>resolve(img);
+    img.onerror=()=>reject(new Error(url));
+    img.src=url;
+  });
+}
+
+function buildTopBottomProfiles(imageData, w, h){
+  const d = imageData.data;
+  const top = new Array(w).fill(h);
+  const bottom = new Array(w).fill(-1);
+  for(let x=0;x<w;x++){
+    for(let y=0;y<h;y++){
+      if(d[(y*w + x)*4 + 3] >= PROFILE_ALPHA_MIN){ top[x]=y; break; }
+    }
+    for(let y=h-1;y>=0;y--){
+      if(d[(y*w + x)*4 + 3] >= PROFILE_ALPHA_MIN){ bottom[x]=y; break; }
+    }
+    if(bottom[x] < 0){ bottom[x] = h-1; }
+    if(top[x] >= h){ top[x] = 0; }
+  }
+  return { top, bottom };
+}
+
+function trimAndCentroidAndProfiles(img){
+  const c=document.createElement("canvas");
+  c.width=img.width; c.height=img.height;
+  const g=c.getContext("2d", {willReadFrequently: true});
+  g.drawImage(img,0,0);
+  const im=g.getImageData(0,0,c.width,c.height);
+  const d=im.data;
+  let minX=c.width, minY=c.height, maxX=-1, maxY=-1;
+  let sumA=0, sumX=0, sumY=0;
+
+  for(let y=0;y<c.height;y++){
+    for(let x=0;x<c.width;x++){
+      const a = d[(y*c.width + x)*4 + 3];
+      if(a >= TRIM_ALPHA_MIN){
+        if(x<minX) minX=x; if(y<minY) minY=y;
+        if(x>maxX) maxX=x; if(y>maxY) maxY=y;
+      }
+      if(a >= CENTROID_ALPHA_MIN){
+        sumA += a;
+        sumX += x*a; sumY += y*a;
+      }
     }
   }
+
+  if(maxX<0 || maxY<0) return Promise.resolve({ img, w: img.width, h: img.height, cx: img.width/2, cy: img.height/2, top:null, bottom:null });
+  const w = (maxX-minX+1);
+  const h = (maxY-minY+1);
+  const outC=document.createElement("canvas");
+  outC.width=w; outC.height=h;
+  const og=outC.getContext("2d", {willReadFrequently: true});
+  og.drawImage(c, minX, minY, w, h, 0, 0, w, h);
+
+  const cropped = og.getImageData(0,0,w,h);
+  const { top, bottom } = buildTopBottomProfiles(cropped, w, h);
+  let cx=w/2, cy=h/2;
+  if(sumA>0){ cx = (sumX/sumA) - minX; cy = (sumY/sumA) - minY; }
+
+  return Promise.resolve({ img: outC, w, h, cx, cy, top, bottom });
+}
+
+const state = {
+  running:false, bg:null, blocks:[], towerScale:1, tower:[], current:null,
+  particles:[], smokes:[], rings:[], sparks:[], flash:0, cameraShake:0, cameraX:0, cameraY:0,
+  towerOffsetY:0, towerOffsetV:0, questionIndex:0, waitingAnswer:false, dropping:false,
+  blockIndex:0, readyForNext:false, finished:false, score:0, scoreFloats:[], correct:0, wrong:0, landingBounce: null
 };
+function setNextEnabled(on){ state.readyForNext = on; nextBtn.disabled = !on; }
+function updateRemain(){ remainNum.textContent = String(Math.max(0, 9 - state.questionIndex)); }
+function groundY(){ return H - 70 + state.towerOffsetY; }
+function alignedXForIdx(idx){ return (W/2) - (state.blocks[idx].cx * state.towerScale); }
+function blockSize(idx){ return { w: state.blocks[idx].w*state.towerScale, h: state.blocks[idx].h*state.towerScale }; }
+function computeTowerScale(blocks){
+  const maxW = Math.max(...blocks.map(b => b.w));
+  const totalH = blocks.reduce((s,b)=>s+b.h,0);
+  const scaleByWidth = DESIRED_TOWER_WIDTH() / maxW;
+  const availableH = Math.max(220, H - SAFE_TOP_MARGIN - SAFE_BOTTOM_MARGIN);
+  return Math.min(scaleByWidth, availableH / totalH);
+}
+function computeStackY(upper, lower){
+  const su = state.towerScale; const upperMeta = state.blocks[upper.idx];
+  const lowerMeta = state.blocks[lower.idx];
+  const overlapLeft = Math.max(upper.x, lower.x); const overlapRight = Math.min(upper.x + upper.w, lower.x + lower.w);
+  if(overlapRight <= overlapLeft + 2) return Math.round(lower.y - upper.h);
+  let yMaxAllowed = Infinity;
+  for(let wx = overlapLeft; wx <= overlapRight; wx += 2){
+    const xu = Math.floor((wx - upper.x) / su);
+    const xl = Math.floor((wx - lower.x) / su);
+    if(xu < 0 || xu >= upperMeta.w || xl < 0 || xl >= lowerMeta.w) continue;
+    const allowed = lower.y + lowerMeta.top[xl]*su - upperMeta.bottom[xu]*su;
+    if(allowed < yMaxAllowed) yMaxAllowed = allowed;
+  }
+  return Math.round(yMaxAllowed) - 1;
+}
 
-// Start handler
-document.getElementById('startBtn').addEventListener('click', () => game.start());
+function spawnBlock(){
+  if(state.finished) return;
+  if(state.blockIndex >= 9){ finishGame(); return; }
+  const idx = state.blockIndex; const {w,h} = blockSize(idx);
+  state.current = { idx, w,h, x: alignedXForIdx(idx), y: -h - 30, char:0 };
+  state.dropping=false; state.waitingAnswer=false; state.landingBounce=null;
+  setNextEnabled(false);
+}
 
-// Click handler (игнорируем клики по UI)
-document.addEventListener('pointerdown', (e) => {
-  if(e.target.closest('button') || e.target.closest('input') || e.target.closest('.screen') || e.target.closest('#card')) return;
-  if(game.running && game.current) game.stop();
+function addScorePop(x,y, text){ state.scoreFloats.push({ x, y, vx: (Math.random()*2-1)*30, vy: -160 - Math.random()*60, life: 0.85, age: 0, text }); }
+
+function sparksAtSeam(x, y){
+  for(let i=0;i<18;i++){
+    const a = (-Math.PI/2) + (Math.random()*Math.PI*0.9 - Math.PI*0.45);
+    const sp = 220 + Math.random()*360;
+    state.sparks.push({ x: x + (Math.random()*40 - 20), y: y + (Math.random()*6 - 3), vx: Math.cos(a)*sp, vy: Math.sin(a)*sp - (40+Math.random()*60), life: 0.45 + Math.random()*0.2, age: 0 });
+  }
+}
+
+function dustAt(x,y){
+  for(let i=0;i<10;i++){
+    const a=Math.random()*Math.PI*2; const sp=30+Math.random()*110;
+    state.smokes.push({ x:x + (Math.random()*18-9), y:y + (Math.random()*10-5), vx:Math.cos(a)*sp, vy:Math.sin(a)*sp - (30+Math.random()*40), life:0.55+Math.random()*0.35, age:0, rad: 10+Math.random()*14 });
+  }
+}
+
+function settleCurrentBlock(){
+  const b = state.current;
+  let yFinal = (state.tower.length===0) ? Math.round(groundY() - b.h) : computeStackY(b, state.tower[state.tower.length - 1]);
+  const yUp = Math.max(-200, yFinal - LAND_BOUNCE_UP);
+  state.landingBounce = { fromY: yUp, toY: yFinal, age: 0, dur: LAND_BOUNCE_TIME };
+  b.x = Math.round(b.x); b.y = yUp;
+}
+
+function finalizeLand(){
+  try{ thudSound(); }catch(e){}
+  const b = state.current; if(!b) return;
+  const seamY = b.y + b.h; sparksAtSeam(W/2, seamY);
+  state.tower.push({ x: Math.round(b.x), y: Math.round(b.y), w: b.w, h: b.h, idx: b.idx, squash:1.0, squashV:0.0 });
+  state.score += SCORE_PER_BLOCK; scoreNum.textContent = String(state.score);
+  addScorePop(W/2 + 70, b.y + 30, "+" + SCORE_PER_BLOCK);
+  dustAt(W/2, seamY);
+  state.cameraShake = Math.max(state.cameraShake, SHAKE_ON_LAND); state.towerOffsetV -= 120; state.current = null;
+}
+
+function boomAt(block){
+  const cx = block.x + block.w/2;
+  const cy = block.y + block.h/2;
+  state.flash = Math.min(1, state.flash + 0.95);
+  state.rings.push({ x:cx, y:cy, r:10, vr: 900, life:0.45, age:0 });
+  for(let i=0;i<44;i++){
+    const a=Math.random()*Math.PI*2; const sp=160+Math.random()*720;
+    state.particles.push({ x:cx,y:cy, vx:Math.cos(a)*sp, vy:Math.sin(a)*sp-(260+Math.random()*360), life:0.55+Math.random()*0.35, age:0, r:2+Math.random()*4 });
+  }
+  for(let i=0;i<14;i++){
+    const a=Math.random()*Math.PI*2; const sp=50+Math.random()*210;
+    state.smokes.push({ x:cx,y:cy, vx:Math.cos(a)*sp, vy:Math.sin(a)*sp-(90+Math.random()*120), life:1.1+Math.random()*0.8, age:0, rad: 22+Math.random()*26 });
+  }
+  state.cameraShake = Math.max(state.cameraShake, SHAKE_ON_BOOM); playBoom();
+}
+
+function finishGame(){
+  state.finished = true; setNextEnabled(false);
+  finishScoreEl.textContent = String(state.score); stCorrect.textContent = String(state.correct);
+  stWrong.textContent = String(state.wrong); stHeight.textContent = String(state.tower.length);
+  const fCustom = document.getElementById("finishCustomText");
+  if(fCustom){
+     const txt = window.__CFG?.feedback?.text || "";
+     fCustom.innerHTML = String(txt).replace(/\\n/g, "<br/>");
+     fCustom.style.display = txt.trim() ? "block" : "none";
+  }
+
+  finishLayer.style.display="flex";
+}
+
+restartBtn.addEventListener("click", async ()=>{ finishLayer.style.display="none"; startLayer.style.display="flex"; });
+
+function showOverlayAnimated(){ overlay.style.display="flex"; requestAnimationFrame(()=> overlay.classList.add("show")); }
+function hideOverlayAnimated(){ overlay.classList.remove("show"); setTimeout(()=>{ overlay.style.display="none"; }, 140); }
+
+function update(dt){
+  if(!state.running) return;
+  updateRemain();
+  if(state.cameraShake>0){ state.cameraShake=Math.max(0, state.cameraShake - dt*22);
+    const s=state.cameraShake; state.cameraX=(Math.random()*2-1)*s; state.cameraY=(Math.random()*2-1)*s; } else { state.cameraX=0; state.cameraY=0; }
+  state.flash = Math.max(0, state.flash - dt*3.8);
+  const aT = -55*(state.towerOffsetY) - 10*state.towerOffsetV; state.towerOffsetV += aT*dt; state.towerOffsetY += state.towerOffsetV*dt; state.towerOffsetY = Math.max(-10, Math.min(10, state.towerOffsetY));
+  for(const b of state.tower){ const aB=-40*(b.squash-1)-8*b.squashV; b.squashV += aB*dt; b.squash += b.squashV*dt; b.squash = Math.max(0.88, Math.min(1.08, b.squash)); }
+  for(const p of state.particles){ p.age += dt; p.vy += 980*dt; p.x += p.vx*dt; p.y += p.vy*dt; } state.particles = state.particles.filter(p => p.age < p.life);
+  for(const s of state.smokes){ s.age += dt; s.vy += 120*dt; s.x += s.vx*dt; s.y += s.vy*dt; } state.smokes = state.smokes.filter(s => s.age < s.life);
+  for(const r of state.rings){ r.age += dt; r.r += r.vr*dt; } state.rings = state.rings.filter(r => r.age < r.life);
+  for(const sp of state.sparks){ sp.age += dt; sp.vy += 980*dt; sp.x += sp.vx*dt; sp.y += sp.vy*dt; sp.vx *= (1 - dt*1.8); } state.sparks = state.sparks.filter(s => s.age < s.life);
+  for(const f of state.scoreFloats){ f.age += dt; f.vy += 260*dt; f.x += f.vx*dt; f.y += f.vy*dt; } state.scoreFloats = state.scoreFloats.filter(f => f.age < f.life);
+  
+  if(state.landingBounce && state.current){
+    const bb = state.landingBounce; bb.age += dt; const t = Math.min(1, bb.age / bb.dur);
+    const ease = 1 - Math.pow(1 - t, 3);
+    state.current.y = Math.round(bb.fromY + (bb.toY - bb.fromY)*ease);
+    if(state.tower.length>0){ state.tower[state.tower.length-1].squashV += 14 * dt; }
+    if(t >= 1){ state.landingBounce = null; finalizeLand(); setNextEnabled(true); }
+  }
+
+  if(state.current && !state.landingBounce){
+    const b = state.current;
+    if(state.dropping){
+      let yTarget = (state.tower.length===0) ? groundY() - b.h : computeStackY(b, state.tower[state.tower.length - 1]);
+      b.y += DROP_SPEED*dt;
+      if(b.y >= yTarget){ b.y = yTarget; settleCurrentBlock(); }
+    } else if(!state.waitingAnswer) {
+      const topY = (state.tower.length===0 ? groundY() : state.tower[state.tower.length-1].y);
+      const stopY = Math.max(80, topY - b.h - 18);
+      b.y += FALL_SPEED*dt;
+      if(b.y>=stopY){ b.y=stopY; state.waitingAnswer=true; showQuestion(); }
+    }
+  }
+
+  heightTxt.textContent = String(state.tower.length);
+  const pct = Math.max(0, Math.min(100, Math.round((state.tower.length / TARGET_BLOCKS_FOR_100)*100)));
+  pctTxt.textContent = pct + "%"; barFill.style.width = pct + "%";
+}
+
+function drawBackground(){
+  if(state.bg){
+    const scale=Math.max(W/state.bg.width,H/state.bg.height);
+    const dw=state.bg.width*scale, dh=state.bg.height*scale;
+    ctx.drawImage(state.bg,(W-dw)/2,(H-dh)/2,dw,dh);
+  } else {
+    ctx.fillStyle="#0b0f18"; ctx.fillRect(0,0,W,H);
+  }
+  const grd=ctx.createRadialGradient(W*0.5,H*0.45,60, W*0.5,H*0.5, Math.max(W,H)*0.7);
+  grd.addColorStop(0,"rgba(0,0,0,0)"); grd.addColorStop(1,"rgba(0,0,0,0.45)");
+  ctx.fillStyle=grd; ctx.fillRect(0,0,W,H);
+  ctx.fillStyle="rgba(0,0,0,.35)"; ctx.fillRect(0,H-70,W,70);
+}
+
+function drawBlock(o, glow=false, squash=1.0, char=0){
+  const img = state.blocks[o.idx].img;
+  ctx.save();
+  ctx.shadowColor = glow ? "rgba(120,190,255,.35)" : "rgba(0,0,0,.45)";
+  ctx.shadowBlur  = glow ? 18 : 14;
+  const cx = o.x + o.w/2;
+  const cy = o.y + o.h;
+  ctx.translate(cx, cy); ctx.scale(1 + (1 - squash) * 0.35, squash); ctx.translate(-cx, -cy);
+  ctx.drawImage(img, o.x, o.y, o.w, o.h);
+  if(char > 0){
+    ctx.globalCompositeOperation = "source-atop";
+    ctx.fillStyle = "rgba(0,0,0," + (0.70*char) + ")"; ctx.fillRect(o.x-2, o.y-2, o.w+4, o.h+4);
+    ctx.globalCompositeOperation = "screen";
+    ctx.fillStyle = "rgba(255,120,60," + (0.10*char) + ")"; ctx.fillRect(o.x-2, o.y-2, o.w+4, o.h+4);
+    ctx.globalCompositeOperation = "source-over";
+  }
+  ctx.restore();
+}
+
+function drawScorePops(){
+  for(const f of state.scoreFloats){
+    const a = Math.max(0, 1 - (f.age / f.life));
+    const s = 1 + (1 - a) * 0.15;
+    ctx.save(); ctx.globalAlpha = a; ctx.translate(f.x, f.y); ctx.scale(s, s);
+    ctx.font = "900 22px system-ui, sans-serif"; ctx.lineWidth = 5; ctx.strokeStyle = "rgba(0,0,0,.35)";
+    ctx.strokeText(f.text, 0, 0); ctx.fillStyle = "rgba(120,255,170,.95)";
+    ctx.fillText(f.text, 0, 0); ctx.restore();
+  }
+}
+
+function draw(){
+  ctx.clearRect(0,0,W,H); ctx.save(); ctx.translate(state.cameraX, state.cameraY);
+  drawBackground();
+  for(const b of state.tower){ drawBlock(b, false, b.squash, 0); }
+  if(state.current){ drawBlock(state.current, true, 1.0, state.current.char || 0); }
+  for(const s of state.smokes){ const t = s.age / s.life;
+    const a = (1 - t) * 0.35; ctx.fillStyle = "rgba(20,20,20," + a + ")"; ctx.beginPath();
+    ctx.arc(s.x, s.y, s.rad * (1 + t*1.25), 0, Math.PI*2); ctx.fill(); }
+  for(const r of state.rings){ const t = r.age / r.life; const a = (1 - t) * 0.55;
+    ctx.strokeStyle = "rgba(255,255,255," + a + ")"; ctx.lineWidth = 3; ctx.beginPath(); ctx.arc(r.x, r.y, r.r, 0, Math.PI*2); ctx.stroke(); }
+  for(const sp of state.sparks){ const t = sp.age / sp.life; const a = Math.max(0, 1 - t);
+    ctx.strokeStyle = "rgba(255,220,140," + (0.9*a) + ")"; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(sp.x, sp.y); ctx.lineTo(sp.x - sp.vx*0.012, sp.y - sp.vy*0.012); ctx.stroke(); }
+  for(const p of state.particles){ const a = 1 - (p.age/p.life); ctx.fillStyle = "rgba(255,200,120," + (0.78*a) + ")"; ctx.beginPath();
+    ctx.arc(p.x, p.y, p.r, 0, Math.PI*2); ctx.fill(); }
+  drawScorePops();
+  if(state.flash>0){ ctx.fillStyle = "rgba(255,255,255," + (state.flash*0.22) + ")"; ctx.fillRect(0,0,W,H); }
+  ctx.restore(); requestAnimationFrame(draw);
+}
+
+let lastT=0;
+function loop(t){ if(!lastT) lastT=t; const dt=Math.min(0.033,(t-lastT)/1000); lastT=t; update(dt); requestAnimationFrame(loop); }
+
+function normalizeAnswer(s){ return String(s||"").trim().toLowerCase(); }
+
+function showQuestion(){
+  const qi = state.questionIndex;
+  const q = QUESTIONS[(QUESTIONS.length? (qi % QUESTIONS.length):0)];
+
+  const fontToApply = q.font || "system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif";
+
+  msgEl.textContent=""; answersEl.innerHTML=""; inputRow.style.display="none"; answersEl.style.display="flex";
+  qEl.textContent=q.q;
+  
+  qEl.style.fontFamily = fontToApply;
+  ansInput.style.fontFamily = fontToApply;
+  submitBtn.style.fontFamily = fontToApply;
+  
+  if(q.fontSize) qEl.style.fontSize = q.fontSize + "px";
+  else qEl.style.fontSize = "";
+
+  badgeEl.textContent= String(qi+1) + " / 9";
+  const qMedia = document.getElementById("qMedia"); const qImg = document.getElementById("qImg"); const qAudio = document.getElementById("qAudio");
+  qImg.style.display = "none"; qAudio.style.display = "none";
+  qMedia.style.display = "none";
+  try { qAudio.pause(); } catch(e){} qImg.src = ""; qAudio.src = "";
+  if(q.image || q.audio) {
+    qMedia.style.display = "block";
+    if(q.image) { qImg.src = q.image; qImg.style.display = "block"; }
+    if(q.audio) { qAudio.src = q.audio; qAudio.style.display = "block"; }
+  }
+
+  ansInput.style.display = "block"; // Reset to default display
+
+  if(q.type==="choice"){
+    const isMulti = q.answers && q.answers.length > 1;
+    const shuffledOpts = [...q.options];
+    for (let i = shuffledOpts.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [shuffledOpts[i], shuffledOpts[j]] = [shuffledOpts[j], shuffledOpts[i]];
+    }
+    for(const opt of shuffledOpts){
+      const btn=document.createElement("button");
+      btn.className="btn"; btn.textContent=opt;
+      btn.style.fontFamily = fontToApply;
+      if (isMulti) {
+        btn.addEventListener("click", ()=> { btn.classList.toggle("selected"); });
+      } else {
+        btn.addEventListener("click", ()=>checkAnswer([opt]));
+      }
+      answersEl.appendChild(btn);
+    }
+    if (isMulti) {
+      inputRow.style.display="flex";
+      ansInput.style.display="none"; // Hide standard text input
+      submitBtn.onclick = () => {
+        const selected = Array.from(answersEl.querySelectorAll(".btn.selected")).map(b => b.textContent);
+        checkAnswer(selected);
+      };
+    }
+  } else { 
+    answersEl.style.display="none"; 
+    inputRow.style.display="flex"; 
+    ansInput.value=""; 
+    submitBtn.onclick = () => checkAnswer(ansInput.value);
+  }
+
+  showOverlayAnimated();
+  setTimeout(()=>{ if(q.type==="input") ansInput.focus(); }, 50);
+
+  try{
+    if(window.__qTimerId){ clearInterval(window.__qTimerId); window.__qTimerId=null; }
+    const secs = (q.seconds!=null) ? Number(q.seconds) : ( (window.__CFG && window.__CFG.timer && window.__CFG.timer.enabled) ? Number(window.__CFG.timer.seconds||0) : null );
+    const timerEl = document.getElementById("qTimerBadge");
+    const txtEl = timerEl ? timerEl.querySelector(".qTimerText") : null;
+    const progEl = timerEl ? timerEl.querySelector(".qTimerProg") : null;
+    const C = 100.53;
+    if(progEl){ progEl.style.strokeDasharray = String(C); progEl.style.strokeDashoffset = String(C); }
+    if(Number.isFinite(secs) && secs>0){
+      const total = Math.max(1, Math.round(secs));
+      let left = total;
+      const paint = ()=>{
+        const p = Math.max(0, Math.min(1, left / total));
+        if(timerEl){
+          timerEl.style.display = ""; timerEl.style.setProperty("--p", String(p)); timerEl.style.setProperty("--h", String(45 * p));
+          if(left <= 5) timerEl.classList.add("qPulse"); else timerEl.classList.remove("qPulse");
+        }
+        if(txtEl){ txtEl.textContent = String(left); } else if(timerEl){ timerEl.textContent = "⏳ " + left; }
+        if(progEl){ progEl.style.strokeDashoffset = String(C * (1 - p)); }
+      };
+      paint();
+      window.__qTimerId = setInterval(()=>{ left--; paint(); if(left<=0){ clearInterval(window.__qTimerId); window.__qTimerId=null; try{ checkAnswer("__TIMEOUT__"); }catch(e){} } },1000);
+    } else {
+      if(timerEl){ timerEl.style.display="none"; timerEl.classList.remove("qPulse"); if(txtEl) txtEl.textContent=""; else timerEl.textContent=""; if(progEl) progEl.style.strokeDashoffset = String(C); }
+    }
+  }catch(e){}
+
+  if (window.__CFG?.useLatex && window.MathJax && window.MathJax.typesetPromise) { setTimeout(() => { window.MathJax.typesetPromise([document.getElementById("card")]).catch(()=>{}); }, 60); }
+}
+
+function __applyTitle__(title){
+  const t = String(title || "Башня знаний"); document.title = t;
+  const h1 = document.querySelector("#startCard h1");
+  if(h1) h1.textContent = t;
+}
+
+function checkAnswer(userValue){
+  try{ if(window.__qTimerId){ clearInterval(window.__qTimerId); window.__qTimerId=null; } }catch(e){}
+  try{ document.getElementById("qAudio").pause(); }catch(e){}
+
+  const qi = state.questionIndex; const q = QUESTIONS[(QUESTIONS.length? (qi % QUESTIONS.length):0)];
+  let ok=false;
+  
+  if(q.type==="input"){
+    const valStr = normalizeAnswer(Array.isArray(userValue) ? userValue[0] : userValue);
+    const acc = (q.accepts && q.accepts.length) ? q.accepts : [q.answer];
+    ok = acc.map(normalizeAnswer).includes(valStr);
+  } else {
+    const userArr = Array.isArray(userValue) ? userValue : [userValue];
+    const qAns = q.answers || [q.answer];
+    if(userArr.length === qAns.length && userArr.length > 0) {
+      const normUser = userArr.map(normalizeAnswer).sort();
+      const normAns = qAns.map(normalizeAnswer).sort();
+      ok = normUser.every((u, i) => u === normAns[i]);
+    }
+  }
+  
+  const waitingBlock = state.current;
+
+  if(ok){
+    state.correct++;
+    msgEl.innerHTML = "<span style='color: var(--good); font-weight:900;'>Верно!</span> Блок опускается (+100).";
+    playGood(); state.dropping = false;
+    setTimeout(()=>{ hideOverlayAnimated(); state.waitingAnswer = false; if(state.current) state.dropping = true; else setNextEnabled(true); }, 220);
+  } else {
+    state.wrong++;
+    msgEl.innerHTML = "<span style='color: var(--bad); font-weight:900;'>Неверно!</span> Блок обугливается и исчезает.";
+    state.dropping = false;
+    const scorchDur = 0.35;
+    let elapsed = 0;
+    function scorchStep(){
+      if(!state.current || state.current !== waitingBlock) return;
+      elapsed += 1/60;
+      state.current.char = Math.min(1, elapsed / scorchDur);
+      if(Math.random() < 0.25){
+        state.smokes.push({ x: waitingBlock.x + waitingBlock.w/2 + (Math.random()*30-15), y: waitingBlock.y + waitingBlock.h/2 + (Math.random()*20-10), vx: (Math.random()*2-1)*40, vy: -80 - Math.random()*80, life:0.6+Math.random()*0.4, age:0, rad: 14+Math.random()*18 });
+      }
+      if(elapsed < scorchDur){ requestAnimationFrame(scorchStep); }
+    }
+    requestAnimationFrame(scorchStep);
+    setTimeout(()=>{ hideOverlayAnimated(); state.waitingAnswer = false; if(waitingBlock && waitingBlock === state.current){ boomAt(waitingBlock); } state.current = null; setNextEnabled(true); }, 520);
+  }
+  state.blockIndex++;
+}
+
+ansInput.addEventListener("keydown",(e)=>{ if(e.key==="Enter") checkAnswer(ansInput.value); });
+document.addEventListener("keydown",(e)=>{ if(overlay.style.display==="flex" && e.key==="Enter"){ const qi=state.questionIndex; if(QUESTIONS[qi].type==="input") checkAnswer(ansInput.value); } });
+nextBtn.addEventListener("click", ()=>{
+  if(nextBtn.disabled) return;
+  state.questionIndex++;
+  if(state.questionIndex >= 9){ finishGame(); return; }
+  spawnBlock();
 });
 
-</script>
-</body>
-</html>
-</script>
+let __assetsPromise = null;
+function doPreload() {
+    if (__assetsPromise) return __assetsPromise;
+    __assetsPromise = (async () => {
+        const missing = [];
+        let bg = null;
+        try { bg = await loadImage((window.__CFG && window.__CFG.bgDataUrl) ? window.__CFG.bgDataUrl : assetUrl(BG_FILE)); } 
+        catch { missing.push((window.__CFG && window.__CFG.bgDataUrl) ? window.__CFG.bgDataUrl : BG_FILE); }
 
-<script>
-// ==========================================
-// СКРИПТ РЕДАКТОРА
-// ==========================================
-let config = { bg: null, qs: [], repo: "" };
-let editId = null;
-let tempMedia = null;
-
-// Авто-определение ссылки на репо
-const repoUrl = window.location.href.substring(0, window.location.href.lastIndexOf('/') + 1);
-config.repo = repoUrl;
-
-function init() { renderList(); updatePreview(); }
-
-// ФУНКЦИЯ ОБНОВЛЕНИЯ ПРЕВЬЮ (САМАЯ ВАЖНАЯ ЧАСТЬ)
-function updatePreview() {
-  const tmpl = document.getElementById("gameTemplate").innerHTML; // Берем HTML из шаблона
-  // Вставляем конфиг
-  const finalHtml = tmpl.replace("{{CONFIG}}", JSON.stringify(config));
-  
-  const frame = document.getElementById("previewFrame");
-  const doc = frame.contentWindow.document;
-  
-  doc.open();
-  doc.write(finalHtml); // Прямая запись в iframe!
-  doc.close();
+        const blockPromises = BLOCK_FILES.map(async f => {
+            try {
+                const raw = await loadImage(assetUrl(f));
+                const t = await trimAndCentroidAndProfiles(raw);
+                return { file:f, img:t.img, w:t.w, h:t.h, cx:t.cx, cy:t.cy, top:t.top, bottom:t.bottom };
+            } catch (e) {
+                missing.push(f);
+                return null;
+            }
+        });
+        
+        const loadedBlocks = await Promise.all(blockPromises);
+        const blocks = [];
+        for(const b of loadedBlocks) { if (b) blocks.push(b); }
+        return { bg, blocks, missing };
+    })();
+    return __assetsPromise;
 }
 
-// Загрузка фона
-function uploadBg(inp) {
-  const f = inp.files[0]; if(!f) return;
-  const r = new FileReader();
-  r.onload = e => { config.bg = e.target.result; document.getElementById("bgStatus").innerText="Файл загружен"; updatePreview(); };
-  r.readAsDataURL(f);
-}
-function clearBg() { config.bg=null; document.getElementById("bgStatus").innerText="ЗАГРУЗИТЬ КАРТИНКУ"; updatePreview(); }
+doPreload();
 
-// Вопросы
-function renderList() {
-  const l = document.getElementById("qList"); l.innerHTML="";
-  document.getElementById("qCount").innerText = config.qs.length;
-  if(!config.qs.length) { l.innerHTML="<div style='text-align:center;color:#444;font-size:11px;padding:10px'>Пусто</div>"; return; }
-  
-  config.qs.forEach((q,i) => {
-    let d = document.createElement("div"); d.className="q-item";
-    d.innerHTML=`<div style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;width:200px"><span style="color:var(--gold);font-weight:bold;margin-right:5px">#${i+1}</span> ${q.q}</div>
-    <div style="display:flex;gap:5px"><button onclick="editQ(${i})" style="background:none;color:#aaa">✏️</button><button onclick="delQ(${i})" style="background:none;color:#ef4444">🗑</button></div>`;
-    l.appendChild(d);
-  });
-}
+async function startGame(){
+  if (window.__CFG?.useLatex && !window.MathJax) {
+    window.MathJax = { tex: { inlineMath: [['$', '$']], displayMath: [['$$', '$$']] }, startup: { typeset: false } };
+    const script = document.createElement('script'); script.src = "https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"; document.head.appendChild(script);
+  }
 
-function openModal() { editId=null; document.getElementById("modal").style.display="flex"; document.getElementById("mText").value=""; tempMedia=null; renderMediaUI(); renderOpts(); }
-function closeModal() { document.getElementById("modal").style.display="none"; }
-
-function uploadMedia(inp) {
-  const f = inp.files[0]; if(!f) return;
-  const r = new FileReader();
-  r.onload = e => { tempMedia = e.target.result; renderMediaUI(); };
-  r.readAsDataURL(f);
-}
-function clearMedia() { tempMedia=null; renderMediaUI(); }
-function renderMediaUI() {
-  const st = document.getElementById("mMediaStatus");
-  if(tempMedia) { st.innerText="Файл готов"; st.style.color="#4ade80"; } 
-  else { st.innerText="Загрузить файл..."; st.style.color="#aaa"; }
-}
-
-function renderOpts() {
-  const t = document.getElementById("mType").value;
-  const c = document.getElementById("mOptsArea"); c.innerHTML="";
-  if(t==="choice") {
-    c.innerHTML = `<div style="display:flex;justify-content:space-between;margin-bottom:5px;font-size:11px;color:#888"><span>ВАРИАНТЫ</span><span onclick="addOpt()" style="cursor:pointer;color:var(--gold)">+ ДОБАВИТЬ</span></div><div id="optsList"></div>`;
-    if(editId===null) { addOpt(); addOpt(); }
-  } else c.innerHTML = `<label class="label">ОТВЕТ</label><input type="text" id="mInp">`;
-}
-
-function addOpt(val="", ok=false) {
-  const l = document.getElementById("optsList"); if(!l) return;
-  let d = document.createElement("div"); d.className="opt-row";
-  d.innerHTML=`<input type="radio" name="ok" class="radio" ${ok?'checked':''}><input type="text" class="opt-val" value="${val}"><button onclick="this.parentElement.remove()" style="background:none;color:#666">✕</button>`;
-  l.appendChild(d);
-}
-
-function editQ(i) {
-  editId=i; const q=config.qs[i];
-  document.getElementById("modal").style.display="flex";
-  document.getElementById("mText").value=q.q;
-  document.getElementById("mType").value=q.type;
-  tempMedia=q.media; renderMediaUI(); renderOpts();
-  if(q.type==='choice') {
-    document.getElementById("optsList").innerHTML="";
-    q.o.forEach(opt => addOpt(opt, q.a.includes(opt)));
-  } else document.getElementById("mInp").value = q.a.join(", ");
-}
-
-function saveQ() {
-  const txt = document.getElementById("mText").value;
-  const type = document.getElementById("mType").value;
-  if(!txt) return;
-  let o = {type:type, q:txt, a:[], media:tempMedia};
-  if(type==='choice') {
-    o.o=[];
-    document.querySelectorAll(".opt-row").forEach(r=>{
-      let v = r.querySelector(".opt-val").value;
-      if(v) { o.o.push(v); if(r.querySelector(".radio").checked) o.a.push(v); }
+  try{
+    if(typeof __applyTitle__ === "function") __applyTitle__(window.__CFG?.title || "Башня знаний");
+    const src = Array.isArray(window.__CFG?.questions) ? window.__CFG.questions : [];
+    if(src.length === 0) QUESTIONS = Array.from({length:9}, (_,i)=>({type:"choice", q:"(вопрос "+(i+1)+")", options:["OK","..."], answers:["OK"], font:"", fontSize:""}));
+    else QUESTIONS = src.map((q,i)=>{
+      if(q && (q.type==="text" || q.type==="input")){
+        const acc = Array.isArray(q.accepts) ? q.accepts.map(String).filter(s=>s.trim()) : [];
+        return { type:"input", q:String(q.prompt||q.q||""), accepts: acc, answer: String(acc[0]||""), seconds:(q.seconds??null), image:(q.image||""), audio:(q.audio||""), font:(q.font||""), fontSize:(q.fontSize||"") };
+      }
+      const opts = Array.isArray(q.options) ? q.options.map(String).filter(s=>s.trim()) : [];
+      const ciArr = Array.isArray(q.correctIndices) ? q.correctIndices : (Number.isFinite(q.correctIndex) ? [q.correctIndex] : [0]);
+      const ansStrs = ciArr.map(idx => String(opts[idx] ?? opts[0] ?? "OK"));
+      
+      return { type:"choice", q:String(q.prompt||q.q||""), options: opts.length?opts:["OK","..."], answers: ansStrs, seconds:(q.seconds??null), 
+               image:(q.image||""), audio:(q.audio||""), font:(q.font||""), fontSize:(q.fontSize||"") };
     });
-    if(!o.a.length) { alert("Выбери правильный!"); return; }
-  } else o.a = document.getElementById("mInp").value.split(",").map(x=>x.trim()).filter(Boolean);
+  }catch(e){}
+
+  ensureAudio(); if(audioCtx && audioCtx.state==="suspended"){ try{ await audioCtx.resume(); }catch(e){} }
+
+  const { bg, blocks, missing } = await doPreload();
+
+  if(missing.length){
+    errBox.style.display="block"; errList.innerHTML="";
+    for(const f of missing){ const li=document.createElement("li"); li.textContent = f + " (не найден/не загружается)"; errList.appendChild(li); }
+    return false;
+  }
   
-  if(editId!==null) config.qs[editId]=o; else config.qs.push(o);
-  closeModal(); renderList(); updatePreview();
+  errBox.style.display="none"; errList.innerHTML="";
+  Object.assign(state, { running:false, bg:null, blocks:[], towerScale:1, tower:[], current:null, particles:[], smokes:[], rings:[], sparks:[], flash:0, cameraShake:0, cameraX:0, cameraY:0, towerOffsetY:0, towerOffsetV:0, questionIndex:0, waitingAnswer:false, dropping:false, blockIndex:0, readyForNext:false, finished:false, score:0, scoreFloats:[], correct:0, wrong:0, landingBounce:null });
+  scoreNum.textContent = "0"; setNextEnabled(false); updateRemain();
+
+  state.bg = bg;
+  state.blocks = blocks;
+  state.towerScale = computeTowerScale(state.blocks);
+  state.running = true;
+  spawnBlock();
+  return true;
 }
 
-function delQ(i) { config.qs.splice(i,1); renderList(); updatePreview(); }
-
-// КОПИРОВАНИЕ ДЛЯ GENIALLY
-function generateCode() {
-  const tmpl = document.getElementById("gameTemplate").innerHTML;
-  const finalHtml = tmpl.replace("{{CONFIG}}", JSON.stringify(config));
-  const b64 = btoa(unescape(encodeURIComponent(finalHtml)));
-  const embed = `<iframe src="data:text/html;base64,${b64}" width="100%" height="600" style="border:0"></iframe>`;
+playBtn.addEventListener("click", async ()=>{
+  const origText = playBtn.innerHTML;
+  playBtn.innerHTML = "⏳ Загрузка...";
+  playBtn.style.opacity = "0.7"; playBtn.style.pointerEvents = "none";
   
-  navigator.clipboard.writeText(embed).then(()=> {
-    const t = document.getElementById("toast"); t.classList.add("show");
-    setTimeout(()=>t.classList.remove("show"),2000);
+  const ok = await startGame();
+  
+  if(ok) { startLayer.style.display="none"; }
+  
+  playBtn.innerHTML = origText;
+  playBtn.style.opacity = "1"; playBtn.style.pointerEvents = "auto";
+});
+requestAnimationFrame(loop);
+requestAnimationFrame(draw);
+
+try{
+  const __qp = new URLSearchParams(location.search);
+  if(__qp.get("autostart")==="1"){
+    setTimeout(()=>{ const pBtn = document.getElementById("play"); if(pBtn) pBtn.click(); }, 150);
+  }
+}catch(e){}
+`;
+
+  function injectCanvasGame(cfg){
+    const root = $("gameRoot");
+    root.innerHTML = __GAME_HTML__;
+
+    let st = document.getElementById("__tower_game_style");
+    if(!st){
+      st = document.createElement("style");
+      st.id="__tower_game_style";
+      st.textContent = __GAME_CSS__;
+      document.head.appendChild(st);
+    }
+
+    try{
+      const qb = root.querySelector("#qTimerBadge");
+      if(qb){
+        qb.classList.add("qTimer");
+        qb.innerHTML = `
+          <svg class="qTimerRing" viewBox="0 0 40 40" aria-hidden="true">
+            <circle class="qTimerTrack" cx="20" cy="20" r="16"></circle>
+            <circle class="qTimerProg"  cx="20" cy="20" r="16"></circle>
+          </svg>
+          <span class="qTimerText"></span>
+        `;
+        qb.style.display = "none";
+      }
+
+      let st2 = document.getElementById("__tower_timer_style");
+      if(!st2){
+        st2 = document.createElement("style");
+        st2.id="__tower_timer_style";
+        st2.textContent = `
+#gameRoot #card{ position:relative; }
+#gameRoot #qTimerBadge.qTimer{
+  --p: 1; --h: 45;
+  position:absolute; top:-40px; left:50%; transform: translateX(-50%);
+  display:flex; align-items:center; gap:12px; padding:10px 14px;
+  border-radius:999px; color: rgba(255,255,255,.96);
+  background: linear-gradient(180deg, rgba(18,22,34,.78), rgba(8,10,16,.62));
+  border: 1px solid rgba(255,255,255,.16);
+  box-shadow: 0 18px 55px rgba(0,0,0,.45), inset 0 1px 0 rgba(255,255,255,.10);
+  backdrop-filter: blur(12px);
+}
+#gameRoot #qTimerBadge.qTimer::after{
+  content:""; position:absolute; inset:-2px; border-radius:999px; pointer-events:none; opacity:.55;
+  background: radial-gradient(60% 120% at 50% 0%, hsla(var(--h), 92%, 62%, .38), transparent 70%);
+}
+#gameRoot #qTimerBadge .qTimerRing{ width:38px; height:38px; transform: rotate(-90deg); filter: drop-shadow(0 6px 10px rgba(0,0,0,.35)); }
+#gameRoot #qTimerBadge .qTimerTrack{ fill:none; stroke: rgba(255,255,255,.10); stroke-width:4; }
+#gameRoot #qTimerBadge .qTimerProg{ fill:none; stroke-width:4; stroke-linecap:round; stroke: hsl(var(--h) 90% 60% / .95); stroke-dasharray: 100.53; stroke-dashoffset: calc(100.53 * (1 - var(--p)));
+  transition: stroke .25s linear, stroke-dashoffset .25s linear; }
+#gameRoot #qTimerBadge .qTimerText{ font-weight:900; font-size:16px; color: rgba(255,255,255,.94); letter-spacing:.2px; min-width: 2ch; text-align:right; }
+#gameRoot #qTimerBadge.qPulse{ animation: qPulseAnim .85s ease-in-out infinite; }
+@keyframes qPulseAnim{
+  0%,100%{ transform: translateX(-50%) scale(1); filter: drop-shadow(0 10px 22px rgba(0,0,0,.35)); }
+  50%{ transform: translateX(-50%) scale(1.06); filter: drop-shadow(0 14px 30px hsla(var(--h), 92%, 60%, .38)); }
+}
+`;
+        document.head.appendChild(st2);
+      }
+    }catch(e){}
+
+    window.__CFG = { 
+        title: cfg.title || "Башня знаний", 
+        questions: cfg.questions || [], 
+        useLatex: !!cfg.useLatex, 
+        bgDataUrl: cfg.bgDataUrl || "", 
+        timer: cfg.timer,
+        instruction: cfg.instruction,
+        feedback: cfg.feedback
+    };
+    try{
+        const instCfg = window.__CFG?.instruction || {};
+        const instText = instCfg.text !== undefined ? instCfg.text : "Первый блок падает сам. Дальше — нажимай <b>Далее</b>.\nКогда блок остановится — ответь на вопрос.\nВерно → блок опускается и становится этажом (+100).\nНеверно → блок обугливается, взрывается и исчезает.";
+        const instColor = instCfg.color || "#ffffff";
+        const instGlow = instCfg.glow || false;
+
+        const startCard = document.getElementById("startCard");
+        const startCardP = startCard ? startCard.querySelector("p") : null;
+        if(startCardP) { startCardP.innerHTML = String(instText).replace(/\n/g, "<br/>"); }
+        if(startCard) {
+            startCard.style.borderColor = instColor;
+            if(instGlow) { startCard.style.boxShadow = "0 0 25px " + instColor + ", inset 0 0 15px " + instColor + ", 0 18px 60px rgba(0,0,0,.5)"; } 
+            else { startCard.style.boxShadow = "var(--shadow)"; }
+        }
+        
+        const fCustom = document.getElementById("finishCustomText");
+        if(fCustom){
+            const txt = window.__CFG?.feedback?.text || "";
+            fCustom.innerHTML = String(txt).replace(/\n/g, "<br/>");
+            fCustom.style.display = txt.trim() ? "block" : "none";
+        }
+    }catch(e){}
+
+    if(!window.__TOWER_GAME_RAN__){
+      window.__TOWER_GAME_RAN__ = true;
+      try{ eval(__GAME_JS__); }catch(e){ showErr(e?.stack || e?.message || String(e)); }
+    } else {
+      try{
+        const playBtn = document.getElementById("play");
+        const startLayer = document.getElementById("start");
+        if(startLayer) startLayer.style.display="flex";
+        const qp = new URLSearchParams(location.search);
+        if(qp.get("autostart")==="1"){ if(playBtn) playBtn.click(); }
+      }catch(e){}
+    }
+  }
+
+  function uid(){ return "q_" + Math.random().toString(36).slice(2,9) + "_" + Date.now().toString(36); }
+  function deepClone(obj){ return JSON.parse(JSON.stringify(obj)); }
+
+  function toast(msg){
+    const tEl = $("toast");
+    if (!tEl) return;
+    tEl.textContent = msg;
+    tEl.classList.add("show");
+    setTimeout(()=>tEl.classList.remove("show"), 1400);
+  }
+
+  async function copyToClipboard(text){
+    try{
+      if (navigator.clipboard && window.isSecureContext){
+        await navigator.clipboard.writeText(text); return true;
+      }
+    }catch(e){}
+    try{
+      const ta = document.createElement("textarea");
+      ta.value = text;
+      ta.setAttribute("readonly", "");
+      ta.style.position = "fixed"; ta.style.left = "0"; ta.style.top = "0"; ta.style.opacity = "0";
+      ta.style.width = "1px"; ta.style.height = "1px"; ta.style.pointerEvents = "none"; ta.style.zIndex = "-1";
+      document.body.appendChild(ta); ta.focus(); ta.select(); ta.setSelectionRange(0, ta.value.length);
+      const ok = document.execCommand("copy"); document.body.removeChild(ta);
+      return ok;
+    }catch(e){ return false; }
+  }
+
+  function basePath(){ return location.origin + location.pathname.replace(/\/[^\/]*$/, "/"); }
+  const BASE = basePath();
+  function selfPageUrl(){
+    let p = location.pathname || "/";
+    if(p.endsWith("/")) p += "index.html";
+    return location.origin + p;
+  }
+
+  const blockUrls = Array.from({length:9}, (_,i)=> BASE + (i+3) + ".png");
+  function parseQueryParams(){
+    const q = {};
+    const s = window.location.search.replace(/^\?/, "");
+    s.split("&").filter(Boolean).forEach(pair=>{
+      const [k,v] = pair.split("=");
+      if(!k) return;
+      q[decodeURIComponent(k)] = decodeURIComponent(v||"");
+    });
+    return q;
+  }
+
+  function parseHashParams(){
+    const h = (location.hash || "").replace(/^#/, "");
+    const out = {};
+    h.split("&").filter(Boolean).forEach(pair=>{
+      const [k,v] = pair.split("=");
+      if(!k) return;
+      out[decodeURIComponent(k)] = decodeURIComponent(v || "");
+    });
+    return out;
+  }
+
+  function b64urlEncode(str){
+    const b64 = btoa(unescape(encodeURIComponent(str)));
+    return b64.replaceAll("+","-").replaceAll("/","_").replaceAll("=","");
+  }
+  function b64urlDecode(b64url){
+    let s = String(b64url||"").replaceAll("-","+").replaceAll("_","/");
+    while(s.length % 4) s += "=";
+    return decodeURIComponent(escape(atob(s)));
+  }
+
+  function normalizeCfg(raw){
+    const cfg = raw && typeof raw === "object" ? raw : {};
+    const title = String(cfg.title || "Башня знаний");
+    const useRepoBg = !!cfg.useRepoBg;
+    const bgDataUrl = String(cfg.bgDataUrl || "");
+    const useImages = !!cfg.useImages;
+    const useLatex = !!cfg.useLatex;
+
+    const timerEnabled = !!cfg.timer?.enabled;
+    const timerSeconds = Math.max(5, Math.min(600, Number(cfg.timer?.seconds || 30)));
+    const instruction = {
+      text: cfg.instruction?.text !== undefined ? String(cfg.instruction.text) : "Первый блок падает сам. Дальше — нажимай <b>Далее</b>.\nКогда блок остановится — ответь на вопрос.\nВерно → блок опускается и становится этажом (+100).\nНеверно → блок обугливается, взрывается и исчезает.",
+      color: String(cfg.instruction?.color || "#ffffff"),
+      glow: !!cfg.instruction?.glow
+    };
+    const feedback = { text: cfg.feedback?.text !== undefined ? String(cfg.feedback.text) : "" };
+
+    let questions = Array.isArray(cfg.questions) ? cfg.questions.slice(0,9) : [];
+    questions = questions.map(q=>{
+      const rawSecs = (q && ("seconds" in q)) ? q.seconds : null;
+      const nSecs = (rawSecs==null || rawSecs==="") ? null : Number(rawSecs);
+      const seconds = (Number.isFinite(nSecs) && nSecs>0) ? Math.max(1, Math.min(600, Math.round(nSecs))) : null;
+      const image = String(q?.image || "").trim();
+      const audio = String(q?.audio || "").trim();
+      const font = String(q?.font || "").trim();
+      const fontSize = q?.fontSize ? Number(q.fontSize) : null;
+   
+      if(q?.type === "text"){
+        return { type:"text", prompt:String(q.prompt||""), accepts:(Array.isArray(q.accepts)?q.accepts:[String(q.answer||"")]).map(x=>String(x||"")), seconds, image, audio, font, fontSize };
+      }
+      return { type:"choice", prompt:String(q?.prompt||""), options:(Array.isArray(q?.options)?q.options:[]).map(x=>String(x||"")), correctIndices: (Array.isArray(q?.correctIndices) ? q.correctIndices : [Number(q?.correctIndex||0)]), seconds, image, audio, font, fontSize };
+    });
+    return { title, useRepoBg, bgDataUrl, timer: { enabled: timerEnabled, seconds: timerSeconds }, useImages, useLatex, blockUrls: blockUrls, questions, instruction, feedback };
+  }
+
+  const Editor = {
+    title: "Башня знаний",
+    useRepoBg: true, bgDataUrl: "", timer: { enabled:false, seconds: 30 }, useImages: true, useLatex: false,
+    instruction: { text: "Первый блок падает сам. Дальше — нажимай <b>Далее</b>.\nКогда блок остановится — ответь на вопрос.\nВерно → блок опускается и становится этажом (+100).\nНеверно → блок обугливается, взрывается и исчезает.", color: "#ffffff", glow: false },
+    feedback: { text: "" }, questions: [], draft: null, editingId: null
+  };
+  function setCountPill(){
+    $("pillCount").textContent = Editor.questions.length + " / 9";
+    $("btnAddQ").disabled = (Editor.questions.length >= 9);
+  }
+
+  function escapeHtml(s){ return String(s ?? "").replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;").replaceAll('"',"&quot;").replaceAll("'","&#039;"); }
+
+  function qSummary(q){
+    const p = String(q.prompt || "").trim();
+    const short = p.length > 50 ? p.slice(0,50)+"…" : p;
+    let type = (q.type==="choice") ? t("typeChoice") : t("typeText");
+    if (q.image || q.audio) type += t("withMedia");
+    return { title: short || "(пусто)", sub: type };
+  }
+
+  function renderList(){
+    const list = $("qList"); list.innerHTML = ""; setCountPill();
+
+    if(Editor.questions.length === 0){
+      const d = document.createElement("div"); d.className = "muted"; d.textContent = t("noQs"); list.appendChild(d); return;
+    }
+
+    Editor.questions.forEach((q,i)=>{
+      const wrap = document.createElement("div"); wrap.className = "q-item";
+
+      const meta = document.createElement("div"); meta.className = "meta";
+      const s = qSummary(q);
+      meta.innerHTML = `<div class="t">${escapeHtml(String(i+1)+". "+s.title)}</div><div class="s">${escapeHtml(s.sub)}</div>`;
+
+      const btns = document.createElement("div");
+      btns.style.display="flex"; btns.style.gap="8px"; btns.style.flexWrap="wrap"; btns.style.justifyContent="flex-end";
+      const bPrev = document.createElement("button"); bPrev.className = "btn small"; bPrev.type="button"; bPrev.textContent = "👁"; bPrev.title = t("btnShow");
+      bPrev.onclick = ()=>{ Editor.draft = deepClone(q); updatePreview(true); toast(t("toastShown")); };
+      
+      const bEdit = document.createElement("button"); bEdit.className = "btn small"; bEdit.type="button"; bEdit.textContent = "✏️"; bEdit.title = t("btnEdit");
+      bEdit.onclick = ()=> openModal(q);
+      
+      const bDel = document.createElement("button"); bDel.className = "btn small danger"; bDel.type="button"; bDel.textContent = "🗑"; bDel.title = t("btnDel");
+      bDel.onclick = ()=>{ Editor.questions = Editor.questions.filter(x=>x.id!==q.id); renderList(); updatePreview(false); toast(t("toastDeleted")); };
+
+      btns.appendChild(bPrev); btns.appendChild(bEdit); btns.appendChild(bDel);
+      wrap.appendChild(meta); wrap.appendChild(btns); list.appendChild(wrap);
+    });
+  }
+
+  function showModal(){ $("modalBackdrop").style.display = "flex"; $("modalBackdrop").setAttribute("aria-hidden","false"); }
+  function hideModal(){ $("modalBackdrop").style.display = "none"; $("modalBackdrop").setAttribute("aria-hidden","true"); }
+
+  function syncModalType(){
+    const ty = $("selType").value;
+    $("choiceWrap").style.display = (ty==="choice") ? "block" : "none";
+    $("textWrap").style.display = (ty==="text") ? "block" : "none";
+  }
+
+  function renderChoiceUI(){
+    const list = $("choiceList"); list.innerHTML = "";
+    const q = Editor.draft; if(!q) return;
+
+    q.options = q.options || ["",""];
+    q.correctIndices = q.correctIndices || (typeof q.correctIndex === "number" ? [q.correctIndex] : [0]);
+
+    q.options.forEach((val, idx)=>{
+      const row = document.createElement("div"); row.className = "answerRow";
+
+      const r = document.createElement("input");
+      r.className="radio"; r.type="checkbox";
+      r.checked = q.correctIndices.includes(idx);
+      r.onchange = (e)=>{
+        if (e.target.checked) {
+          if (!q.correctIndices.includes(idx)) q.correctIndices.push(idx);
+        } else {
+          q.correctIndices = q.correctIndices.filter(i => i !== idx);
+        }
+        renderChoiceUI();
+      };
+
+      const inp = document.createElement("input");
+      inp.type="text"; inp.value = val || "";
+      inp.placeholder = q.correctIndices.includes(idx) ? t("rightAns") : (t("optionN") + (idx+1));
+      inp.oninput = ()=>{ q.options[idx] = inp.value; };
+
+      const del = document.createElement("button");
+      del.className="btn small danger"; del.type="button"; del.textContent="✖";
+      del.onclick = ()=>{
+        q.options.splice(idx,1);
+        if(q.options.length < 2) q.options.push("");
+        q.correctIndices = q.correctIndices.filter(i => i !== idx).map(i => i > idx ? i - 1 : i);
+        if(q.correctIndices.length === 0) q.correctIndices = [0];
+        renderChoiceUI();
+      };
+
+      row.appendChild(r); row.appendChild(inp); row.appendChild(del); list.appendChild(row);
+    });
+  }
+
+  function renderTextUI(){
+    const list = $("textList"); list.innerHTML = "";
+    const q = Editor.draft; if(!q) return;
+    q.accepts = q.accepts || [""];
+
+    q.accepts.forEach((val, idx)=>{
+      const row = document.createElement("div"); row.className = "answerRow";
+
+      const inp = document.createElement("input"); inp.type="text"; inp.value = val || "";
+      inp.placeholder = (idx===0) ? t("rightAns") : (t("rightOptionN") + (idx+1));
+      inp.oninput = ()=>{ q.accepts[idx] = inp.value; };
+
+      const del = document.createElement("button"); del.className="btn small danger"; del.type="button"; del.textContent="✖";
+      del.onclick = ()=>{ q.accepts.splice(idx,1); if(q.accepts.length === 0) q.accepts.push(""); renderTextUI(); };
+
+      row.appendChild(inp); row.appendChild(del); list.appendChild(row);
+    });
+  }
+
+  function openModal(existing=null){
+    if(existing){
+      Editor.draft = deepClone(existing);
+      if(typeof Editor.draft.correctIndex === "number" && !Editor.draft.correctIndices) Editor.draft.correctIndices = [Editor.draft.correctIndex];
+      Editor.editingId = existing.id;
+      $("modalTitle").textContent = t("modalTitleEdit");
+    } else {
+      Editor.draft = { id: uid(), type: "choice", prompt: "", options: ["",""], correctIndices: [0], seconds: null, image: "", audio: "", font: "", fontSize: 20 };
+      Editor.editingId = null;
+      $("modalTitle").textContent = t("modalTitleAdd");
+    }
+
+    $("selType").value = Editor.draft.type || "choice";
+    $("inpPrompt").value = Editor.draft.prompt || "";
+    if(!("font" in Editor.draft)) Editor.draft.font = ""; if($("inpQFont")) $("inpQFont").value = Editor.draft.font;
+    if(!("fontSize" in Editor.draft)) Editor.draft.fontSize = 20; if($("inpQFontSize")) $("inpQFontSize").value = Editor.draft.fontSize || 20;
+    
+    if(!("seconds" in Editor.draft)) Editor.draft.seconds = null; if($("inpQSeconds")) $("inpQSeconds").value = (Editor.draft.seconds ?? "");
+    if(!("image" in Editor.draft)) Editor.draft.image = ""; if(!("audio" in Editor.draft)) Editor.draft.audio = "";
+    if($("inpQImage")) $("inpQImage").value = Editor.draft.image; if($("inpQAudio")) $("inpQAudio").value = Editor.draft.audio;
+    syncModalType();
+    if($("selType").value === "choice") renderChoiceUI(); else renderTextUI();
+
+    showModal(); setTimeout(()=>$("inpPrompt").focus(), 40);
+  }
+
+  function getDraftFromModal(){
+    const q = Editor.draft; if(!q) return null;
+    q.type = $("selType").value; q.prompt = $("inpPrompt").value || "";
+    q.font = $("inpQFont") ? $("inpQFont").value : ""; q.fontSize = $("inpQFontSize") ? Number($("inpQFontSize").value) || 20 : 20;
+
+    q.seconds = ($("inpQSeconds") && $("inpQSeconds").value !== "") ? Number($("inpQSeconds").value) : null;
+    if(q.seconds != null){ const s = Number(q.seconds); if(!Number.isFinite(s) || s < 3 || s > 600) return "Таймер вопроса: 3–600 секунд"; q.seconds = Math.round(s); }
+    
+    q.image = $("inpQImage") ? $("inpQImage").value.trim() : ""; q.audio = $("inpQAudio") ? $("inpQAudio").value.trim() : "";
+
+    if(q.type === "choice"){
+      q.options = (q.options || []).map(x=>String(x||""));
+      q.correctIndices = Array.isArray(q.correctIndices) && q.correctIndices.length ? q.correctIndices : [0];
+    } else {
+      q.accepts = (q.accepts || [""]).map(x=>String(x||""));
+    }
+    return q;
+  }
+
+  function validateQuestion(q){
+    if(!q) return t("toastEmptyQ");
+    if(!(q.prompt||"").trim()) return t("toastNoText");
+    if(q.type === "choice"){
+      const opts = (q.options||[]).map(x=>String(x||"").trim()).filter(Boolean);
+      if(opts.length < 2) return t("toastMin2");
+      q.options = opts;
+      if(!q.correctIndices || q.correctIndices.length === 0) return t("toastAtLeast1");
+      q.correctIndices = q.correctIndices.filter(i => i >= 0 && i < q.options.length);
+      if(q.correctIndices.length === 0) q.correctIndices = [0];
+      return "";
+    }
+    const acc = (q.accepts||[]).map(x=>String(x||"").trim()).filter(Boolean);
+    if(acc.length === 0) return t("toastAtLeast1");
+    q.accepts = acc;
+    return "";
+  }
+
+  function buildPayload(previewWithDraft){
+    let questions = Editor.questions.map(q=>{
+      if(q.type === "choice"){ return { type:"choice", prompt:q.prompt||"", options:(q.options||[]).slice(), correctIndices:(q.correctIndices||[0]).slice(), seconds:(q.seconds??null), image:q.image||"", audio:q.audio||"", font:q.font||"", fontSize:q.fontSize||null }; }
+      return { type:"text", prompt:q.prompt||"", accepts:(q.accepts||[]).slice(), seconds:(q.seconds??null), image:q.image||"", audio:q.audio||"", font:q.font||"", fontSize:q.fontSize||null };
+    });
+    if(previewWithDraft && Editor.draft){
+      const d = deepClone(Editor.draft); questions = questions.slice();
+      if(d.type === "choice"){
+        const mapped = { type:"choice", prompt:d.prompt||"", options:(d.options||[]).slice(), correctIndices:(d.correctIndices||[0]).slice(), seconds: (d.seconds==null || d.seconds==="") ? null : Number(d.seconds), image:d.image||"", audio:d.audio||"", font:d.font||"", fontSize:d.fontSize||null };
+        if(questions.length === 0) questions.push(mapped); else questions[0] = mapped;
+      } else {
+        const mapped = { type:"text", prompt:d.prompt||"", accepts:(d.accepts||[]).slice(), seconds: (d.seconds==null || d.seconds==="") ? null : Number(d.seconds), image:d.image||"", audio:d.audio||"", font:d.font||"", fontSize:d.fontSize||null };
+        if(questions.length === 0) questions.push(mapped); else questions[0] = mapped;
+      }
+    }
+    return normalizeCfg({ title: Editor.title || "Башня знаний", useRepoBg: true, bgDataUrl: Editor.bgDataUrl || "", timer: { enabled: !!Editor.timer.enabled, seconds: Number(Editor.timer.seconds || 30) }, useImages: !!Editor.useImages, useLatex: !!Editor.useLatex, instruction: Editor.instruction, feedback: Editor.feedback, questions });
+  }
+
+  function buildGameUrl(payload){ const data = b64urlEncode(JSON.stringify(payload)); return selfPageUrl() + "?game=" + data + "#game=" + data; }
+  function buildIframeFromUrl(src){ return `<iframe src="${src}" style="width:100%;height:100%;min-height:720px;border:0;border-radius:18px;overflow:hidden;background:transparent" allow="autoplay; fullscreen" allowfullscreen loading="lazy"></iframe>`; }
+
+  const PREVIEW_CFGKEY = "__tower_preview_cfg__";
+  function storePreviewCfg(cfg){ try{ localStorage.setItem(PREVIEW_CFGKEY, JSON.stringify(cfg)); return PREVIEW_CFGKEY; } catch(e){ return ""; } }
+
+  function updatePreview(previewWithDraft){
+    const payload = buildPayload(previewWithDraft); const jsonStr = JSON.stringify(payload); const useKey = jsonStr.length > 1800;
+    let urlParams = "?preview=1"; if (previewWithDraft) urlParams += "&autostart=1";
+    if(useKey){
+      const key = storePreviewCfg(payload);
+      if(key){ const src = selfPageUrl() + urlParams + "&cfgkey=" + encodeURIComponent(key) + "#cfgkey=" + encodeURIComponent(key); $("livePreview").src = src; return; }
+    }
+    const data = b64urlEncode(jsonStr); const src = selfPageUrl() + urlParams + "&game=" + data + "#game=" + data; $("livePreview").src = src;
+  }
+
+  let _previewTid = null;
+  function debouncedPreview(){ if(_previewTid) clearTimeout(_previewTid); _previewTid = setTimeout(()=>updatePreview(false), 500); }
+
+  $("inpInstruction").value = Editor.instruction.text; $("inpInstColor").value = Editor.instruction.color; $("chkInstGlow").checked = Editor.instruction.glow; $("inpFeedback").value = Editor.feedback.text;
+  $("inpInstruction").addEventListener("input", ()=>{ Editor.instruction.text = $("inpInstruction").value; debouncedPreview(); });
+  $("inpInstColor").addEventListener("input", ()=>{ Editor.instruction.color = $("inpInstColor").value; debouncedPreview(); });
+  $("chkInstGlow").addEventListener("change", ()=>{ Editor.instruction.glow = $("chkInstGlow").checked; debouncedPreview(); });
+  $("inpFeedback").addEventListener("input", ()=>{ Editor.feedback.text = $("inpFeedback").value; debouncedPreview(); });
+  $("inpTitle").addEventListener("input", ()=>{ Editor.title = $("inpTitle").value || "Башня знаний"; debouncedPreview(); });
+  $("inpBgUrl").addEventListener("input", ()=>{ Editor.bgDataUrl = $("inpBgUrl").value.trim(); debouncedPreview(); });
+  $("inpSeconds").addEventListener("input", ()=>{ Editor.timer.seconds = Number($("inpSeconds").value || 30); debouncedPreview(); });
+  
+  $("btnResetBg").addEventListener("click", ()=>{ Editor.bgDataUrl = ""; $("inpBgUrl").value = ""; updatePreview(false); });
+  $("chkUseImages").addEventListener("change", ()=>{ Editor.useImages = true; if($("chkUseImages")) $("chkUseImages").checked = true; updatePreview(false); });
+  if($("chkUseLatex")) $("chkUseLatex").addEventListener("change", ()=>{ Editor.useLatex = $("chkUseLatex").checked; updatePreview(false); });
+  $("chkTimer").addEventListener("change", ()=>{ Editor.timer.enabled = $("chkTimer").checked; updatePreview(false); });
+  
+  $("btnAddQ").addEventListener("click", ()=>{ if(Editor.questions.length >= 9){ toast(t("toast9Q")); return; } openModal(null); });
+  $("btnClearQs").addEventListener("click", ()=>{ Editor.questions = []; renderList(); updatePreview(false); toast(t("toastCleared")); });
+  $("btnCloseModal").addEventListener("click", ()=>{ Editor.draft=null; Editor.editingId=null; hideModal(); });
+  $("modalBackdrop").addEventListener("click", (e)=>{ if(e.target === $("modalBackdrop")){ Editor.draft=null; Editor.editingId=null; hideModal(); } });
+  $("selType").addEventListener("change", ()=>{
+    const q = Editor.draft; if(!q) return; q.type = $("selType").value; syncModalType();
+    if(q.type === "choice"){ q.options = q.options || ["",""]; q.correctIndices = q.correctIndices || [0]; renderChoiceUI(); } 
+    else { q.accepts = q.accepts || [""]; renderTextUI(); }
   });
-}
+  if($("btnClearImage")) $("btnClearImage").addEventListener("click", () => { $("inpQImage").value = ""; });
+  if($("btnClearAudio")) $("btnClearAudio").addEventListener("click", () => { $("inpQAudio").value = ""; });
+  $("btnAddChoice").addEventListener("click", ()=>{ const q = Editor.draft; if(!q) return; q.options = q.options || ["",""]; q.options.push(""); renderChoiceUI(); });
+  $("btnAddText").addEventListener("click", ()=>{ const q = Editor.draft; if(!q) return; q.accepts = q.accepts || [""]; q.accepts.push(""); renderTextUI(); });
+  $("btnPreviewDraft").addEventListener("click", ()=>{ getDraftFromModal(); updatePreview(true); toast(t("toastDraft")); });
+  
+  $("btnSaveQ").addEventListener("click", ()=>{
+    const q = getDraftFromModal(); const err = validateQuestion(q);
+    if(err){ toast(err); return; }
+    if(Editor.editingId){
+      const idx = Editor.questions.findIndex(x=>x.id === Editor.editingId);
+      if(idx >= 0){ q.id = Editor.editingId; Editor.questions[idx] = q; toast(t("toastQUpdated")); } 
+      else { Editor.questions.push(q); toast(t("toastQAdded")); }
+    } else { Editor.questions.push(q); toast(t("toastQAdded")); }
+    Editor.draft=null; Editor.editingId=null; hideModal(); renderList(); updatePreview(false);
+  });
+  $("btnCopyCode").addEventListener("click", async ()=>{
+    const payload = buildPayload(false); const url = buildGameUrl(payload); const iframeCode = buildIframeFromUrl(url);
+    const ok = await copyToClipboard(iframeCode); toast(ok ? t("toastCopied") : t("toastError"));
+  });
+  function hideCodeModal(){ if(!$("codeBackdrop")) return; $("codeBackdrop").style.display = "none"; $("codeBackdrop").setAttribute("aria-hidden","true"); }
+  if ($("btnCloseCode")) $("btnCloseCode").addEventListener("click", hideCodeModal);
+  if ($("codeBackdrop")) { $("codeBackdrop").addEventListener("click", (e)=>{ if(e.target === $("codeBackdrop")) hideCodeModal(); }); }
+  
+  if ($("btnCopyFromModal")) {
+    $("btnCopyFromModal").addEventListener("click", async ()=>{
+      const text = ($("taIframe")?.value || "").trim(); if(!text){ toast("Пусто"); return; }
+      const ok = await copyToClipboard(text); toast(ok ? t("toastCopied") : t("toastError"));
+    });
+    if ($("btnCopyIframe")) {
+      $("btnCopyIframe").addEventListener("click", async ()=>{
+        const text = ($("taIframe2")?.value || "").trim(); if(!text){ toast("Пусто"); return; }
+        const ok = await copyToClipboard(text); toast(ok ? t("toastCopied") : t("toastError"));
+      });
+    }
+  }
 
-init();
+  if ($("btnDownloadGame")) {
+    $("btnDownloadGame").addEventListener("click", ()=>{
+      try{
+        const payload = buildPayload(true); const safeJson = JSON.stringify(payload).replace(/</g, "\\u003c");
+        const embed = `<script>window.__EMBEDDED_CFG__=${safeJson};<\/script>\n`;
+        const full = "<!doctype html>\n" + document.documentElement.outerHTML;
+        const out = full.replace("<script>\n(() => {", embed + "<script>\n(() => {");
+        const blob = new Blob([out], {type:"text/html;charset=utf-8"});
+        const a = document.createElement("a"); const ts = new Date(); const pad = (n)=> String(n).padStart(2,"0");
+        const name = `tower_game_${ts.getFullYear()}${pad(ts.getMonth()+1)}${pad(ts.getDate())}_${pad(ts.getHours())}${pad(ts.getMinutes())}.html`;
+        a.href = URL.createObjectURL(blob); a.download = name; document.body.appendChild(a); a.click();
+        setTimeout(()=>{ URL.revokeObjectURL(a.href); a.remove(); }, 0); toast("Игра скачана ✅");
+      }catch(e){ showErr(e?.stack || e?.message || String(e)); toast("Не удалось скачать 😕"); }
+    });
+  }
+
+  function bootGameOnly(cfg){
+    document.body.setAttribute("data-mode","game"); document.body.classList.add("gameOnly");
+    $("editorRoot").style.display = "none"; $("modalBackdrop").style.display = "none";
+    if($("codeBackdrop")) $("codeBackdrop").style.display = "none";
+    $("gameRoot").style.display = "block";
+    injectCanvasGame(cfg);
+  }
+
+  const qp = parseQueryParams(); const hp = parseHashParams();
+  const gameParam = qp.game || hp.game;
+  const cfgKeyParam = qp.cfgkey || hp.cfgkey;
+
+  if (window.__EMBEDDED_CFG__) {
+    try{ bootGameOnly(normalizeCfg(window.__EMBEDDED_CFG__)); }
+    catch(e){ $("gameHost").innerHTML = `<div style="padding:16px;color:#ffd6d6;font-weight:900">Не удалось прочитать встроенный конфиг 😕</div>`; }
+    return;
+  }
+  if(gameParam){
+    try{ const raw = JSON.parse(b64urlDecode(gameParam)); bootGameOnly(normalizeCfg(raw)); }
+    catch(e){ $("gameHost").innerHTML = `<div style="padding:16px;color:#ffd6d6;font-weight:900">Не удалось прочитать конфиг из iframe 😕</div>`; }
+    return;
+  }
+  if(cfgKeyParam){
+    try{
+      const rawStr = localStorage.getItem(cfgKeyParam) || sessionStorage.getItem(cfgKeyParam);
+      if(!rawStr) throw new Error("cfgkey not found in storage");
+      const raw = JSON.parse(rawStr); bootGameOnly(normalizeCfg(raw));
+    }catch(e){ $("gameHost").innerHTML = `<div style="padding:16px;color:#ffd6d6;font-weight:900">Не удалось прочитать конфиг (cfgkey) 😕</div>`; }
+    return;
+  }
+
+  Editor.title = $("inpTitle").value || "Башня знаний";
+  Editor.timer.enabled = $("chkTimer").checked; Editor.timer.seconds = Number($("inpSeconds").value || 30);
+  Editor.useImages = true;
+  if($("chkUseImages")) $("chkUseImages").checked = true;
+  if($("chkUseLatex")) Editor.useLatex = $("chkUseLatex").checked;
+  Editor.useRepoBg = true;
+
+  setLanguage("ru");
+  updatePreview(false);
+  try{
+    const titles = Array.from(document.querySelectorAll(".section .title"));
+    const tEl = titles.find(x=>x.textContent.trim()==="Экспорт в Genially" || x.getAttribute("data-i18n")==="secTitleExport");
+    if(tEl){ const sec = tEl.closest(".section");
+    if(sec) sec.style.display="none"; }
+  }catch(e){}
+
+})();
 </script>
 </body>
 </html>
