@@ -835,6 +835,21 @@
       border-color: rgba(255,170,0,.55) !important;
       box-shadow: 0 0 0 3px rgba(255,150,0,.18) !important;
     }
+
+    /* Language selector: better fit for long labels */
+    #uiLangSelect{
+      width:100%;
+      min-height:44px;
+      padding:10px 12px;
+      font-size:14px;
+      line-height:1.2;
+    }
+    .section .sub[data-i18n="ui_lang_hint"]{
+      display:block;
+      margin-bottom:8px;
+      white-space:normal;
+    }
+
 </style>
 </head>
 
@@ -1326,7 +1341,7 @@
     if(Editor.questions.length === 0){
       const d = document.createElement("div");
       d.className = "muted";
-      d.textContent = "<span data-i18n="hint_no_questions">Пока нет вопросов. Нажмите «Добавить» и заполните 9 вопросов.</span>";
+      d.textContent = (I18N[getUILang()]?.hint_no_questions || I18N.ru.hint_no_questions);
       list.appendChild(d);
       return;
     }
@@ -1479,7 +1494,7 @@
     if(existing){
       Editor.draft = deepClone(existing);
       Editor.editingId = existing.id;
-      $("modalTitle").textContent = "<span data-i18n="modal_edit_title">Редактировать вопрос</span>";
+      $("modalTitle").textContent = (I18N[getUILang()]?.modal_edit_title || I18N.ru.modal_edit_title);
     } else {
       Editor.draft = {
         id: uid(), type: "choice", prompt: "", options: ["",""], correctIndex: 0, seconds: null, image: "", audio: ""
