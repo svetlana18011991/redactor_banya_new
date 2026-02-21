@@ -7,7 +7,6 @@
 
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Caveat:wght@500&family=Neucha&display=swap');
-
     html, body{height:100%}
 
     :root{
@@ -64,8 +63,10 @@
       border-bottom:1px solid rgba(255,255,255,.10);
       display:flex;align-items:center;justify-content:space-between;gap:10px;
     }
-    .panel-header .h{font-weight:950;letter-spacing:.2px; display:flex; align-items:center; gap:10px;}
-    .panel-header .h img { height: 32px; width: auto; border-radius: 6px; object-fit: contain; }
+    .panel-header .h{font-weight:950;letter-spacing:.2px; display:flex; align-items:center;
+      gap:10px;}
+    .panel-header .h img { height: 32px; width: auto; border-radius: 6px; object-fit: contain;
+    }
     .panel-body{padding:14px}
 
     .settings{
@@ -80,9 +81,11 @@
     }
 
     .settings .panel-body::-webkit-scrollbar { width: 8px; }
-    .settings .panel-body::-webkit-scrollbar-track { background: rgba(0,0,0,0.1); border-radius: 4px; }
+    .settings .panel-body::-webkit-scrollbar-track { background: rgba(0,0,0,0.1); border-radius: 4px;
+    }
     .settings .panel-body::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 4px; }
-    .settings .panel-body::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.3); }
+    .settings .panel-body::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.3);
+    }
 
     [data-section="timer"]{display:none !important}
     [data-hide="blocks"]{display:none !important}
@@ -120,7 +123,8 @@
       color:var(--text);
       outline:none;
     }
-    textarea{min-height:84px; resize:vertical}
+    textarea{min-height:84px;
+      resize:vertical}
 
     input[type="color"] {
       width:100%; height:40px; border-radius:14px; padding:2px;
@@ -129,7 +133,8 @@
     input[type="color"]::-webkit-color-swatch-wrapper { padding:2px; }
     input[type="color"]::-webkit-color-swatch { border-radius:10px; border:none; }
 
-    .row{display:flex; gap:10px; flex-wrap:wrap}
+    .row{display:flex;
+      gap:10px; flex-wrap:wrap}
     .row > *{flex:1; min-width:170px}
 
     .toggle{
@@ -142,7 +147,8 @@
       background:rgba(255,255,255,.04);
       margin-top:8px;
     }
-    .toggle input{width:18px; height:18px}
+    .toggle input{width:18px;
+      height:18px}
 
     .btn{
       padding:11px 12px;
@@ -163,7 +169,8 @@
     }
     .btn:hover{background:rgba(255,255,255,.10);border-color:rgba(255,255,255,.24)}
     .btn:active{transform:translateY(1px)}
-    .btn:disabled{opacity:.45; cursor:not-allowed}
+    .btn:disabled{opacity:.45;
+      cursor:not-allowed}
 
     .btn.primary{
       background:linear-gradient(90deg, rgba(214,177,74,.35), rgba(242,211,122,.22));
@@ -173,7 +180,8 @@
     .btn.danger{border-color:rgba(255,77,77,.35); background:rgba(255,77,77,.08)}
     .btn.small{padding:8px 10px; font-size:12.5px; border-radius:12px}
 
-    .q-list{display:flex; flex-direction:column; gap:10px;}
+    .q-list{display:flex; flex-direction:column;
+      gap:10px;}
     .q-item{
       padding:10px 10px;
       border-radius:14px;
@@ -237,7 +245,8 @@
       background:linear-gradient(180deg, rgba(255,255,255,.07), rgba(255,255,255,.04));
     }
     .preview-top .name{font-weight:950; letter-spacing:.2px}
-    .preview-top .hint{color:var(--muted); font-size:12.5px}
+    .preview-top .hint{color:var(--muted);
+      font-size:12.5px}
 
     .preview-stage{
       position:relative;
@@ -312,9 +321,11 @@
       min-height: 0;
     }
     
-    .modal-body::-webkit-scrollbar { width: 8px; }
+    .modal-body::-webkit-scrollbar { width: 8px;
+    }
     .modal-body::-webkit-scrollbar-track { background: rgba(0,0,0,0.1); border-radius: 4px; }
-    .modal-body::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 4px; }
+    .modal-body::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 4px;
+    }
     .modal-body::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.3); }
 
     .modal-foot{
@@ -416,10 +427,11 @@
         box-shadow: 0 0 8px var(--neon-orange-glow), inset 0 0 4px rgba(255, 136, 0, 0.2) !important;
     }
 
-    /* Модальные окна */
+    /* Модальные окна: убрана прозрачность фона */
     .modal {
          border-color: var(--neon-orange-base) !important;
          box-shadow: var(--neon-box-shadow), 0 30px 80px rgba(0,0,0,.7) !important;
+         background: #16110c !important; /* Непрозрачный темный фон */
     }
 </style>
 </head>
@@ -643,7 +655,7 @@
 
         <div id="choiceWrap" class="choiceBlock">
           <div style="font-weight:900" data-i18n="lblChoices">Варианты ответа</div>
-          <div class="muted" data-i18n="lblChoicesHint">Минимум 2 варианта. Отметь верный радиокнопкой. (В игре они будут перемешаны).</div>
+          <div class="muted" data-i18n="lblChoicesHint">Минимум 2 варианта. Отметь верные чекбоксом. (В игре они будут перемешаны).</div>
           <div id="choiceList"></div>
           <button class="btn small" id="btnAddChoice" type="button" style="margin-top:10px" data-i18n="btnAddChoice">➕ Добавить вариант</button>
         </div>
@@ -689,7 +701,6 @@
 <script>
 (() => {
   "use strict";
-
   const i18n = {
     ru: {
       editorTitle: "Редактор «Башня»", btnCopyCode: "📋 Скопировать код (iframe)", langTitle: "Язык интерфейса",
@@ -705,7 +716,7 @@
       lblQType: "Тип вопроса", optChoice: "С выбором ответа", optText: "С вводом ответа", lblQuestionText: "Вопрос", phQuestion: "Введите вопрос...",
       lblTimerForThis: "Таймер для этого вопроса", lblTimerForThisHint: "Можно задать время именно для этого вопроса (пусто = без таймера/по умолчанию).",
       lblSecForThis: "Секунд на этот вопрос", phTimer: "например 20", phBgUrl: "https://.../bg.jpg", lblMedia: "Медиа (ссылки)", lblMediaHint: "Вставьте прямую ссылку (URL) на картинку или аудиофайл.",
-      lblChoices: "Варианты ответа", lblChoicesHint: "Минимум 2 варианта. Отметь верный радиокнопкой. (В игре они будут перемешаны).", btnAddChoice: "➕ Добавить вариант",
+      lblChoices: "Варианты ответа", lblChoicesHint: "Минимум 2 варианта. Отметь верные чекбоксом. (В игре они будут перемешаны).", btnAddChoice: "➕ Добавить вариант",
       lblTextAns: "Верные ответы (ввод)", lblTextAnsHint: "Можно несколько вариантов — принимается любой.", btnAddText: "➕ Добавить вариант",
       btnPreviewDraft: "👁 Показать в превью", btnSaveQ: "💾 Сохранить", lblCodeTitle: "Ссылка для запуска игры",
       lblCodeHint: "Это ссылка на игру. Её можно вставлять в Genially (через iframe) и куда угодно.", lblLink: "Ссылка", lblIframe: "iframe (если нужен)",
@@ -735,7 +746,7 @@
       lblQType: "Question type", optChoice: "Multiple choice", optText: "Text input", lblQuestionText: "Question", phQuestion: "Enter question...",
       lblTimerForThis: "Timer for this question", lblTimerForThisHint: "You can set time specifically for this question (empty = no timer/default).",
       lblSecForThis: "Seconds for this question", phTimer: "e.g., 20", phBgUrl: "https://.../bg.jpg", lblMedia: "Media (links)", lblMediaHint: "Insert a direct link (URL) to an image or audio file.",
-      lblChoices: "Answer choices", lblChoicesHint: "Minimum 2 options. Mark correct with radio button. (Shuffled in game).", btnAddChoice: "➕ Add option",
+      lblChoices: "Answer choices", lblChoicesHint: "Minimum 2 options. Mark correct ones with checkboxes. (Shuffled in game).", btnAddChoice: "➕ Add option",
       lblTextAns: "Correct answers (input)", lblTextAnsHint: "Multiple options allowed — any will be accepted.", btnAddText: "➕ Add option",
       btnPreviewDraft: "👁 Show in preview", btnSaveQ: "💾 Save", lblCodeTitle: "Game Launch Link",
       lblCodeHint: "This is the link to the game. It can be embedded in Genially (via iframe) or anywhere else.", lblLink: "Link", lblIframe: "iframe (if needed)",
@@ -795,7 +806,7 @@
       lblQType: "问题类型", optChoice: "选择题", optText: "文本输入", lblQuestionText: "问题", phQuestion: "输入问题...",
       lblTimerForThis: "此题计时器", lblTimerForThisHint: "您可以专门为此题设置时间 (空 = 无计时器/默认)。",
       lblSecForThis: "此题秒数", phTimer: "例如 20", phBgUrl: "https://.../bg.jpg", lblMedia: "媒体 (链接)", lblMediaHint: "插入图片或音频文件的直接链接 (URL)。",
-      lblChoices: "选项", lblChoicesHint: "最少 2 个选项。用单选按钮标记正确选项（游戏中会打乱）。", btnAddChoice: "➕ 添加选项",
+      lblChoices: "选项", lblChoicesHint: "最少 2 个选项。用复选框标记正确选项（游戏中会打乱）。", btnAddChoice: "➕ 添加选项",
       lblTextAns: "正确答案 (输入)", lblTextAnsHint: "允许多个选项 — 任何一个都将被接受。", btnAddText: "➕ 添加选项",
       btnPreviewDraft: "👁 在预览中显示", btnSaveQ: "💾 保存", lblCodeTitle: "游戏启动链接",
       lblCodeHint: "这是游戏的链接。它可以嵌入到 Genially (通过 iframe) 或其他任何地方。", lblLink: "链接", lblIframe: "iframe (如果需要)",
@@ -812,7 +823,6 @@
       secTitleFinish: "最终屏幕", lblFeedbackText: "附加文本", phFeedbackText: "例如：进入下一个任务..."
     }
   };
-
   let currentLang = "ru";
 
   function t(key) {
@@ -823,7 +833,6 @@
   function setLanguage(lang) {
     currentLang = lang;
     const dict = i18n[lang] || i18n.ru;
-    
     document.querySelectorAll("[data-i18n]").forEach(el => {
       const key = el.getAttribute("data-i18n");
       if (dict[key]) {
@@ -870,7 +879,6 @@
   window.addEventListener("unhandledrejection", (e) => { showErr(e?.reason?.stack || e?.reason?.message || String(e?.reason || e)); });
   
   const $ = (id)=>document.getElementById(id);
-
   const __GAME_CSS__ = `@import url('https://fonts.googleapis.com/css2?family=Caveat:wght@500&family=Neucha&display=swap');
     :root{
       --hud-bg: rgba(10, 12, 18, .55);
@@ -887,7 +895,8 @@
     canvas{width:100%;height:100%;display:block;}
 
     #hud{
-      position:absolute; left:12px; right:12px; top:12px;
+      position:absolute;
+      left:12px; right:12px; top:12px;
       display:flex; gap:12px; align-items:center;
       pointer-events:none;
       z-index: 3;
@@ -1004,8 +1013,14 @@
     }
     .btn:hover{ background:rgba(255,255,255,.11); }
     .btn:active{ transform:scale(.99); }
+    /* Для мульти-выбора: */
+    .btn.selected {
+      background: rgba(120,255,170,.25) !important;
+      border-color: rgba(120,255,170,.5) !important;
+      transform: scale(0.98);
+    }
 
-    #inputRow{ display:none; gap:10px; align-items:center; margin-top:12px; }
+    #inputRow{ display:none; gap:10px; align-items:center; margin-top:12px; flex-wrap:wrap;}
     #ansInput{
       flex:1;
       background:rgba(255,255,255,.07);
@@ -1024,6 +1039,7 @@
       cursor:pointer;
       color:var(--text);
       font-weight:800;
+      min-width: 80px;
     }
     #submit:hover{ background:rgba(120,190,255,.26); }
 
@@ -1145,7 +1161,6 @@
   font-family: system-ui, sans-serif;
 }
 `;
-
   const __GAME_HTML__ = `
 <div id="wrap">
   <canvas id="c"></canvas>
@@ -1289,7 +1304,6 @@ function resize(){
 }
 window.addEventListener("resize", resize);
 resize();
-
 let audioCtx=null;
 function ensureAudio(){ if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)(); }
 function playBoom(){ /* audio logic */ }
@@ -1341,13 +1355,13 @@ function trimAndCentroidAndProfiles(img){
         if(x>maxX) maxX=x; if(y>maxY) maxY=y;
       }
       if(a >= CENTROID_ALPHA_MIN){
-        sumA += a; sumX += x*a; sumY += y*a;
+        sumA += a;
+        sumX += x*a; sumY += y*a;
       }
     }
   }
 
   if(maxX<0 || maxY<0) return Promise.resolve({ img, w: img.width, h: img.height, cx: img.width/2, cy: img.height/2, top:null, bottom:null });
-
   const w = (maxX-minX+1);
   const h = (maxY-minY+1);
   const outC=document.createElement("canvas");
@@ -1369,7 +1383,6 @@ const state = {
   towerOffsetY:0, towerOffsetV:0, questionIndex:0, waitingAnswer:false, dropping:false,
   blockIndex:0, readyForNext:false, finished:false, score:0, scoreFloats:[], correct:0, wrong:0, landingBounce: null
 };
-
 function setNextEnabled(on){ state.readyForNext = on; nextBtn.disabled = !on; }
 function updateRemain(){ remainNum.textContent = String(Math.max(0, 9 - state.questionIndex)); }
 function groundY(){ return H - 70 + state.towerOffsetY; }
@@ -1383,12 +1396,14 @@ function computeTowerScale(blocks){
   return Math.min(scaleByWidth, availableH / totalH);
 }
 function computeStackY(upper, lower){
-  const su = state.towerScale; const upperMeta = state.blocks[upper.idx]; const lowerMeta = state.blocks[lower.idx];
+  const su = state.towerScale; const upperMeta = state.blocks[upper.idx];
+  const lowerMeta = state.blocks[lower.idx];
   const overlapLeft = Math.max(upper.x, lower.x); const overlapRight = Math.min(upper.x + upper.w, lower.x + lower.w);
   if(overlapRight <= overlapLeft + 2) return Math.round(lower.y - upper.h);
   let yMaxAllowed = Infinity;
   for(let wx = overlapLeft; wx <= overlapRight; wx += 2){
-    const xu = Math.floor((wx - upper.x) / su); const xl = Math.floor((wx - lower.x) / su);
+    const xu = Math.floor((wx - upper.x) / su);
+    const xl = Math.floor((wx - lower.x) / su);
     if(xu < 0 || xu >= upperMeta.w || xl < 0 || xl >= lowerMeta.w) continue;
     const allowed = lower.y + lowerMeta.top[xl]*su - upperMeta.bottom[xu]*su;
     if(allowed < yMaxAllowed) yMaxAllowed = allowed;
@@ -1409,7 +1424,8 @@ function addScorePop(x,y, text){ state.scoreFloats.push({ x, y, vx: (Math.random
 
 function sparksAtSeam(x, y){
   for(let i=0;i<18;i++){
-    const a = (-Math.PI/2) + (Math.random()*Math.PI*0.9 - Math.PI*0.45); const sp = 220 + Math.random()*360;
+    const a = (-Math.PI/2) + (Math.random()*Math.PI*0.9 - Math.PI*0.45);
+    const sp = 220 + Math.random()*360;
     state.sparks.push({ x: x + (Math.random()*40 - 20), y: y + (Math.random()*6 - 3), vx: Math.cos(a)*sp, vy: Math.sin(a)*sp - (40+Math.random()*60), life: 0.45 + Math.random()*0.2, age: 0 });
   }
 }
@@ -1436,11 +1452,13 @@ function finalizeLand(){
   state.tower.push({ x: Math.round(b.x), y: Math.round(b.y), w: b.w, h: b.h, idx: b.idx, squash:1.0, squashV:0.0 });
   state.score += SCORE_PER_BLOCK; scoreNum.textContent = String(state.score);
   addScorePop(W/2 + 70, b.y + 30, "+" + SCORE_PER_BLOCK);
-  dustAt(W/2, seamY); state.cameraShake = Math.max(state.cameraShake, SHAKE_ON_LAND); state.towerOffsetV -= 120; state.current = null;
+  dustAt(W/2, seamY);
+  state.cameraShake = Math.max(state.cameraShake, SHAKE_ON_LAND); state.towerOffsetV -= 120; state.current = null;
 }
 
 function boomAt(block){
-  const cx = block.x + block.w/2; const cy = block.y + block.h/2;
+  const cx = block.x + block.w/2;
+  const cy = block.y + block.h/2;
   state.flash = Math.min(1, state.flash + 0.95);
   state.rings.push({ x:cx, y:cy, r:10, vr: 900, life:0.45, age:0 });
   for(let i=0;i<44;i++){
@@ -1458,7 +1476,6 @@ function finishGame(){
   state.finished = true; setNextEnabled(false);
   finishScoreEl.textContent = String(state.score); stCorrect.textContent = String(state.correct);
   stWrong.textContent = String(state.wrong); stHeight.textContent = String(state.tower.length);
-  
   const fCustom = document.getElementById("finishCustomText");
   if(fCustom){
      const txt = window.__CFG?.feedback?.text || "";
@@ -1477,19 +1494,20 @@ function hideOverlayAnimated(){ overlay.classList.remove("show"); setTimeout(()=
 function update(dt){
   if(!state.running) return;
   updateRemain();
-  if(state.cameraShake>0){ state.cameraShake=Math.max(0, state.cameraShake - dt*22); const s=state.cameraShake; state.cameraX=(Math.random()*2-1)*s; state.cameraY=(Math.random()*2-1)*s; } else { state.cameraX=0; state.cameraY=0; }
+  if(state.cameraShake>0){ state.cameraShake=Math.max(0, state.cameraShake - dt*22);
+    const s=state.cameraShake; state.cameraX=(Math.random()*2-1)*s; state.cameraY=(Math.random()*2-1)*s; } else { state.cameraX=0; state.cameraY=0; }
   state.flash = Math.max(0, state.flash - dt*3.8);
   const aT = -55*(state.towerOffsetY) - 10*state.towerOffsetV; state.towerOffsetV += aT*dt; state.towerOffsetY += state.towerOffsetV*dt; state.towerOffsetY = Math.max(-10, Math.min(10, state.towerOffsetY));
-  
   for(const b of state.tower){ const aB=-40*(b.squash-1)-8*b.squashV; b.squashV += aB*dt; b.squash += b.squashV*dt; b.squash = Math.max(0.88, Math.min(1.08, b.squash)); }
   for(const p of state.particles){ p.age += dt; p.vy += 980*dt; p.x += p.vx*dt; p.y += p.vy*dt; } state.particles = state.particles.filter(p => p.age < p.life);
   for(const s of state.smokes){ s.age += dt; s.vy += 120*dt; s.x += s.vx*dt; s.y += s.vy*dt; } state.smokes = state.smokes.filter(s => s.age < s.life);
   for(const r of state.rings){ r.age += dt; r.r += r.vr*dt; } state.rings = state.rings.filter(r => r.age < r.life);
   for(const sp of state.sparks){ sp.age += dt; sp.vy += 980*dt; sp.x += sp.vx*dt; sp.y += sp.vy*dt; sp.vx *= (1 - dt*1.8); } state.sparks = state.sparks.filter(s => s.age < s.life);
   for(const f of state.scoreFloats){ f.age += dt; f.vy += 260*dt; f.x += f.vx*dt; f.y += f.vy*dt; } state.scoreFloats = state.scoreFloats.filter(f => f.age < f.life);
-
+  
   if(state.landingBounce && state.current){
-    const bb = state.landingBounce; bb.age += dt; const t = Math.min(1, bb.age / bb.dur); const ease = 1 - Math.pow(1 - t, 3);
+    const bb = state.landingBounce; bb.age += dt; const t = Math.min(1, bb.age / bb.dur);
+    const ease = 1 - Math.pow(1 - t, 3);
     state.current.y = Math.round(bb.fromY + (bb.toY - bb.fromY)*ease);
     if(state.tower.length>0){ state.tower[state.tower.length-1].squashV += 14 * dt; }
     if(t >= 1){ state.landingBounce = null; finalizeLand(); setNextEnabled(true); }
@@ -1533,12 +1551,15 @@ function drawBlock(o, glow=false, squash=1.0, char=0){
   ctx.save();
   ctx.shadowColor = glow ? "rgba(120,190,255,.35)" : "rgba(0,0,0,.45)";
   ctx.shadowBlur  = glow ? 18 : 14;
-  const cx = o.x + o.w/2; const cy = o.y + o.h;
+  const cx = o.x + o.w/2;
+  const cy = o.y + o.h;
   ctx.translate(cx, cy); ctx.scale(1 + (1 - squash) * 0.35, squash); ctx.translate(-cx, -cy);
   ctx.drawImage(img, o.x, o.y, o.w, o.h);
   if(char > 0){
-    ctx.globalCompositeOperation = "source-atop"; ctx.fillStyle = "rgba(0,0,0," + (0.70*char) + ")"; ctx.fillRect(o.x-2, o.y-2, o.w+4, o.h+4);
-    ctx.globalCompositeOperation = "screen"; ctx.fillStyle = "rgba(255,120,60," + (0.10*char) + ")"; ctx.fillRect(o.x-2, o.y-2, o.w+4, o.h+4);
+    ctx.globalCompositeOperation = "source-atop";
+    ctx.fillStyle = "rgba(0,0,0," + (0.70*char) + ")"; ctx.fillRect(o.x-2, o.y-2, o.w+4, o.h+4);
+    ctx.globalCompositeOperation = "screen";
+    ctx.fillStyle = "rgba(255,120,60," + (0.10*char) + ")"; ctx.fillRect(o.x-2, o.y-2, o.w+4, o.h+4);
     ctx.globalCompositeOperation = "source-over";
   }
   ctx.restore();
@@ -1546,10 +1567,12 @@ function drawBlock(o, glow=false, squash=1.0, char=0){
 
 function drawScorePops(){
   for(const f of state.scoreFloats){
-    const a = Math.max(0, 1 - (f.age / f.life)); const s = 1 + (1 - a) * 0.15;
+    const a = Math.max(0, 1 - (f.age / f.life));
+    const s = 1 + (1 - a) * 0.15;
     ctx.save(); ctx.globalAlpha = a; ctx.translate(f.x, f.y); ctx.scale(s, s);
     ctx.font = "900 22px system-ui, sans-serif"; ctx.lineWidth = 5; ctx.strokeStyle = "rgba(0,0,0,.35)";
-    ctx.strokeText(f.text, 0, 0); ctx.fillStyle = "rgba(120,255,170,.95)"; ctx.fillText(f.text, 0, 0); ctx.restore();
+    ctx.strokeText(f.text, 0, 0); ctx.fillStyle = "rgba(120,255,170,.95)";
+    ctx.fillText(f.text, 0, 0); ctx.restore();
   }
 }
 
@@ -1558,10 +1581,15 @@ function draw(){
   drawBackground();
   for(const b of state.tower){ drawBlock(b, false, b.squash, 0); }
   if(state.current){ drawBlock(state.current, true, 1.0, state.current.char || 0); }
-  for(const s of state.smokes){ const t = s.age / s.life; const a = (1 - t) * 0.35; ctx.fillStyle = "rgba(20,20,20," + a + ")"; ctx.beginPath(); ctx.arc(s.x, s.y, s.rad * (1 + t*1.25), 0, Math.PI*2); ctx.fill(); }
-  for(const r of state.rings){ const t = r.age / r.life; const a = (1 - t) * 0.55; ctx.strokeStyle = "rgba(255,255,255," + a + ")"; ctx.lineWidth = 3; ctx.beginPath(); ctx.arc(r.x, r.y, r.r, 0, Math.PI*2); ctx.stroke(); }
-  for(const sp of state.sparks){ const t = sp.age / sp.life; const a = Math.max(0, 1 - t); ctx.strokeStyle = "rgba(255,220,140," + (0.9*a) + ")"; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(sp.x, sp.y); ctx.lineTo(sp.x - sp.vx*0.012, sp.y - sp.vy*0.012); ctx.stroke(); }
-  for(const p of state.particles){ const a = 1 - (p.age/p.life); ctx.fillStyle = "rgba(255,200,120," + (0.78*a) + ")"; ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI*2); ctx.fill(); }
+  for(const s of state.smokes){ const t = s.age / s.life;
+    const a = (1 - t) * 0.35; ctx.fillStyle = "rgba(20,20,20," + a + ")"; ctx.beginPath();
+    ctx.arc(s.x, s.y, s.rad * (1 + t*1.25), 0, Math.PI*2); ctx.fill(); }
+  for(const r of state.rings){ const t = r.age / r.life; const a = (1 - t) * 0.55;
+    ctx.strokeStyle = "rgba(255,255,255," + a + ")"; ctx.lineWidth = 3; ctx.beginPath(); ctx.arc(r.x, r.y, r.r, 0, Math.PI*2); ctx.stroke(); }
+  for(const sp of state.sparks){ const t = sp.age / sp.life; const a = Math.max(0, 1 - t);
+    ctx.strokeStyle = "rgba(255,220,140," + (0.9*a) + ")"; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(sp.x, sp.y); ctx.lineTo(sp.x - sp.vx*0.012, sp.y - sp.vy*0.012); ctx.stroke(); }
+  for(const p of state.particles){ const a = 1 - (p.age/p.life); ctx.fillStyle = "rgba(255,200,120," + (0.78*a) + ")"; ctx.beginPath();
+    ctx.arc(p.x, p.y, p.r, 0, Math.PI*2); ctx.fill(); }
   drawScorePops();
   if(state.flash>0){ ctx.fillStyle = "rgba(255,255,255," + (state.flash*0.22) + ")"; ctx.fillRect(0,0,W,H); }
   ctx.restore(); requestAnimationFrame(draw);
@@ -1589,9 +1617,9 @@ function showQuestion(){
   else qEl.style.fontSize = "";
 
   badgeEl.textContent= String(qi+1) + " / 9";
-
   const qMedia = document.getElementById("qMedia"); const qImg = document.getElementById("qImg"); const qAudio = document.getElementById("qAudio");
-  qImg.style.display = "none"; qAudio.style.display = "none"; qMedia.style.display = "none";
+  qImg.style.display = "none"; qAudio.style.display = "none";
+  qMedia.style.display = "none";
   try { qAudio.pause(); } catch(e){} qImg.src = ""; qAudio.src = "";
   if(q.image || q.audio) {
     qMedia.style.display = "block";
@@ -1599,21 +1627,43 @@ function showQuestion(){
     if(q.audio) { qAudio.src = q.audio; qAudio.style.display = "block"; }
   }
 
+  ansInput.style.display = "block"; // Reset to default display
+
   if(q.type==="choice"){
+    const isMulti = q.answers && q.answers.length > 1;
     const shuffledOpts = [...q.options];
     for (let i = shuffledOpts.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
       [shuffledOpts[i], shuffledOpts[j]] = [shuffledOpts[j], shuffledOpts[i]];
     }
     for(const opt of shuffledOpts){
-      const btn=document.createElement("button"); btn.className="btn"; btn.textContent=opt;
+      const btn=document.createElement("button");
+      btn.className="btn"; btn.textContent=opt;
       btn.style.fontFamily = fontToApply;
-      btn.addEventListener("click", ()=>checkAnswer(opt));
+      if (isMulti) {
+        btn.addEventListener("click", ()=> { btn.classList.toggle("selected"); });
+      } else {
+        btn.addEventListener("click", ()=>checkAnswer([opt]));
+      }
       answersEl.appendChild(btn);
     }
-  } else { answersEl.style.display="none"; inputRow.style.display="flex"; ansInput.value=""; }
+    if (isMulti) {
+      inputRow.style.display="flex";
+      ansInput.style.display="none"; // Hide standard text input
+      submitBtn.onclick = () => {
+        const selected = Array.from(answersEl.querySelectorAll(".btn.selected")).map(b => b.textContent);
+        checkAnswer(selected);
+      };
+    }
+  } else { 
+    answersEl.style.display="none"; 
+    inputRow.style.display="flex"; 
+    ansInput.value=""; 
+    submitBtn.onclick = () => checkAnswer(ansInput.value);
+  }
 
-  showOverlayAnimated(); setTimeout(()=>{ if(q.type==="input") ansInput.focus(); }, 50);
+  showOverlayAnimated();
+  setTimeout(()=>{ if(q.type==="input") ansInput.focus(); }, 50);
 
   try{
     if(window.__qTimerId){ clearInterval(window.__qTimerId); window.__qTimerId=null; }
@@ -1624,7 +1674,8 @@ function showQuestion(){
     const C = 100.53;
     if(progEl){ progEl.style.strokeDasharray = String(C); progEl.style.strokeDashoffset = String(C); }
     if(Number.isFinite(secs) && secs>0){
-      const total = Math.max(1, Math.round(secs)); let left = total;
+      const total = Math.max(1, Math.round(secs));
+      let left = total;
       const paint = ()=>{
         const p = Math.max(0, Math.min(1, left / total));
         if(timerEl){
@@ -1646,7 +1697,8 @@ function showQuestion(){
 
 function __applyTitle__(title){
   const t = String(title || "Башня знаний"); document.title = t;
-  const h1 = document.querySelector("#startCard h1"); if(h1) h1.textContent = t;
+  const h1 = document.querySelector("#startCard h1");
+  if(h1) h1.textContent = t;
 }
 
 function checkAnswer(userValue){
@@ -1655,10 +1707,21 @@ function checkAnswer(userValue){
 
   const qi = state.questionIndex; const q = QUESTIONS[(QUESTIONS.length? (qi % QUESTIONS.length):0)];
   let ok=false;
+  
   if(q.type==="input"){
+    const valStr = normalizeAnswer(Array.isArray(userValue) ? userValue[0] : userValue);
     const acc = (q.accepts && q.accepts.length) ? q.accepts : [q.answer];
-    ok = acc.map(normalizeAnswer).includes(normalizeAnswer(userValue));
-  } else { ok = normalizeAnswer(userValue) === normalizeAnswer(q.answer); }
+    ok = acc.map(normalizeAnswer).includes(valStr);
+  } else {
+    const userArr = Array.isArray(userValue) ? userValue : [userValue];
+    const qAns = q.answers || [q.answer];
+    if(userArr.length === qAns.length && userArr.length > 0) {
+      const normUser = userArr.map(normalizeAnswer).sort();
+      const normAns = qAns.map(normalizeAnswer).sort();
+      ok = normUser.every((u, i) => u === normAns[i]);
+    }
+  }
+  
   const waitingBlock = state.current;
 
   if(ok){
@@ -1670,10 +1733,12 @@ function checkAnswer(userValue){
     state.wrong++;
     msgEl.innerHTML = "<span style='color: var(--bad); font-weight:900;'>Неверно!</span> Блок обугливается и исчезает.";
     state.dropping = false;
-    const scorchDur = 0.35; let elapsed = 0;
+    const scorchDur = 0.35;
+    let elapsed = 0;
     function scorchStep(){
       if(!state.current || state.current !== waitingBlock) return;
-      elapsed += 1/60; state.current.char = Math.min(1, elapsed / scorchDur);
+      elapsed += 1/60;
+      state.current.char = Math.min(1, elapsed / scorchDur);
       if(Math.random() < 0.25){
         state.smokes.push({ x: waitingBlock.x + waitingBlock.w/2 + (Math.random()*30-15), y: waitingBlock.y + waitingBlock.h/2 + (Math.random()*20-10), vx: (Math.random()*2-1)*40, vy: -80 - Math.random()*80, life:0.6+Math.random()*0.4, age:0, rad: 14+Math.random()*18 });
       }
@@ -1685,10 +1750,8 @@ function checkAnswer(userValue){
   state.blockIndex++;
 }
 
-submitBtn.addEventListener("click", ()=>checkAnswer(ansInput.value));
 ansInput.addEventListener("keydown",(e)=>{ if(e.key==="Enter") checkAnswer(ansInput.value); });
 document.addEventListener("keydown",(e)=>{ if(overlay.style.display==="flex" && e.key==="Enter"){ const qi=state.questionIndex; if(QUESTIONS[qi].type==="input") checkAnswer(ansInput.value); } });
-
 nextBtn.addEventListener("click", ()=>{
   if(nextBtn.disabled) return;
   state.questionIndex++;
@@ -1735,15 +1798,18 @@ async function startGame(){
   try{
     if(typeof __applyTitle__ === "function") __applyTitle__(window.__CFG?.title || "Башня знаний");
     const src = Array.isArray(window.__CFG?.questions) ? window.__CFG.questions : [];
-    if(src.length === 0) QUESTIONS = Array.from({length:9}, (_,i)=>({type:"choice", q:"(вопрос "+(i+1)+")", options:["OK","..."], answer:"OK", font:"", fontSize:""}));
+    if(src.length === 0) QUESTIONS = Array.from({length:9}, (_,i)=>({type:"choice", q:"(вопрос "+(i+1)+")", options:["OK","..."], answers:["OK"], font:"", fontSize:""}));
     else QUESTIONS = src.map((q,i)=>{
       if(q && (q.type==="text" || q.type==="input")){
         const acc = Array.isArray(q.accepts) ? q.accepts.map(String).filter(s=>s.trim()) : [];
         return { type:"input", q:String(q.prompt||q.q||""), accepts: acc, answer: String(acc[0]||""), seconds:(q.seconds??null), image:(q.image||""), audio:(q.audio||""), font:(q.font||""), fontSize:(q.fontSize||"") };
       }
       const opts = Array.isArray(q.options) ? q.options.map(String).filter(s=>s.trim()) : [];
-      const ci = Number.isFinite(q.correctIndex) ? q.correctIndex : 0;
-      return { type:"choice", q:String(q.prompt||q.q||""), options: opts.length?opts:["OK","..."], answer: String(opts[ci] ?? opts[0] ?? "OK"), seconds:(q.seconds??null), image:(q.image||""), audio:(q.audio||""), font:(q.font||""), fontSize:(q.fontSize||"") };
+      const ciArr = Array.isArray(q.correctIndices) ? q.correctIndices : (Number.isFinite(q.correctIndex) ? [q.correctIndex] : [0]);
+      const ansStrs = ciArr.map(idx => String(opts[idx] ?? opts[0] ?? "OK"));
+      
+      return { type:"choice", q:String(q.prompt||q.q||""), options: opts.length?opts:["OK","..."], answers: ansStrs, seconds:(q.seconds??null), 
+               image:(q.image||""), audio:(q.audio||""), font:(q.font||""), fontSize:(q.fontSize||"") };
     });
   }catch(e){}
 
@@ -1758,7 +1824,6 @@ async function startGame(){
   }
   
   errBox.style.display="none"; errList.innerHTML="";
-
   Object.assign(state, { running:false, bg:null, blocks:[], towerScale:1, tower:[], current:null, particles:[], smokes:[], rings:[], sparks:[], flash:0, cameraShake:0, cameraX:0, cameraY:0, towerOffsetY:0, towerOffsetV:0, questionIndex:0, waitingAnswer:false, dropping:false, blockIndex:0, readyForNext:false, finished:false, score:0, scoreFloats:[], correct:0, wrong:0, landingBounce:null });
   scoreNum.textContent = "0"; setNextEnabled(false); updateRemain();
 
@@ -1782,7 +1847,6 @@ playBtn.addEventListener("click", async ()=>{
   playBtn.innerHTML = origText;
   playBtn.style.opacity = "1"; playBtn.style.pointerEvents = "auto";
 });
-
 requestAnimationFrame(loop);
 requestAnimationFrame(draw);
 
@@ -1842,7 +1906,8 @@ try{
 }
 #gameRoot #qTimerBadge .qTimerRing{ width:38px; height:38px; transform: rotate(-90deg); filter: drop-shadow(0 6px 10px rgba(0,0,0,.35)); }
 #gameRoot #qTimerBadge .qTimerTrack{ fill:none; stroke: rgba(255,255,255,.10); stroke-width:4; }
-#gameRoot #qTimerBadge .qTimerProg{ fill:none; stroke-width:4; stroke-linecap:round; stroke: hsl(var(--h) 90% 60% / .95); stroke-dasharray: 100.53; stroke-dashoffset: calc(100.53 * (1 - var(--p))); transition: stroke .25s linear, stroke-dashoffset .25s linear; }
+#gameRoot #qTimerBadge .qTimerProg{ fill:none; stroke-width:4; stroke-linecap:round; stroke: hsl(var(--h) 90% 60% / .95); stroke-dasharray: 100.53; stroke-dashoffset: calc(100.53 * (1 - var(--p)));
+  transition: stroke .25s linear, stroke-dashoffset .25s linear; }
 #gameRoot #qTimerBadge .qTimerText{ font-weight:900; font-size:16px; color: rgba(255,255,255,.94); letter-spacing:.2px; min-width: 2ch; text-align:right; }
 #gameRoot #qTimerBadge.qPulse{ animation: qPulseAnim .85s ease-in-out infinite; }
 @keyframes qPulseAnim{
@@ -1863,8 +1928,6 @@ try{
         instruction: cfg.instruction,
         feedback: cfg.feedback
     };
-
-    // Обновляем стартовый экран СРАЗУ после вставки HTML
     try{
         const instCfg = window.__CFG?.instruction || {};
         const instText = instCfg.text !== undefined ? instCfg.text : "Первый блок падает сам. Дальше — нажимай <b>Далее</b>.\nКогда блок остановится — ответь на вопрос.\nВерно → блок опускается и становится этажом (+100).\nНеверно → блок обугливается, взрывается и исчезает.";
@@ -1876,41 +1939,28 @@ try{
         if(startCardP) { startCardP.innerHTML = String(instText).replace(/\n/g, "<br/>"); }
         if(startCard) {
             startCard.style.borderColor = instColor;
-            if(instGlow) {
-                startCard.style.boxShadow = "0 0 25px " + instColor + ", inset 0 0 15px " + instColor + ", 0 18px 60px rgba(0,0,0,.5)";
-            } else {
-                startCard.style.boxShadow = "var(--shadow)";
-            }
+            if(instGlow) { startCard.style.boxShadow = "0 0 25px " + instColor + ", inset 0 0 15px " + instColor + ", 0 18px 60px rgba(0,0,0,.5)"; } 
+            else { startCard.style.boxShadow = "var(--shadow)"; }
         }
         
-        // Предварительное применение текста фидбека для надежности
         const fCustom = document.getElementById("finishCustomText");
         if(fCustom){
             const txt = window.__CFG?.feedback?.text || "";
             fCustom.innerHTML = String(txt).replace(/\n/g, "<br/>");
             fCustom.style.display = txt.trim() ? "block" : "none";
         }
-        
     }catch(e){}
 
     if(!window.__TOWER_GAME_RAN__){
       window.__TOWER_GAME_RAN__ = true;
-      try{
-        eval(__GAME_JS__);
-      }catch(e){
-        showErr(e?.stack || e?.message || String(e));
-      }
+      try{ eval(__GAME_JS__); }catch(e){ showErr(e?.stack || e?.message || String(e)); }
     } else {
       try{
         const playBtn = document.getElementById("play");
         const startLayer = document.getElementById("start");
-        
         if(startLayer) startLayer.style.display="flex";
-        
         const qp = new URLSearchParams(location.search);
-        if(qp.get("autostart")==="1"){
-            if(playBtn) playBtn.click();
-        }
+        if(qp.get("autostart")==="1"){ if(playBtn) playBtn.click(); }
       }catch(e){}
     }
   }
@@ -1929,28 +1979,17 @@ try{
   async function copyToClipboard(text){
     try{
       if (navigator.clipboard && window.isSecureContext){
-        await navigator.clipboard.writeText(text);
-        return true;
+        await navigator.clipboard.writeText(text); return true;
       }
     }catch(e){}
     try{
       const ta = document.createElement("textarea");
       ta.value = text;
       ta.setAttribute("readonly", "");
-      ta.style.position = "fixed";
-      ta.style.left = "0";
-      ta.style.top = "0";
-      ta.style.opacity = "0";
-      ta.style.width = "1px";
-      ta.style.height = "1px";
-      ta.style.pointerEvents = "none";
-      ta.style.zIndex = "-1";
-      document.body.appendChild(ta);
-      ta.focus();
-      ta.select();
-      ta.setSelectionRange(0, ta.value.length);
-      const ok = document.execCommand("copy");
-      document.body.removeChild(ta);
+      ta.style.position = "fixed"; ta.style.left = "0"; ta.style.top = "0"; ta.style.opacity = "0";
+      ta.style.width = "1px"; ta.style.height = "1px"; ta.style.pointerEvents = "none"; ta.style.zIndex = "-1";
+      document.body.appendChild(ta); ta.focus(); ta.select(); ta.setSelectionRange(0, ta.value.length);
+      const ok = document.execCommand("copy"); document.body.removeChild(ta);
       return ok;
     }catch(e){ return false; }
   }
@@ -1964,7 +2003,6 @@ try{
   }
 
   const blockUrls = Array.from({length:9}, (_,i)=> BASE + (i+3) + ".png");
-
   function parseQueryParams(){
     const q = {};
     const s = window.location.search.replace(/^\?/, "");
@@ -2007,19 +2045,14 @@ try{
 
     const timerEnabled = !!cfg.timer?.enabled;
     const timerSeconds = Math.max(5, Math.min(600, Number(cfg.timer?.seconds || 30)));
-
     const instruction = {
       text: cfg.instruction?.text !== undefined ? String(cfg.instruction.text) : "Первый блок падает сам. Дальше — нажимай <b>Далее</b>.\nКогда блок остановится — ответь на вопрос.\nВерно → блок опускается и становится этажом (+100).\nНеверно → блок обугливается, взрывается и исчезает.",
       color: String(cfg.instruction?.color || "#ffffff"),
       glow: !!cfg.instruction?.glow
     };
-    
-    const feedback = {
-      text: cfg.feedback?.text !== undefined ? String(cfg.feedback.text) : ""
-    };
+    const feedback = { text: cfg.feedback?.text !== undefined ? String(cfg.feedback.text) : "" };
 
     let questions = Array.isArray(cfg.questions) ? cfg.questions.slice(0,9) : [];
-
     questions = questions.map(q=>{
       const rawSecs = (q && ("seconds" in q)) ? q.seconds : null;
       const nSecs = (rawSecs==null || rawSecs==="") ? null : Number(rawSecs);
@@ -2028,43 +2061,27 @@ try{
       const audio = String(q?.audio || "").trim();
       const font = String(q?.font || "").trim();
       const fontSize = q?.fontSize ? Number(q.fontSize) : null;
-      
+   
       if(q?.type === "text"){
         return { type:"text", prompt:String(q.prompt||""), accepts:(Array.isArray(q.accepts)?q.accepts:[String(q.answer||"")]).map(x=>String(x||"")), seconds, image, audio, font, fontSize };
       }
-      return { type:"choice", prompt:String(q?.prompt||""), options:(Array.isArray(q?.options)?q.options:[]).map(x=>String(x||"")), correctIndex:Number(q?.correctIndex||0), seconds, image, audio, font, fontSize };
+      return { type:"choice", prompt:String(q?.prompt||""), options:(Array.isArray(q?.options)?q.options:[]).map(x=>String(x||"")), correctIndices: (Array.isArray(q?.correctIndices) ? q.correctIndices : [Number(q?.correctIndex||0)]), seconds, image, audio, font, fontSize };
     });
     return { title, useRepoBg, bgDataUrl, timer: { enabled: timerEnabled, seconds: timerSeconds }, useImages, useLatex, blockUrls: blockUrls, questions, instruction, feedback };
   }
 
   const Editor = {
     title: "Башня знаний",
-    useRepoBg: true,
-    bgDataUrl: "",
-    timer: { enabled:false, seconds: 30 },
-    useImages: true,
-    useLatex: false,
-    instruction: {
-      text: "Первый блок падает сам. Дальше — нажимай <b>Далее</b>.\nКогда блок остановится — ответь на вопрос.\nВерно → блок опускается и становится этажом (+100).\nНеверно → блок обугливается, взрывается и исчезает.",
-      color: "#ffffff",
-      glow: false
-    },
-    feedback: {
-      text: ""
-    },
-    questions: [],
-    draft: null,
-    editingId: null
+    useRepoBg: true, bgDataUrl: "", timer: { enabled:false, seconds: 30 }, useImages: true, useLatex: false,
+    instruction: { text: "Первый блок падает сам. Дальше — нажимай <b>Далее</b>.\nКогда блок остановится — ответь на вопрос.\nВерно → блок опускается и становится этажом (+100).\nНеверно → блок обугливается, взрывается и исчезает.", color: "#ffffff", glow: false },
+    feedback: { text: "" }, questions: [], draft: null, editingId: null
   };
-
   function setCountPill(){
     $("pillCount").textContent = Editor.questions.length + " / 9";
     $("btnAddQ").disabled = (Editor.questions.length >= 9);
   }
 
-  function escapeHtml(s){
-    return String(s ?? "").replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;").replaceAll('"',"&quot;").replaceAll("'","&#039;");
-  }
+  function escapeHtml(s){ return String(s ?? "").replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;").replaceAll('"',"&quot;").replaceAll("'","&#039;"); }
 
   function qSummary(q){
     const p = String(q.prompt || "").trim();
@@ -2075,80 +2092,37 @@ try{
   }
 
   function renderList(){
-    const list = $("qList");
-    list.innerHTML = "";
-    setCountPill();
+    const list = $("qList"); list.innerHTML = ""; setCountPill();
 
     if(Editor.questions.length === 0){
-      const d = document.createElement("div");
-      d.className = "muted";
-      d.textContent = t("noQs");
-      list.appendChild(d);
-      return;
+      const d = document.createElement("div"); d.className = "muted"; d.textContent = t("noQs"); list.appendChild(d); return;
     }
 
     Editor.questions.forEach((q,i)=>{
-      const wrap = document.createElement("div");
-      wrap.className = "q-item";
+      const wrap = document.createElement("div"); wrap.className = "q-item";
 
-      const meta = document.createElement("div");
-      meta.className = "meta";
+      const meta = document.createElement("div"); meta.className = "meta";
       const s = qSummary(q);
       meta.innerHTML = `<div class="t">${escapeHtml(String(i+1)+". "+s.title)}</div><div class="s">${escapeHtml(s.sub)}</div>`;
 
       const btns = document.createElement("div");
-      btns.style.display="flex";
-      btns.style.gap="8px";
-      btns.style.flexWrap="wrap";
-      btns.style.justifyContent="flex-end";
-
-      const bPrev = document.createElement("button");
-      bPrev.className = "btn small";
-      bPrev.type="button";
-      bPrev.textContent = "👁";
-      bPrev.title = t("btnShow");
-      bPrev.onclick = ()=>{
-        Editor.draft = deepClone(q);
-        updatePreview(true);
-        toast(t("toastShown"));
-      };
+      btns.style.display="flex"; btns.style.gap="8px"; btns.style.flexWrap="wrap"; btns.style.justifyContent="flex-end";
+      const bPrev = document.createElement("button"); bPrev.className = "btn small"; bPrev.type="button"; bPrev.textContent = "👁"; bPrev.title = t("btnShow");
+      bPrev.onclick = ()=>{ Editor.draft = deepClone(q); updatePreview(true); toast(t("toastShown")); };
       
-      const bEdit = document.createElement("button");
-      bEdit.className = "btn small";
-      bEdit.type="button";
-      bEdit.textContent = "✏️";
-      bEdit.title = t("btnEdit");
+      const bEdit = document.createElement("button"); bEdit.className = "btn small"; bEdit.type="button"; bEdit.textContent = "✏️"; bEdit.title = t("btnEdit");
       bEdit.onclick = ()=> openModal(q);
       
-      const bDel = document.createElement("button");
-      bDel.className = "btn small danger";
-      bDel.type="button";
-      bDel.textContent = "🗑";
-      bDel.title = t("btnDel");
-      bDel.onclick = ()=>{
-        Editor.questions = Editor.questions.filter(x=>x.id!==q.id);
-        renderList();
-        updatePreview(false);
-        toast(t("toastDeleted"));
-      };
+      const bDel = document.createElement("button"); bDel.className = "btn small danger"; bDel.type="button"; bDel.textContent = "🗑"; bDel.title = t("btnDel");
+      bDel.onclick = ()=>{ Editor.questions = Editor.questions.filter(x=>x.id!==q.id); renderList(); updatePreview(false); toast(t("toastDeleted")); };
 
-      btns.appendChild(bPrev);
-      btns.appendChild(bEdit);
-      btns.appendChild(bDel);
-      wrap.appendChild(meta);
-      wrap.appendChild(btns);
-      list.appendChild(wrap);
+      btns.appendChild(bPrev); btns.appendChild(bEdit); btns.appendChild(bDel);
+      wrap.appendChild(meta); wrap.appendChild(btns); list.appendChild(wrap);
     });
   }
 
-  function showModal(){
-    $("modalBackdrop").style.display = "flex";
-    $("modalBackdrop").setAttribute("aria-hidden","false");
-  }
-  function hideModal(){
-    $("modalBackdrop").style.display = "none";
-    $("modalBackdrop").setAttribute("aria-hidden","true");
-  }
+  function showModal(){ $("modalBackdrop").style.display = "flex"; $("modalBackdrop").setAttribute("aria-hidden","false"); }
+  function hideModal(){ $("modalBackdrop").style.display = "none"; $("modalBackdrop").setAttribute("aria-hidden","true"); }
 
   function syncModalType(){
     const ty = $("selType").value;
@@ -2157,141 +2131,104 @@ try{
   }
 
   function renderChoiceUI(){
-    const list = $("choiceList");
-    list.innerHTML = "";
-    const q = Editor.draft;
-    if(!q) return;
+    const list = $("choiceList"); list.innerHTML = "";
+    const q = Editor.draft; if(!q) return;
 
     q.options = q.options || ["",""];
-    if(typeof q.correctIndex !== "number") q.correctIndex = 0;
+    q.correctIndices = q.correctIndices || (typeof q.correctIndex === "number" ? [q.correctIndex] : [0]);
 
     q.options.forEach((val, idx)=>{
-      const row = document.createElement("div");
-      row.className = "answerRow";
+      const row = document.createElement("div"); row.className = "answerRow";
 
       const r = document.createElement("input");
-      r.className="radio";
-      r.type="radio";
-      r.name="correctChoice";
-      r.checked = (q.correctIndex === idx);
-      r.onchange = ()=>{ q.correctIndex = idx; renderChoiceUI(); };
-
-      const inp = document.createElement("input");
-      inp.type="text";
-      inp.value = val || "";
-      inp.placeholder = (idx === q.correctIndex) ? t("rightAns") : (t("optionN") + (idx+1));
-      inp.oninput = ()=>{ q.options[idx] = inp.value; };
-
-      const del = document.createElement("button");
-      del.className="btn small danger";
-      del.type="button";
-      del.textContent="✖";
-      del.onclick = ()=>{
-        q.options.splice(idx,1);
-        if(q.options.length < 2) q.options.push("");
-        if(q.correctIndex >= q.options.length) q.correctIndex = q.options.length-1;
+      r.className="radio"; r.type="checkbox";
+      r.checked = q.correctIndices.includes(idx);
+      r.onchange = (e)=>{
+        if (e.target.checked) {
+          if (!q.correctIndices.includes(idx)) q.correctIndices.push(idx);
+        } else {
+          q.correctIndices = q.correctIndices.filter(i => i !== idx);
+        }
         renderChoiceUI();
       };
 
-      row.appendChild(r);
-      row.appendChild(inp);
-      row.appendChild(del);
-      list.appendChild(row);
+      const inp = document.createElement("input");
+      inp.type="text"; inp.value = val || "";
+      inp.placeholder = q.correctIndices.includes(idx) ? t("rightAns") : (t("optionN") + (idx+1));
+      inp.oninput = ()=>{ q.options[idx] = inp.value; };
+
+      const del = document.createElement("button");
+      del.className="btn small danger"; del.type="button"; del.textContent="✖";
+      del.onclick = ()=>{
+        q.options.splice(idx,1);
+        if(q.options.length < 2) q.options.push("");
+        q.correctIndices = q.correctIndices.filter(i => i !== idx).map(i => i > idx ? i - 1 : i);
+        if(q.correctIndices.length === 0) q.correctIndices = [0];
+        renderChoiceUI();
+      };
+
+      row.appendChild(r); row.appendChild(inp); row.appendChild(del); list.appendChild(row);
     });
   }
 
   function renderTextUI(){
-    const list = $("textList");
-    list.innerHTML = "";
-    const q = Editor.draft;
-    if(!q) return;
+    const list = $("textList"); list.innerHTML = "";
+    const q = Editor.draft; if(!q) return;
     q.accepts = q.accepts || [""];
 
     q.accepts.forEach((val, idx)=>{
-      const row = document.createElement("div");
-      row.className = "answerRow";
+      const row = document.createElement("div"); row.className = "answerRow";
 
-      const inp = document.createElement("input");
-      inp.type="text";
-      inp.value = val || "";
+      const inp = document.createElement("input"); inp.type="text"; inp.value = val || "";
       inp.placeholder = (idx===0) ? t("rightAns") : (t("rightOptionN") + (idx+1));
       inp.oninput = ()=>{ q.accepts[idx] = inp.value; };
 
-      const del = document.createElement("button");
-      del.className="btn small danger";
-      del.type="button";
-      del.textContent="✖";
-      del.onclick = ()=>{
-        q.accepts.splice(idx,1);
-        if(q.accepts.length === 0) q.accepts.push("");
-        renderTextUI();
-      };
+      const del = document.createElement("button"); del.className="btn small danger"; del.type="button"; del.textContent="✖";
+      del.onclick = ()=>{ q.accepts.splice(idx,1); if(q.accepts.length === 0) q.accepts.push(""); renderTextUI(); };
 
-      row.appendChild(inp);
-      row.appendChild(del);
-      list.appendChild(row);
+      row.appendChild(inp); row.appendChild(del); list.appendChild(row);
     });
   }
 
   function openModal(existing=null){
     if(existing){
       Editor.draft = deepClone(existing);
+      if(typeof Editor.draft.correctIndex === "number" && !Editor.draft.correctIndices) Editor.draft.correctIndices = [Editor.draft.correctIndex];
       Editor.editingId = existing.id;
       $("modalTitle").textContent = t("modalTitleEdit");
     } else {
-      Editor.draft = {
-        id: uid(), type: "choice", prompt: "", options: ["",""], correctIndex: 0, seconds: null, image: "", audio: "", font: "", fontSize: 20
-      };
+      Editor.draft = { id: uid(), type: "choice", prompt: "", options: ["",""], correctIndices: [0], seconds: null, image: "", audio: "", font: "", fontSize: 20 };
       Editor.editingId = null;
       $("modalTitle").textContent = t("modalTitleAdd");
     }
 
     $("selType").value = Editor.draft.type || "choice";
     $("inpPrompt").value = Editor.draft.prompt || "";
+    if(!("font" in Editor.draft)) Editor.draft.font = ""; if($("inpQFont")) $("inpQFont").value = Editor.draft.font;
+    if(!("fontSize" in Editor.draft)) Editor.draft.fontSize = 20; if($("inpQFontSize")) $("inpQFontSize").value = Editor.draft.fontSize || 20;
     
-    if(!("font" in Editor.draft)) Editor.draft.font = "";
-    if($("inpQFont")) $("inpQFont").value = Editor.draft.font;
-    
-    if(!("fontSize" in Editor.draft)) Editor.draft.fontSize = 20;
-    if($("inpQFontSize")) $("inpQFontSize").value = Editor.draft.fontSize || 20;
-    
-    if(!("seconds" in Editor.draft)) Editor.draft.seconds = null;
-    if($("inpQSeconds")) $("inpQSeconds").value = (Editor.draft.seconds ?? "");
-    
-    if(!("image" in Editor.draft)) Editor.draft.image = "";
-    if(!("audio" in Editor.draft)) Editor.draft.audio = "";
-    if($("inpQImage")) $("inpQImage").value = Editor.draft.image;
-    if($("inpQAudio")) $("inpQAudio").value = Editor.draft.audio;
-    
+    if(!("seconds" in Editor.draft)) Editor.draft.seconds = null; if($("inpQSeconds")) $("inpQSeconds").value = (Editor.draft.seconds ?? "");
+    if(!("image" in Editor.draft)) Editor.draft.image = ""; if(!("audio" in Editor.draft)) Editor.draft.audio = "";
+    if($("inpQImage")) $("inpQImage").value = Editor.draft.image; if($("inpQAudio")) $("inpQAudio").value = Editor.draft.audio;
     syncModalType();
-    if($("selType").value === "choice") renderChoiceUI();
-    else renderTextUI();
+    if($("selType").value === "choice") renderChoiceUI(); else renderTextUI();
 
-    showModal();
-    setTimeout(()=>$("inpPrompt").focus(), 40);
+    showModal(); setTimeout(()=>$("inpPrompt").focus(), 40);
   }
 
   function getDraftFromModal(){
-    const q = Editor.draft;
-    if(!q) return null;
-    q.type = $("selType").value;
-    q.prompt = $("inpPrompt").value || "";
-    q.font = $("inpQFont") ? $("inpQFont").value : "";
-    q.fontSize = $("inpQFontSize") ? Number($("inpQFontSize").value) || 20 : 20;
+    const q = Editor.draft; if(!q) return null;
+    q.type = $("selType").value; q.prompt = $("inpPrompt").value || "";
+    q.font = $("inpQFont") ? $("inpQFont").value : ""; q.fontSize = $("inpQFontSize") ? Number($("inpQFontSize").value) || 20 : 20;
 
     q.seconds = ($("inpQSeconds") && $("inpQSeconds").value !== "") ? Number($("inpQSeconds").value) : null;
-    if(q.seconds != null){
-      const s = Number(q.seconds);
-      if(!Number.isFinite(s) || s < 3 || s > 600) return "Таймер вопроса: 3–600 секунд";
-      q.seconds = Math.round(s);
-    }
+    if(q.seconds != null){ const s = Number(q.seconds); if(!Number.isFinite(s) || s < 3 || s > 600) return "Таймер вопроса: 3–600 секунд"; q.seconds = Math.round(s); }
     
-    q.image = $("inpQImage") ? $("inpQImage").value.trim() : "";
-    q.audio = $("inpQAudio") ? $("inpQAudio").value.trim() : "";
+    q.image = $("inpQImage") ? $("inpQImage").value.trim() : ""; q.audio = $("inpQAudio") ? $("inpQAudio").value.trim() : "";
 
     if(q.type === "choice"){
       q.options = (q.options || []).map(x=>String(x||""));
-      q.correctIndex = Number.isFinite(q.correctIndex) ? q.correctIndex : 0;
+      q.correctIndices = Array.isArray(q.correctIndices) && q.correctIndices.length ? q.correctIndices : [0];
     } else {
       q.accepts = (q.accepts || [""]).map(x=>String(x||""));
     }
@@ -2301,16 +2238,15 @@ try{
   function validateQuestion(q){
     if(!q) return t("toastEmptyQ");
     if(!(q.prompt||"").trim()) return t("toastNoText");
-
     if(q.type === "choice"){
       const opts = (q.options||[]).map(x=>String(x||"").trim()).filter(Boolean);
       if(opts.length < 2) return t("toastMin2");
       q.options = opts;
-      if(!Number.isFinite(q.correctIndex)) q.correctIndex = 0;
-      if(q.correctIndex >= q.options.length) q.correctIndex = 0;
+      if(!q.correctIndices || q.correctIndices.length === 0) return t("toastAtLeast1");
+      q.correctIndices = q.correctIndices.filter(i => i >= 0 && i < q.options.length);
+      if(q.correctIndices.length === 0) q.correctIndices = [0];
       return "";
     }
-
     const acc = (q.accepts||[]).map(x=>String(x||"").trim()).filter(Boolean);
     if(acc.length === 0) return t("toastAtLeast1");
     q.accepts = acc;
@@ -2319,97 +2255,46 @@ try{
 
   function buildPayload(previewWithDraft){
     let questions = Editor.questions.map(q=>{
-      if(q.type === "choice"){
-        return { type:"choice", prompt:q.prompt||"", options:(q.options||[]).slice(), correctIndex:Number(q.correctIndex||0), seconds:(q.seconds??null), image:q.image||"", audio:q.audio||"", font:q.font||"", fontSize:q.fontSize||null };
-      }
+      if(q.type === "choice"){ return { type:"choice", prompt:q.prompt||"", options:(q.options||[]).slice(), correctIndices:(q.correctIndices||[0]).slice(), seconds:(q.seconds??null), image:q.image||"", audio:q.audio||"", font:q.font||"", fontSize:q.fontSize||null }; }
       return { type:"text", prompt:q.prompt||"", accepts:(q.accepts||[]).slice(), seconds:(q.seconds??null), image:q.image||"", audio:q.audio||"", font:q.font||"", fontSize:q.fontSize||null };
     });
-    
     if(previewWithDraft && Editor.draft){
-      const d = deepClone(Editor.draft);
-      questions = questions.slice();
+      const d = deepClone(Editor.draft); questions = questions.slice();
       if(d.type === "choice"){
-        const mapped = {
-          type:"choice", prompt:d.prompt||"", options:(d.options||[]).slice(), correctIndex:Number(d.correctIndex||0),
-          seconds: (d.seconds==null || d.seconds==="") ? null : Number(d.seconds), image:d.image||"", audio:d.audio||"", font:d.font||"", fontSize:d.fontSize||null
-        };
-        if(questions.length === 0) questions.push(mapped);
-        else questions[0] = mapped;
+        const mapped = { type:"choice", prompt:d.prompt||"", options:(d.options||[]).slice(), correctIndices:(d.correctIndices||[0]).slice(), seconds: (d.seconds==null || d.seconds==="") ? null : Number(d.seconds), image:d.image||"", audio:d.audio||"", font:d.font||"", fontSize:d.fontSize||null };
+        if(questions.length === 0) questions.push(mapped); else questions[0] = mapped;
       } else {
-        const mapped = {
-          type:"text", prompt:d.prompt||"", accepts:(d.accepts||[]).slice(),
-          seconds: (d.seconds==null || d.seconds==="") ? null : Number(d.seconds), image:d.image||"", audio:d.audio||"", font:d.font||"", fontSize:d.fontSize||null
-        };
-        if(questions.length === 0) questions.push(mapped);
-        else questions[0] = mapped;
+        const mapped = { type:"text", prompt:d.prompt||"", accepts:(d.accepts||[]).slice(), seconds: (d.seconds==null || d.seconds==="") ? null : Number(d.seconds), image:d.image||"", audio:d.audio||"", font:d.font||"", fontSize:d.fontSize||null };
+        if(questions.length === 0) questions.push(mapped); else questions[0] = mapped;
       }
     }
-
-    return normalizeCfg({
-      title: Editor.title || "Башня знаний",
-      useRepoBg: true,
-      bgDataUrl: Editor.bgDataUrl || "",
-      timer: { enabled: !!Editor.timer.enabled, seconds: Number(Editor.timer.seconds || 30) },
-      useImages: !!Editor.useImages,
-      useLatex: !!Editor.useLatex,
-      instruction: Editor.instruction,
-      feedback: Editor.feedback,
-      questions
-    });
+    return normalizeCfg({ title: Editor.title || "Башня знаний", useRepoBg: true, bgDataUrl: Editor.bgDataUrl || "", timer: { enabled: !!Editor.timer.enabled, seconds: Number(Editor.timer.seconds || 30) }, useImages: !!Editor.useImages, useLatex: !!Editor.useLatex, instruction: Editor.instruction, feedback: Editor.feedback, questions });
   }
 
-  function buildGameUrl(payload){
-    const data = b64urlEncode(JSON.stringify(payload));
-    return selfPageUrl() + "?game=" + data + "#game=" + data;
-  }
-  
-  function buildIframeFromUrl(src){
-    return `<iframe src="${src}" style="width:100%;height:100%;min-height:720px;border:0;border-radius:18px;overflow:hidden;background:transparent" allow="autoplay; fullscreen" allowfullscreen loading="lazy"></iframe>`;
-  }
+  function buildGameUrl(payload){ const data = b64urlEncode(JSON.stringify(payload)); return selfPageUrl() + "?game=" + data + "#game=" + data; }
+  function buildIframeFromUrl(src){ return `<iframe src="${src}" style="width:100%;height:100%;min-height:720px;border:0;border-radius:18px;overflow:hidden;background:transparent" allow="autoplay; fullscreen" allowfullscreen loading="lazy"></iframe>`; }
 
   const PREVIEW_CFGKEY = "__tower_preview_cfg__";
-  function storePreviewCfg(cfg){
-    try{ localStorage.setItem(PREVIEW_CFGKEY, JSON.stringify(cfg)); return PREVIEW_CFGKEY; }
-    catch(e){ return ""; }
-  }
+  function storePreviewCfg(cfg){ try{ localStorage.setItem(PREVIEW_CFGKEY, JSON.stringify(cfg)); return PREVIEW_CFGKEY; } catch(e){ return ""; } }
 
   function updatePreview(previewWithDraft){
-    const payload = buildPayload(previewWithDraft);
-    const jsonStr = JSON.stringify(payload);
-    const useKey = jsonStr.length > 1800;
-    
-    let urlParams = "?preview=1";
-    if (previewWithDraft) urlParams += "&autostart=1";
-
+    const payload = buildPayload(previewWithDraft); const jsonStr = JSON.stringify(payload); const useKey = jsonStr.length > 1800;
+    let urlParams = "?preview=1"; if (previewWithDraft) urlParams += "&autostart=1";
     if(useKey){
       const key = storePreviewCfg(payload);
-      if(key){
-        const src = selfPageUrl() + urlParams + "&cfgkey=" + encodeURIComponent(key) + "#cfgkey=" + encodeURIComponent(key);
-        $("livePreview").src = src;
-        return;
-      }
+      if(key){ const src = selfPageUrl() + urlParams + "&cfgkey=" + encodeURIComponent(key) + "#cfgkey=" + encodeURIComponent(key); $("livePreview").src = src; return; }
     }
-    const data = b64urlEncode(jsonStr);
-    const src = selfPageUrl() + urlParams + "&game=" + data + "#game=" + data;
-    $("livePreview").src = src;
+    const data = b64urlEncode(jsonStr); const src = selfPageUrl() + urlParams + "&game=" + data + "#game=" + data; $("livePreview").src = src;
   }
 
   let _previewTid = null;
-  function debouncedPreview(){
-    if(_previewTid) clearTimeout(_previewTid);
-    _previewTid = setTimeout(()=>updatePreview(false), 500);
-  }
+  function debouncedPreview(){ if(_previewTid) clearTimeout(_previewTid); _previewTid = setTimeout(()=>updatePreview(false), 500); }
 
-  $("inpInstruction").value = Editor.instruction.text;
-  $("inpInstColor").value = Editor.instruction.color;
-  $("chkInstGlow").checked = Editor.instruction.glow;
-  $("inpFeedback").value = Editor.feedback.text;
-
+  $("inpInstruction").value = Editor.instruction.text; $("inpInstColor").value = Editor.instruction.color; $("chkInstGlow").checked = Editor.instruction.glow; $("inpFeedback").value = Editor.feedback.text;
   $("inpInstruction").addEventListener("input", ()=>{ Editor.instruction.text = $("inpInstruction").value; debouncedPreview(); });
   $("inpInstColor").addEventListener("input", ()=>{ Editor.instruction.color = $("inpInstColor").value; debouncedPreview(); });
   $("chkInstGlow").addEventListener("change", ()=>{ Editor.instruction.glow = $("chkInstGlow").checked; debouncedPreview(); });
   $("inpFeedback").addEventListener("input", ()=>{ Editor.feedback.text = $("inpFeedback").value; debouncedPreview(); });
-
   $("inpTitle").addEventListener("input", ()=>{ Editor.title = $("inpTitle").value || "Башня знаний"; debouncedPreview(); });
   $("inpBgUrl").addEventListener("input", ()=>{ Editor.bgDataUrl = $("inpBgUrl").value.trim(); debouncedPreview(); });
   $("inpSeconds").addEventListener("input", ()=>{ Editor.timer.seconds = Number($("inpSeconds").value || 30); debouncedPreview(); });
@@ -2423,19 +2308,15 @@ try{
   $("btnClearQs").addEventListener("click", ()=>{ Editor.questions = []; renderList(); updatePreview(false); toast(t("toastCleared")); });
   $("btnCloseModal").addEventListener("click", ()=>{ Editor.draft=null; Editor.editingId=null; hideModal(); });
   $("modalBackdrop").addEventListener("click", (e)=>{ if(e.target === $("modalBackdrop")){ Editor.draft=null; Editor.editingId=null; hideModal(); } });
-  
   $("selType").addEventListener("change", ()=>{
     const q = Editor.draft; if(!q) return; q.type = $("selType").value; syncModalType();
-    if(q.type === "choice"){ q.options = q.options || ["",""]; if(typeof q.correctIndex !== "number") q.correctIndex = 0; renderChoiceUI(); } 
+    if(q.type === "choice"){ q.options = q.options || ["",""]; q.correctIndices = q.correctIndices || [0]; renderChoiceUI(); } 
     else { q.accepts = q.accepts || [""]; renderTextUI(); }
   });
-  
   if($("btnClearImage")) $("btnClearImage").addEventListener("click", () => { $("inpQImage").value = ""; });
   if($("btnClearAudio")) $("btnClearAudio").addEventListener("click", () => { $("inpQAudio").value = ""; });
-  
   $("btnAddChoice").addEventListener("click", ()=>{ const q = Editor.draft; if(!q) return; q.options = q.options || ["",""]; q.options.push(""); renderChoiceUI(); });
   $("btnAddText").addEventListener("click", ()=>{ const q = Editor.draft; if(!q) return; q.accepts = q.accepts || [""]; q.accepts.push(""); renderTextUI(); });
-  
   $("btnPreviewDraft").addEventListener("click", ()=>{ getDraftFromModal(); updatePreview(true); toast(t("toastDraft")); });
   
   $("btnSaveQ").addEventListener("click", ()=>{
@@ -2448,15 +2329,11 @@ try{
     } else { Editor.questions.push(q); toast(t("toastQAdded")); }
     Editor.draft=null; Editor.editingId=null; hideModal(); renderList(); updatePreview(false);
   });
-  
   $("btnCopyCode").addEventListener("click", async ()=>{
     const payload = buildPayload(false); const url = buildGameUrl(payload); const iframeCode = buildIframeFromUrl(url);
     const ok = await copyToClipboard(iframeCode); toast(ok ? t("toastCopied") : t("toastError"));
   });
-  
-  function hideCodeModal(){
-    if(!$("codeBackdrop")) return; $("codeBackdrop").style.display = "none"; $("codeBackdrop").setAttribute("aria-hidden","true");
-  }
+  function hideCodeModal(){ if(!$("codeBackdrop")) return; $("codeBackdrop").style.display = "none"; $("codeBackdrop").setAttribute("aria-hidden","true"); }
   if ($("btnCloseCode")) $("btnCloseCode").addEventListener("click", hideCodeModal);
   if ($("codeBackdrop")) { $("codeBackdrop").addEventListener("click", (e)=>{ if(e.target === $("codeBackdrop")) hideCodeModal(); }); }
   
@@ -2529,7 +2406,6 @@ try{
 
   setLanguage("ru");
   updatePreview(false);
-  
   try{
     const titles = Array.from(document.querySelectorAll(".section .title"));
     const tEl = titles.find(x=>x.textContent.trim()==="Экспорт в Genially" || x.getAttribute("data-i18n")==="secTitleExport");
@@ -2541,3 +2417,5 @@ try{
 </script>
 </body>
 </html>
+
+```
