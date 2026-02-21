@@ -384,7 +384,6 @@
         box-shadow: var(--neon-box-shadow), var(--shadow2) !important;
     }
     .panel::before {
-        /* Подстройка цвета фонового шума под оранжевый */
         background:
         radial-gradient(900px 600px at 20% 10%, rgba(255, 170, 0, 0.15), rgba(0,0,0,0) 60%),
         radial-gradient(700px 520px at 80% 20%, rgba(255, 100, 0, 0.15), rgba(0,0,0,0) 55%),
@@ -431,7 +430,10 @@
       <div class="panel-header">
         <div class="h">
           <img src="63.png" alt="Логотип" />
-          <span data-i18n="editorTitle">Редактор «Башня»</span>
+          <div style="display:flex; flex-direction:column; justify-content:center;">
+            <span style="font-size: 16px; font-weight: 900; line-height: 1.2;">Светлана Быкова</span>
+            <span data-i18n="editorTitle" style="font-size: 12px; color: var(--neon-orange-base); font-weight: 700; line-height: 1.2;">Редактор «Башня»</span>
+          </div>
         </div>
         <div class="row" style="margin:0">
           <button class="btn primary" id="btnCopyCode" type="button" data-i18n="btnCopyCode">📋 Скопировать код (iframe)</button>
