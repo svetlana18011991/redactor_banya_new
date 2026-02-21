@@ -371,60 +371,56 @@
     }
     .gameHost *{box-sizing:border-box;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
     
-    .panel{
-      border-color: rgba(214,177,74,.22);
-      box-shadow: 0 18px 60px rgba(0,0,0,.50);
-    }
-    .panel::before{
-      content:"";
-      position:absolute; inset:0;
-      background:
-        radial-gradient(900px 600px at 20% 10%, rgba(242,211,122,.08), rgba(0,0,0,0) 60%),
-        radial-gradient(700px 520px at 80% 20%, rgba(20,160,255,.10), rgba(0,0,0,0) 55%),
-        repeating-linear-gradient(135deg, rgba(214,177,74,.06) 0 2px, rgba(0,0,0,0) 2px 14px);
-      opacity:.45;
-      pointer-events:none;
-      mix-blend-mode: overlay;
-    }
-    .panel > *{position:relative; z-index:1}
-    .section{
-      border-color: rgba(214,177,74,.18);
-      background: rgba(0,0,0,.18);
-    }
-    input[type="text"], input[type="number"], textarea, select{
-      border-color: rgba(214,177,74,.20);
-      background: rgba(0,0,0,.28);
-    }
-    .btn{
-      border-color: rgba(214,177,74,.22);
-    }
-    .btn.primary{
-      background: linear-gradient(90deg, rgba(214,177,74,.42), rgba(242,211,122,.20));
-      border-color: rgba(242,211,122,.38);
-      box-shadow: 0 14px 34px rgba(214,177,74,.18);
-    }
-    .btn.primary:hover{
-      box-shadow: 0 18px 44px rgba(214,177,74,.22);
-    }
-    .pill{
-      border-color: rgba(242,211,122,.30);
-      background: rgba(0,0,0,.24);
+    /* --- СТИЛИЗАЦИЯ ОРАНЖЕВЫМ НЕОНОМ --- */
+    :root{
+      --neon-orange-base: #ffae00;
+      --neon-orange-glow: rgba(255, 136, 0, 0.6);
+      --neon-box-shadow: 0 0 5px var(--neon-orange-glow), 0 0 15px var(--neon-orange-glow), inset 0 0 5px rgba(255, 136, 0, 0.2);
     }
 
-    .modal{
-      box-shadow:
-        0 30px 80px rgba(0,0,0,.55),
-        0 0 0 1px rgba(255,150,0,.22),
-        0 0 32px rgba(255,130,0,.14);
+    /* Основные панели */
+    .panel {
+        border-color: var(--neon-orange-base) !important;
+        box-shadow: var(--neon-box-shadow), var(--shadow2) !important;
     }
-    .modal .choiceBlock{
-      border:1px solid rgba(255,150,0,.18);
-      box-shadow: 0 0 18px rgba(255,130,0,.10) inset;
+    .panel::before {
+        /* Подстройка цвета фонового шума под оранжевый */
+        background:
+        radial-gradient(900px 600px at 20% 10%, rgba(255, 170, 0, 0.15), rgba(0,0,0,0) 60%),
+        radial-gradient(700px 520px at 80% 20%, rgba(255, 100, 0, 0.15), rgba(0,0,0,0) 55%),
+        repeating-linear-gradient(135deg, rgba(255, 170, 0, 0.08) 0 2px, rgba(0,0,0,0) 2px 14px) !important;
+        mix-blend-mode: screen !important;
     }
-    .modal input:focus, .modal textarea:focus, .modal select:focus{
-      outline:none;
-      border-color: rgba(255,170,0,.55) !important;
-      box-shadow: 0 0 0 3px rgba(255,150,0,.18) !important;
+
+    /* Внутренние секции */
+    .section {
+        border-color: rgba(255, 174, 0, 0.5) !important;
+        box-shadow: 0 0 8px rgba(255, 136, 0, 0.3) !important;
+        background: rgba(20, 10, 0, 0.3) !important;
+    }
+
+    /* Кнопки */
+    .btn {
+        border-color: var(--neon-orange-base) !important;
+    }
+    .btn:hover {
+         box-shadow: 0 0 10px var(--neon-orange-glow) !important;
+         background: rgba(255, 136, 0, 0.15) !important;
+    }
+    .btn.primary {
+         background: linear-gradient(90deg, rgba(255, 174, 0, 0.4), rgba(255, 136, 0, 0.3)) !important;
+    }
+
+    /* Поля ввода при фокусе */
+    input:focus, textarea:focus, select:focus {
+        border-color: var(--neon-orange-base) !important;
+        box-shadow: 0 0 8px var(--neon-orange-glow), inset 0 0 4px rgba(255, 136, 0, 0.2) !important;
+    }
+
+    /* Модальные окна */
+    .modal {
+         border-color: var(--neon-orange-base) !important;
+         box-shadow: var(--neon-box-shadow), 0 30px 80px rgba(0,0,0,.7) !important;
     }
 </style>
 </head>
