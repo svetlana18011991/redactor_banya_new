@@ -427,11 +427,11 @@
         box-shadow: 0 0 8px var(--neon-orange-glow), inset 0 0 4px rgba(255, 136, 0, 0.2) !important;
     }
 
-    /* Модальные окна: убрана прозрачность фона */
+    /* Модальные окна */
     .modal {
          border-color: var(--neon-orange-base) !important;
          box-shadow: var(--neon-box-shadow), 0 30px 80px rgba(0,0,0,.7) !important;
-         background: #16110c !important; /* Непрозрачный темный фон */
+         background: #16110c !important; 
     }
 </style>
 </head>
@@ -1304,10 +1304,65 @@ function resize(){
 }
 window.addEventListener("resize", resize);
 resize();
+
 let audioCtx=null;
 function ensureAudio(){ if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)(); }
-function playBoom(){ /* audio logic */ }
-function playGood(){ /* audio logic */ }
+
+function playBoom(){
+  ensureAudio();
+  if(audioCtx.state === "suspended") audioCtx.resume();
+  const t = audioCtx.currentTime;
+
+  const osc = audioCtx.createOscillator();
+  const gain = audioCtx.createGain();
+  osc.type = "sawtooth";
+  osc.frequency.setValueAtTime(120, t);
+  osc.frequency.exponentialRampToValueAtTime(38, t + 0.22);
+  gain.gain.setValueAtTime(0.0001, t);
+  gain.gain.exponentialRampToValueAtTime(0.50, t + 0.02);
+  gain.gain.exponentialRampToValueAtTime(0.0001, t + 0.34);
+
+  const noiseBuf = audioCtx.createBuffer(1, audioCtx.sampleRate * 0.30, audioCtx.sampleRate);
+  const data = noiseBuf.getChannelData(0);
+  for(let i=0; i<data.length; i++) data[i] = (Math.random() * 2 - 1) * 0.95;
+  const noise = audioCtx.createBufferSource();
+  noise.buffer = noiseBuf;
+  
+  const nGain = audioCtx.createGain();
+  nGain.gain.setValueAtTime(0.0001, t);
+  nGain.gain.exponentialRampToValueAtTime(0.40, t + 0.01);
+  nGain.gain.exponentialRampToValueAtTime(0.0001, t + 0.30);
+
+  const filter = audioCtx.createBiquadFilter();
+  filter.type = "lowpass";
+  filter.frequency.setValueAtTime(1700, t);
+  filter.frequency.exponentialRampToValueAtTime(320, t + 0.26);
+
+  osc.connect(gain).connect(audioCtx.destination);
+  noise.connect(filter).connect(nGain).connect(audioCtx.destination);
+
+  osc.start(t);
+  osc.stop(t + 0.36);
+  noise.start(t); 
+  noise.stop(t + 0.32);
+}
+
+function playGood(){
+  ensureAudio();
+  if(audioCtx.state === "suspended") audioCtx.resume();
+  const t = audioCtx.currentTime;
+  const osc = audioCtx.createOscillator();
+  const gain = audioCtx.createGain();
+  osc.type = "triangle";
+  osc.frequency.setValueAtTime(420, t);
+  osc.frequency.exponentialRampToValueAtTime(780, t + 0.12);
+  gain.gain.setValueAtTime(0.0001, t);
+  gain.gain.exponentialRampToValueAtTime(0.20, t + 0.02);
+  gain.gain.exponentialRampToValueAtTime(0.0001, t + 0.18);
+  osc.connect(gain).connect(audioCtx.destination);
+  osc.start(t);
+  osc.stop(t + 0.2);
+}
 
 function assetUrl(file){ return new URL(file, new URL(".", window.location.href)).toString(); }
 function loadImage(url){
@@ -1627,7 +1682,7 @@ function showQuestion(){
     if(q.audio) { qAudio.src = q.audio; qAudio.style.display = "block"; }
   }
 
-  ansInput.style.display = "block"; // Reset to default display
+  ansInput.style.display = "block"; 
 
   if(q.type==="choice"){
     const isMulti = q.answers && q.answers.length > 1;
@@ -1649,7 +1704,7 @@ function showQuestion(){
     }
     if (isMulti) {
       inputRow.style.display="flex";
-      ansInput.style.display="none"; // Hide standard text input
+      ansInput.style.display="none"; 
       submitBtn.onclick = () => {
         const selected = Array.from(answersEl.querySelectorAll(".btn.selected")).map(b => b.textContent);
         checkAnswer(selected);
