@@ -701,6 +701,10 @@
 <script>
 (() => {
   "use strict";
+  
+  // ВСТРОЕННЫЙ АРХИВАТОР ДАННЫХ (LZString) ДЛЯ КОРОТКИХ ССЫЛОК
+  var LZString=function(){var r=String.fromCharCode,o="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+-=$";var n={compressToEncodedURIComponent:function(r){return n.compress(r,6,function(r){return o.charAt(r)})},decompressFromEncodedURIComponent:function(r){return null==r?"":""==r?null:r.replace(/ /g,"+"),n.decompress(r.length,32,function(n){return o.indexOf(r.charAt(n))})},compress:function(o,n,t){if(null==o)return"";var e,i,u,s={},c={},a="",p="",f="",l=2,d=3,h=2,v=[],m=0,g=0,w;for(u=0;u<o.length;u+=1)if(a=o.charAt(u),Object.prototype.hasOwnProperty.call(s,a)||(s[a]=d++,c[a]=!0),p=f+a,Object.prototype.hasOwnProperty.call(s,p))f=p;else{if(Object.prototype.hasOwnProperty.call(c,f)){if(256>f.charCodeAt(0)){for(e=0;h>e;e++)m=m<<1,g==n-1?(g=0,v.push(t(m)),m=0):g++;for(i=f.charCodeAt(0),e=0;8>e;e++)m=m<<1|1&i,g==n-1?(g=0,v.push(t(m)),m=0):g++,i>>=1}else{for(i=1,e=0;h>e;e++)m=m<<1|i,g==n-1?(g=0,v.push(t(m)),m=0):g++,i=0;for(i=f.charCodeAt(0),e=0;16>e;e++)m=m<<1|1&i,g==n-1?(g=0,v.push(t(m)),m=0):g++,i>>=1}l--,0==l&&(l=Math.pow(2,h),h++),delete c[f]}else for(i=s[f],e=0;h>e;e++)m=m<<1|1&i,g==n-1?(g=0,v.push(t(m)),m=0):g++,i>>=1;l--,0==l&&(l=Math.pow(2,h),h++),s[p]=d++,f=String(a)}if(""!==f){if(Object.prototype.hasOwnProperty.call(c,f)){if(256>f.charCodeAt(0)){for(e=0;h>e;e++)m=m<<1,g==n-1?(g=0,v.push(t(m)),m=0):g++;for(i=f.charCodeAt(0),e=0;8>e;e++)m=m<<1|1&i,g==n-1?(g=0,v.push(t(m)),m=0):g++,i>>=1}else{for(i=1,e=0;h>e;e++)m=m<<1|i,g==n-1?(g=0,v.push(t(m)),m=0):g++,i=0;for(i=f.charCodeAt(0),e=0;16>e;e++)m=m<<1|1&i,g==n-1?(g=0,v.push(t(m)),m=0):g++,i>>=1}l--,0==l&&(l=Math.pow(2,h),h++),delete c[f]}else for(i=s[f],e=0;h>e;e++)m=m<<1|1&i,g==n-1?(g=0,v.push(t(m)),m=0):g++,i>>=1;l--,0==l&&(l=Math.pow(2,h),h++)}for(i=2,e=0;h>e;e++)m=m<<1|1&i,g==n-1?(g=0,v.push(t(m)),m=0):g++,i>>=1;for(;;)if(m<<=1,g==n-1){v.push(t(m));break}else g++;return v.join("")},decompress:function(o,n,t){var e,i,u,s,c,a,p,f=[],l=4,d=4,h=3,v="",m=[],g={val:t(0),position:n,index:1};for(e=0;3>e;e+=1)f[e]=e;for(u=0,c=Math.pow(2,2),a=1;a!=c;)s=g.val&g.position,g.position>>=1,0==g.position&&(g.position=n,g.val=t(g.index++)),u|=(s>0?1:0)*a,a<<=1;switch(u){case 0:for(u=0,c=Math.pow(2,8),a=1;a!=c;)s=g.val&g.position,g.position>>=1,0==g.position&&(g.position=n,g.val=t(g.index++)),u|=(s>0?1:0)*a,a<<=1;p=r(u);break;case 1:for(u=0,c=Math.pow(2,16),a=1;a!=c;)s=g.val&g.position,g.position>>=1,0==g.position&&(g.position=n,g.val=t(g.index++)),u|=(s>0?1:0)*a,a<<=1;p=r(u);break;case 2:return""}for(f[3]=p,i=p,m.push(p);;){if(g.index>o)return"";for(u=0,c=Math.pow(2,h),a=1;a!=c;)s=g.val&g.position,g.position>>=1,0==g.position&&(g.position=n,g.val=t(g.index++)),u|=(s>0?1:0)*a,a<<=1;switch(p=u){case 0:for(u=0,c=Math.pow(2,8),a=1;a!=c;)s=g.val&g.position,g.position>>=1,0==g.position&&(g.position=n,g.val=t(g.index++)),u|=(s>0?1:0)*a,a<<=1;f[d++]=r(u),p=d-1,l--;break;case 1:for(u=0,c=Math.pow(2,16),a=1;a!=c;)s=g.val&g.position,g.position>>=1,0==g.position&&(g.position=n,g.val=t(g.index++)),u|=(s>0?1:0)*a,a<<=1;f[d++]=r(u),p=d-1,l--;break;case 2:return m.join("")}if(0==l&&(l=Math.pow(2,h),h++),f[p])v=f[p];else{if(p!==d)return null;v=i+i.charAt(0)}m.push(v),f[d++]=i+v.charAt(0),l--,i=v,0==l&&(l=Math.pow(2,h),h++)}}};return n}();
+
   const i18n = {
     ru: {
       editorTitle: "Редактор «Башня»", btnCopyCode: "📋 Скопировать код (iframe)", langTitle: "Язык интерфейса",
@@ -1473,7 +1477,7 @@ function spawnBlock(){
   const idx = state.blockIndex; const {w,h} = blockSize(idx);
   state.current = { idx, w,h, x: alignedXForIdx(idx), y: -h - 30, char:0 };
   state.dropping=false; state.waitingAnswer=false; state.landingBounce=null;
-  state.answered = false; /* ЗАЩИТА ОТ ДВОЙНОГО КЛИКА: открываем замок для нового блока */
+  state.answered = false;
   setNextEnabled(false);
 }
 
@@ -1759,7 +1763,6 @@ function __applyTitle__(title){
 }
 
 function checkAnswer(userValue){
-  /* ЗАЩИТА ОТ ДВОЙНОГО КЛИКА: Если ответ уже принят, игнорируем новые клики */
   if (state.answered) return;
   state.answered = true;
 
@@ -2086,14 +2089,92 @@ try{
     return out;
   }
 
-  function b64urlEncode(str){
-    const b64 = btoa(unescape(encodeURIComponent(str)));
-    return b64.replaceAll("+","-").replaceAll("/","_").replaceAll("=","");
+  // НОВЫЕ ФУНКЦИИ СЖАТИЯ ДАННЫХ
+  function packPayload(p) {
+      const out = {};
+      if (p.title && p.title !== "Башня знаний") out.ti = p.title;
+      if (p.bgDataUrl) out.bg = p.bgDataUrl;
+      if (p.timer && p.timer.enabled) { out.tm = 1; out.ts = p.timer.seconds; }
+      if (p.instruction) {
+          out.i = {};
+          if (p.instruction.text !== "Первый блок падает сам. Дальше — нажимай <b>Далее</b>.\nКогда блок остановится — ответь на вопрос.\nВерно → блок опускается и становится этажом (+100).\nНеверно → блок обугливается, взрывается и исчезает.") out.i.t = p.instruction.text;
+          if (p.instruction.color !== "#ffffff") out.i.c = p.instruction.color;
+          if (p.instruction.glow) out.i.g = 1;
+          if (Object.keys(out.i).length === 0) delete out.i; 
+      }
+      if (p.feedback && p.feedback.text) out.f = p.feedback.text;
+      
+      out.q = (p.questions || []).map(q => {
+          const mq = {};
+          mq.t = q.type === "text" ? 1 : 0;
+          if (q.prompt) mq.p = q.prompt;
+          if (mq.t === 0) {
+              if (q.options) mq.o = q.options;
+              if (q.correctIndices && (q.correctIndices.length > 1 || q.correctIndices[0] !== 0)) mq.c = q.correctIndices;
+          } else {
+              if (q.accepts) mq.a = q.accepts;
+          }
+          if (q.seconds) mq.s = q.seconds;
+          if (q.image) mq.i = q.image;
+          if (q.audio) mq.au = q.audio;
+          if (q.font) mq.fn = q.font;
+          if (q.fontSize && q.fontSize !== 20) mq.fs = q.fontSize;
+          return mq;
+      });
+      return out;
   }
-  function b64urlDecode(b64url){
-    let s = String(b64url||"").replaceAll("-","+").replaceAll("_","/");
+
+  function unpackPayload(out) {
+      if (!out || typeof out !== 'object') return normalizeCfg({});
+      if (out.questions) return normalizeCfg(out); // Поддержка старых ссылок
+
+      const p = {
+          title: out.ti || "Башня знаний",
+          useRepoBg: true, useImages: true, useLatex: false,
+          bgDataUrl: out.bg || "",
+          timer: { enabled: !!out.tm, seconds: out.ts || 30 },
+          instruction: {
+              text: (out.i && out.i.t !== undefined) ? out.i.t : "Первый блок падает сам. Дальше — нажимай <b>Далее</b>.\nКогда блок остановится — ответь на вопрос.\nВерно → блок опускается и становится этажом (+100).\nНеверно → блок обугливается, взрывается и исчезает.",
+              color: (out.i && out.i.c) || "#ffffff",
+              glow: !!(out.i && out.i.g)
+          },
+          feedback: { text: out.f || "" },
+          questions: (out.q || []).map(mq => {
+              const q = {};
+              q.type = mq.t === 1 ? "text" : "choice";
+              q.prompt = mq.p || "";
+              if (q.type === "choice") {
+                  q.options = mq.o || ["OK", "..."];
+                  q.correctIndices = mq.c || [0];
+              } else {
+                  q.accepts = mq.a || ["OK"];
+              }
+              q.seconds = mq.s || null;
+              q.image = mq.i || "";
+              q.audio = mq.au || "";
+              q.font = mq.fn || "";
+              q.fontSize = mq.fs || null;
+              return q;
+          })
+      };
+      return normalizeCfg(p);
+  }
+
+  function encodeGameData(payload) {
+    const packed = packPayload(payload);
+    return "~" + LZString.compressToEncodedURIComponent(JSON.stringify(packed));
+  }
+
+  function decodeGameData(str) {
+    if (str.startsWith("~")) {
+      const decompressed = LZString.decompressFromEncodedURIComponent(str.slice(1));
+      return unpackPayload(JSON.parse(decompressed));
+    }
+    // Поддержка старого Base64
+    let s = String(str||"").replaceAll("-","+").replaceAll("_","/");
     while(s.length % 4) s += "=";
-    return decodeURIComponent(escape(atob(s)));
+    const raw = JSON.parse(decodeURIComponent(escape(atob(s))));
+    return unpackPayload(raw); 
   }
 
   function normalizeCfg(raw){
@@ -2332,20 +2413,22 @@ try{
     return normalizeCfg({ title: Editor.title || "Башня знаний", useRepoBg: true, bgDataUrl: Editor.bgDataUrl || "", timer: { enabled: !!Editor.timer.enabled, seconds: Number(Editor.timer.seconds || 30) }, useImages: !!Editor.useImages, useLatex: !!Editor.useLatex, instruction: Editor.instruction, feedback: Editor.feedback, questions });
   }
 
-  function buildGameUrl(payload){ const data = b64urlEncode(JSON.stringify(payload)); return selfPageUrl() + "?game=" + data + "#game=" + data; }
+  function buildGameUrl(payload){ const data = encodeGameData(payload); return selfPageUrl() + "?game=" + data + "#game=" + data; }
   function buildIframeFromUrl(src){ return `<iframe src="${src}" style="width:100%;height:100%;min-height:720px;border:0;border-radius:18px;overflow:hidden;background:transparent" allow="autoplay; fullscreen" allowfullscreen loading="lazy"></iframe>`; }
 
   const PREVIEW_CFGKEY = "__tower_preview_cfg__";
   function storePreviewCfg(cfg){ try{ localStorage.setItem(PREVIEW_CFGKEY, JSON.stringify(cfg)); return PREVIEW_CFGKEY; } catch(e){ return ""; } }
 
   function updatePreview(previewWithDraft){
-    const payload = buildPayload(previewWithDraft); const jsonStr = JSON.stringify(payload); const useKey = jsonStr.length > 1800;
+    const payload = buildPayload(previewWithDraft); 
+    const data = encodeGameData(payload); 
+    const useKey = data.length > 2500; 
     let urlParams = "?preview=1"; if (previewWithDraft) urlParams += "&autostart=1";
     if(useKey){
       const key = storePreviewCfg(payload);
       if(key){ const src = selfPageUrl() + urlParams + "&cfgkey=" + encodeURIComponent(key) + "#cfgkey=" + encodeURIComponent(key); $("livePreview").src = src; return; }
     }
-    const data = b64urlEncode(jsonStr); const src = selfPageUrl() + urlParams + "&game=" + data + "#game=" + data; $("livePreview").src = src;
+    const src = selfPageUrl() + urlParams + "&game=" + data + "#game=" + data; $("livePreview").src = src;
   }
 
   let _previewTid = null;
@@ -2445,7 +2528,7 @@ try{
     return;
   }
   if(gameParam){
-    try{ const raw = JSON.parse(b64urlDecode(gameParam)); bootGameOnly(normalizeCfg(raw)); }
+    try{ const raw = decodeGameData(gameParam); bootGameOnly(raw); }
     catch(e){ $("gameHost").innerHTML = `<div style="padding:16px;color:#ffd6d6;font-weight:900">Не удалось прочитать конфиг из iframe 😕</div>`; }
     return;
   }
