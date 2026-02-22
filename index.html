@@ -7,7 +7,13 @@
 
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Caveat:wght@500&family=Neucha&display=swap');
-    html, body{height:100%}
+    
+    /* ИСПРАВЛЕНИЕ ВЫСОТЫ: Жесткая фиксация в рамках 100% */
+    html, body {
+      height: 100%;
+      margin: 0;
+      overflow: hidden; /* Полностью запрещаем внешний скролл */
+    }
 
     :root{
       --text:#eaf0ff;
@@ -26,13 +32,12 @@
     *{box-sizing:border-box;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
 
     body{
-      margin:0;color:var(--text);
+      color:var(--text);
       background:
         radial-gradient(1100px 700px at 12% 18%, rgba(35,82,200,.28) 0%, rgba(5,8,22,0) 58%),
         radial-gradient(900px 640px at 88% 16%, rgba(20,160,255,.18) 0%, rgba(5,8,22,0) 62%),
         radial-gradient(1000px 780px at 55% 112%, rgba(214,177,74,.14) 0%, rgba(5,8,22,0) 58%),
         linear-gradient(180deg, rgba(4,10,32,.92), rgba(3,6,18,1));
-      min-height:100vh;
     }
     body.gameOnly{background:transparent}
 
@@ -43,9 +48,11 @@
       padding:14px;
       max-width: 1540px;
       margin: 0 auto;
+      height: 100%; /* Адаптация под Genially */
     }
     @media (max-width: 1020px){
-      .app{grid-template-columns:1fr}
+      .app { display: flex; flex-direction: column; overflow-y: auto; }
+      .settings, .preview { height: auto !important; flex: none; min-height: 600px; }
     }
 
     .panel{
@@ -63,29 +70,26 @@
       border-bottom:1px solid rgba(255,255,255,.10);
       display:flex;align-items:center;justify-content:space-between;gap:10px;
     }
-    .panel-header .h{font-weight:950;letter-spacing:.2px; display:flex; align-items:center;
-      gap:10px;}
-    .panel-header .h img { height: 32px; width: auto; border-radius: 6px; object-fit: contain;
-    }
-    .panel-body{padding:14px}
+    .panel-header .h{font-weight:950;letter-spacing:.2px; display:flex; align-items:center; gap:10px;}
+    .panel-header .h img { height: 32px; width: auto; border-radius: 6px; object-fit: contain; }
 
     .settings{
-      height: calc(100vh - 28px);
+      height: 100%;
       display:flex;
       flex-direction:column;
-      min-height: 560px;
+      min-height: 0;
     }
     .settings .panel-body{
-      overflow:auto;
+      overflow-y: auto;
+      flex: 1;
+      min-height: 0;
       padding:14px;
     }
 
     .settings .panel-body::-webkit-scrollbar { width: 8px; }
-    .settings .panel-body::-webkit-scrollbar-track { background: rgba(0,0,0,0.1); border-radius: 4px;
-    }
+    .settings .panel-body::-webkit-scrollbar-track { background: rgba(0,0,0,0.1); border-radius: 4px; }
     .settings .panel-body::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 4px; }
-    .settings .panel-body::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.3);
-    }
+    .settings .panel-body::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.3); }
 
     [data-section="timer"]{display:none !important}
     [data-hide="blocks"]{display:none !important}
@@ -123,8 +127,7 @@
       color:var(--text);
       outline:none;
     }
-    textarea{min-height:84px;
-      resize:vertical}
+    textarea{min-height:84px; resize:vertical}
 
     input[type="color"] {
       width:100%; height:40px; border-radius:14px; padding:2px;
@@ -133,8 +136,7 @@
     input[type="color"]::-webkit-color-swatch-wrapper { padding:2px; }
     input[type="color"]::-webkit-color-swatch { border-radius:10px; border:none; }
 
-    .row{display:flex;
-      gap:10px; flex-wrap:wrap}
+    .row{display:flex; gap:10px; flex-wrap:wrap}
     .row > *{flex:1; min-width:170px}
 
     .toggle{
@@ -147,8 +149,7 @@
       background:rgba(255,255,255,.04);
       margin-top:8px;
     }
-    .toggle input{width:18px;
-      height:18px}
+    .toggle input{width:18px; height:18px}
 
     .btn{
       padding:11px 12px;
@@ -169,8 +170,7 @@
     }
     .btn:hover{background:rgba(255,255,255,.10);border-color:rgba(255,255,255,.24)}
     .btn:active{transform:translateY(1px)}
-    .btn:disabled{opacity:.45;
-      cursor:not-allowed}
+    .btn:disabled{opacity:.45; cursor:not-allowed}
 
     .btn.primary{
       background:linear-gradient(90deg, rgba(214,177,74,.35), rgba(242,211,122,.22));
@@ -180,8 +180,7 @@
     .btn.danger{border-color:rgba(255,77,77,.35); background:rgba(255,77,77,.08)}
     .btn.small{padding:8px 10px; font-size:12.5px; border-radius:12px}
 
-    .q-list{display:flex; flex-direction:column;
-      gap:10px;}
+    .q-list{display:flex; flex-direction:column; gap:10px;}
     .q-item{
       padding:10px 10px;
       border-radius:14px;
@@ -228,12 +227,13 @@
     }
 
     .preview{
-      min-height: calc(100vh - 28px);
+      height: 100%;
       display:flex;
       flex-direction:column;
       gap:12px;
       padding:0;
       overflow:hidden;
+      min-height: 0;
     }
     .preview-top{
       display:flex;
@@ -245,16 +245,21 @@
       background:linear-gradient(180deg, rgba(255,255,255,.07), rgba(255,255,255,.04));
     }
     .preview-top .name{font-weight:950; letter-spacing:.2px}
-    .preview-top .hint{color:var(--muted);
-      font-size:12.5px}
+    .preview-top .hint{color:var(--muted); font-size:12.5px}
+
+    .preview .panel-body {
+      flex: 1;
+      min-height: 0;
+      padding-bottom: 0;
+      height: 100%;
+    }
 
     .preview-stage{
       position:relative;
       border-radius:var(--radius2);
       border:1px solid rgba(255,255,255,.10);
       overflow:hidden;
-      min-height: 720px;
-      height: calc(100vh - 80px);
+      height: 100%; /* Убрана жесткая привязка */
       background:rgba(0,0,0,.18);
       box-shadow: var(--shadow2);
     }
@@ -291,18 +296,20 @@
       justify-content:center;
       z-index:999998;
       padding:14px;
+      box-sizing: border-box; /* Важно для 100% max-height */
     }
 
     .modal{
       width:min(820px, 100%);
-      max-height: calc(100vh - 40px);
+      max-height: 100%; /* Идеальная адаптация внутри iframe */
       display: flex;
       flex-direction: column;
       border-radius:20px;
       border:1px solid rgba(255,255,255,.14);
-      background:linear-gradient(180deg, rgba(255,255,255,.10), rgba(255,255,255,.05));
-      box-shadow: 0 30px 80px rgba(0,0,0,.55);
+      background: #16110c !important; 
+      box-shadow: var(--neon-box-shadow), 0 30px 80px rgba(0,0,0,.7) !important;
       overflow:hidden;
+      border-color: var(--neon-orange-base) !important;
     }
     .modal-head{
       padding:12px 14px;
@@ -321,11 +328,9 @@
       min-height: 0;
     }
     
-    .modal-body::-webkit-scrollbar { width: 8px;
-    }
+    .modal-body::-webkit-scrollbar { width: 8px; }
     .modal-body::-webkit-scrollbar-track { background: rgba(0,0,0,0.1); border-radius: 4px; }
-    .modal-body::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 4px;
-    }
+    .modal-body::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 4px; }
     .modal-body::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.3); }
 
     .modal-foot{
@@ -389,7 +394,6 @@
       --neon-box-shadow: 0 0 5px var(--neon-orange-glow), 0 0 15px var(--neon-orange-glow), inset 0 0 5px rgba(255, 136, 0, 0.2);
     }
 
-    /* Основные панели */
     .panel {
         border-color: var(--neon-orange-base) !important;
         box-shadow: var(--neon-box-shadow), var(--shadow2) !important;
@@ -402,37 +406,24 @@
         mix-blend-mode: screen !important;
     }
 
-    /* Внутренние секции */
     .section {
         border-color: rgba(255, 174, 0, 0.5) !important;
         box-shadow: 0 0 8px rgba(255, 136, 0, 0.3) !important;
         background: rgba(20, 10, 0, 0.3) !important;
     }
 
-    /* Кнопки */
-    .btn {
-        border-color: var(--neon-orange-base) !important;
-    }
+    .btn { border-color: var(--neon-orange-base) !important; }
     .btn:hover {
          box-shadow: 0 0 10px var(--neon-orange-glow) !important;
          background: rgba(255, 136, 0, 0.15) !important;
     }
-    .btn.primary {
-         background: linear-gradient(90deg, rgba(255, 174, 0, 0.4), rgba(255, 136, 0, 0.3)) !important;
-    }
+    .btn.primary { background: linear-gradient(90deg, rgba(255, 174, 0, 0.4), rgba(255, 136, 0, 0.3)) !important; }
 
-    /* Поля ввода при фокусе */
     input:focus, textarea:focus, select:focus {
         border-color: var(--neon-orange-base) !important;
         box-shadow: 0 0 8px var(--neon-orange-glow), inset 0 0 4px rgba(255, 136, 0, 0.2) !important;
     }
 
-    /* Модальные окна */
-    .modal {
-         border-color: var(--neon-orange-base) !important;
-         box-shadow: var(--neon-box-shadow), 0 30px 80px rgba(0,0,0,.7) !important;
-         background: #16110c !important; 
-    }
 </style>
 </head>
 
@@ -573,9 +564,9 @@
         <div class="muted" data-i18n="previewSub">Башня + карточки + финальный экран</div>
       </div>
 
-      <div class="panel-body" style="height:100%; padding-bottom:0">
-        <div class="preview-stage" style="height:100%">
-          <iframe id="livePreview" title="Preview" style="width:100%;height:100%;min-height:720px;border:0;background:transparent;border-radius:18px;overflow:hidden" allow="autoplay; fullscreen" allowfullscreen></iframe>
+      <div class="panel-body">
+        <div class="preview-stage">
+          <iframe id="livePreview" title="Preview" style="width:100%;height:100%;border:0;background:transparent;overflow:hidden" allow="autoplay; fullscreen" allowfullscreen></iframe>
         </div>
       </div>
     </div>
@@ -681,7 +672,7 @@
 (() => {
   "use strict";
   
-  // ВСТРОЕННЫЙ АРХИВАТОР ДАННЫХ (LZString) ДЛЯ КОРОТКИХ ССЫЛОК
+  // ВСТРОЕННЫЙ АРХИВАТОР ДАННЫХ (LZString)
   var LZString=function(){var r=String.fromCharCode,o="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+-=$";var n={compressToEncodedURIComponent:function(r){return n.compress(r,6,function(r){return o.charAt(r)})},decompressFromEncodedURIComponent:function(r){return null==r?"":""==r?null:r.replace(/ /g,"+"),n.decompress(r.length,32,function(n){return o.indexOf(r.charAt(n))})},compress:function(o,n,t){if(null==o)return"";var e,i,u,s={},c={},a="",p="",f="",l=2,d=3,h=2,v=[],m=0,g=0,w;for(u=0;u<o.length;u+=1)if(a=o.charAt(u),Object.prototype.hasOwnProperty.call(s,a)||(s[a]=d++,c[a]=!0),p=f+a,Object.prototype.hasOwnProperty.call(s,p))f=p;else{if(Object.prototype.hasOwnProperty.call(c,f)){if(256>f.charCodeAt(0)){for(e=0;h>e;e++)m=m<<1,g==n-1?(g=0,v.push(t(m)),m=0):g++;for(i=f.charCodeAt(0),e=0;8>e;e++)m=m<<1|1&i,g==n-1?(g=0,v.push(t(m)),m=0):g++,i>>=1}else{for(i=1,e=0;h>e;e++)m=m<<1|i,g==n-1?(g=0,v.push(t(m)),m=0):g++,i=0;for(i=f.charCodeAt(0),e=0;16>e;e++)m=m<<1|1&i,g==n-1?(g=0,v.push(t(m)),m=0):g++,i>>=1}l--,0==l&&(l=Math.pow(2,h),h++),delete c[f]}else for(i=s[f],e=0;h>e;e++)m=m<<1|1&i,g==n-1?(g=0,v.push(t(m)),m=0):g++,i>>=1;l--,0==l&&(l=Math.pow(2,h),h++),s[p]=d++,f=String(a)}if(""!==f){if(Object.prototype.hasOwnProperty.call(c,f)){if(256>f.charCodeAt(0)){for(e=0;h>e;e++)m=m<<1,g==n-1?(g=0,v.push(t(m)),m=0):g++;for(i=f.charCodeAt(0),e=0;8>e;e++)m=m<<1|1&i,g==n-1?(g=0,v.push(t(m)),m=0):g++,i>>=1}else{for(i=1,e=0;h>e;e++)m=m<<1|i,g==n-1?(g=0,v.push(t(m)),m=0):g++,i=0;for(i=f.charCodeAt(0),e=0;16>e;e++)m=m<<1|1&i,g==n-1?(g=0,v.push(t(m)),m=0):g++,i>>=1}l--,0==l&&(l=Math.pow(2,h),h++),delete c[f]}else for(i=s[f],e=0;h>e;e++)m=m<<1|1&i,g==n-1?(g=0,v.push(t(m)),m=0):g++,i>>=1;l--,0==l&&(l=Math.pow(2,h),h++)}for(i=2,e=0;h>e;e++)m=m<<1|1&i,g==n-1?(g=0,v.push(t(m)),m=0):g++,i>>=1;for(;;)if(m<<=1,g==n-1){v.push(t(m));break}else g++;return v.join("")},decompress:function(o,n,t){var e,i,u,s,c,a,p,f=[],l=4,d=4,h=3,v="",m=[],g={val:t(0),position:n,index:1};for(e=0;3>e;e+=1)f[e]=e;for(u=0,c=Math.pow(2,2),a=1;a!=c;)s=g.val&g.position,g.position>>=1,0==g.position&&(g.position=n,g.val=t(g.index++)),u|=(s>0?1:0)*a,a<<=1;switch(u){case 0:for(u=0,c=Math.pow(2,8),a=1;a!=c;)s=g.val&g.position,g.position>>=1,0==g.position&&(g.position=n,g.val=t(g.index++)),u|=(s>0?1:0)*a,a<<=1;p=r(u);break;case 1:for(u=0,c=Math.pow(2,16),a=1;a!=c;)s=g.val&g.position,g.position>>=1,0==g.position&&(g.position=n,g.val=t(g.index++)),u|=(s>0?1:0)*a,a<<=1;p=r(u);break;case 2:return""}for(f[3]=p,i=p,m.push(p);;){if(g.index>o)return"";for(u=0,c=Math.pow(2,h),a=1;a!=c;)s=g.val&g.position,g.position>>=1,0==g.position&&(g.position=n,g.val=t(g.index++)),u|=(s>0?1:0)*a,a<<=1;switch(p=u){case 0:for(u=0,c=Math.pow(2,8),a=1;a!=c;)s=g.val&g.position,g.position>>=1,0==g.position&&(g.position=n,g.val=t(g.index++)),u|=(s>0?1:0)*a,a<<=1;f[d++]=r(u),p=d-1,l--;break;case 1:for(u=0,c=Math.pow(2,16),a=1;a!=c;)s=g.val&g.position,g.position>>=1,0==g.position&&(g.position=n,g.val=t(g.index++)),u|=(s>0?1:0)*a,a<<=1;f[d++]=r(u),p=d-1,l--;break;case 2:return m.join("")}if(0==l&&(l=Math.pow(2,h),h++),f[p])v=f[p];else{if(p!==d)return null;v=i+i.charAt(0)}m.push(v),f[d++]=i+v.charAt(0),l--,i=v,0==l&&(l=Math.pow(2,h),h++)}}};return n}();
 
   const i18n = {
@@ -702,7 +693,6 @@
       lblChoices: "Варианты ответа", lblChoicesHint: "Минимум 2 варианта. Отметь верные чекбоксом. (В игре они будут перемешаны).", btnAddChoice: "➕ Добавить вариант",
       lblTextAns: "Верные ответы (ввод)", lblTextAnsHint: "Можно несколько вариантов — принимается любой.", btnAddText: "➕ Добавить вариант",
       btnPreviewDraft: "👁 Показать в превью", btnSaveQ: "💾 Сохранить", lblCodeTitle: "Ссылка для запуска игры",
-      lblCodeHint: "Это ссылка на игру. Её можно вставлять в Genially (через iframe) и куда угодно.", lblLink: "Ссылка", lblIframe: "iframe (если нужен)",
       btnCopyLink: "📋 Скопировать ссылку", btnCopyIframe: "📎 Скопировать iframe", btnDownload: "⬇ Скачать игру (HTML)",
       noQs: "Пока нет вопросов. Нажмите «Добавить» и заполните 9 вопросов.", rightAns: "✅ Верный ответ", optionN: "Вариант ",
       rightOptionN: "Верный вариант ", toastCopied: "Скопировано ✅", toastError: "Не удалось скопировать", toastBgLoaded: "Фон загружен",
@@ -732,7 +722,6 @@
       lblChoices: "Answer choices", lblChoicesHint: "Minimum 2 options. Mark correct ones with checkboxes. (Shuffled in game).", btnAddChoice: "➕ Add option",
       lblTextAns: "Correct answers (input)", lblTextAnsHint: "Multiple options allowed — any will be accepted.", btnAddText: "➕ Add option",
       btnPreviewDraft: "👁 Show in preview", btnSaveQ: "💾 Save", lblCodeTitle: "Game Launch Link",
-      lblCodeHint: "This is the link to the game. It can be embedded in Genially (via iframe) or anywhere else.", lblLink: "Link", lblIframe: "iframe (if needed)",
       btnCopyLink: "📋 Copy link", btnCopyIframe: "📎 Copy iframe", btnDownload: "⬇ Download game (HTML)",
       noQs: "No questions yet. Click «Add» and fill in 9 questions.", rightAns: "✅ Correct answer", optionN: "Option ",
       rightOptionN: "Correct option ", toastCopied: "Copied ✅", toastError: "Failed to copy", toastBgLoaded: "Background set",
@@ -762,7 +751,6 @@
       lblChoices: "Antwortmöglichkeiten", lblChoicesHint: "Mindestens 2 Optionen. Markiere die richtige (Werden im Spiel gemischt).", btnAddChoice: "➕ Option hinzufügen",
       lblTextAns: "Richtige Antworten (Eingabe)", lblTextAnsHint: "Mehrere Optionen erlaubt — jede wird akzeptiert.", btnAddText: "➕ Option hinzufügen",
       btnPreviewDraft: "👁 In Vorschau zeigen", btnSaveQ: "💾 Speichern", lblCodeTitle: "Spielstart-Link",
-      lblCodeHint: "Dies ist der Link zum Spiel. Er kann in Genially (über iframe) oder anderswo eingebettet werden.", lblLink: "Link", lblIframe: "iframe (falls benötigt)",
       btnCopyLink: "📋 Link kopieren", btnCopyIframe: "📎 iframe kopieren", btnDownload: "⬇ Spiel herunterladen (HTML)",
       noQs: "Noch keine Fragen. Klicke auf «Hinzufügen» und fülle 9 Fragen aus.", rightAns: "✅ Richtige Antwort", optionN: "Option ",
       rightOptionN: "Richtige Option ", toastCopied: "Kopiert ✅", toastError: "Kopieren fehlgeschlagen", toastBgLoaded: "Hintergrund gesetzt",
@@ -792,7 +780,6 @@
       lblChoices: "选项", lblChoicesHint: "最少 2 个选项。用复选框标记正确选项（游戏中会打乱）。", btnAddChoice: "➕ 添加选项",
       lblTextAns: "正确答案 (输入)", lblTextAnsHint: "允许多个选项 — 任何一个都将被接受。", btnAddText: "➕ 添加选项",
       btnPreviewDraft: "👁 在预览中显示", btnSaveQ: "💾 保存", lblCodeTitle: "游戏启动链接",
-      lblCodeHint: "这是游戏的链接。它可以嵌入到 Genially (通过 iframe) 或其他任何地方。", lblLink: "链接", lblIframe: "iframe (如果需要)",
       btnCopyLink: "📋 复制链接", btnCopyIframe: "📎 复制 iframe", btnDownload: "⬇ 下载游戏 (HTML)",
       noQs: "目前没有问题。点击“添加”并填写 9 个问题。", rightAns: "✅ 正确答案", optionN: "选项 ",
       rightOptionN: "正确选项 ", toastCopied: "已复制 ✅", toastError: "复制失败", toastBgLoaded: "背景已设置",
@@ -2406,7 +2393,7 @@ try{
   }
 
   function buildGameUrl(payload){ const data = encodeGameData(payload); return selfPageUrl() + "?game=" + data; }
-  function buildIframeFromUrl(src){ return `<iframe src="${src}" style="width:100%;height:100%;min-height:720px;border:0;border-radius:18px;overflow:hidden;background:transparent" allow="autoplay; fullscreen" allowfullscreen loading="lazy"></iframe>`; }
+  function buildIframeFromUrl(src){ return `<iframe src="${src}" style="width:100%;height:100%;border:0;border-radius:18px;overflow:hidden;background:transparent" allow="autoplay; fullscreen" allowfullscreen loading="lazy"></iframe>`; }
 
   function checkLinkSize(data) {
       const maxLen = 3500;
@@ -2444,7 +2431,6 @@ try{
     
     checkLinkSize(data);
 
-    // АВТОСОХРАНЕНИЕ
     if (!previewWithDraft && !document.body.classList.contains("gameOnly")) {
         try { localStorage.setItem(AUTOSAVE_KEY, JSON.stringify(payload)); } catch(e) {}
     }
@@ -2505,7 +2491,6 @@ try{
     const ok = await copyToClipboard(iframeCode); toast(ok ? t("toastCopied") : t("toastError"));
   });
 
-  // КНОПКА СБРОСА ВСЕГО
   if ($("btnResetAll")) {
     $("btnResetAll").addEventListener("click", ()=>{
       if(confirm("Вы уверены, что хотите удалить все вопросы и настройки, чтобы начать заново?")) {
@@ -2579,7 +2564,6 @@ try{
     return;
   }
 
-  // ЗАГРУЗКА АВТОСОХРАНЕНИЯ
   try {
       const saved = localStorage.getItem(AUTOSAVE_KEY);
       if (saved) {
