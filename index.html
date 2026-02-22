@@ -439,7 +439,7 @@
 <body>
   <div class="app" id="editorRoot">
     <div class="panel settings">
-      <div class="panel-header">
+      <div class="panel-header" style="flex-wrap: wrap; gap: 14px;">
         <div class="h">
           <img src="63.png" alt="Логотип" />
           <div style="display:flex; flex-direction:column; justify-content:center;">
@@ -447,9 +447,18 @@
             <span data-i18n="editorTitle" style="font-size: 12px; color: var(--neon-orange-base); font-weight: 700; line-height: 1.2;">Редактор «Башня»</span>
           </div>
         </div>
-        <div class="row" style="margin:0">
+        <div style="display:flex; gap:12px; align-items:center; flex-wrap: wrap;">
+          <div style="display:flex; flex-direction:column; align-items:flex-end; gap:4px; justify-content:center;">
+             <span id="lblSizeText" style="font-size:11px; font-weight:900; color:var(--ok);">🟢 Код в норме</span>
+             <div style="width:80px; background:rgba(0,0,0,.3); border:1px solid rgba(255,255,255,.1); height:6px; border-radius:3px; overflow:hidden;">
+                <div id="barSize" style="width:0%; height:100%; background:var(--ok); transition: width 0.3s, background 0.3s;"></div>
+             </div>
+          </div>
           <button class="btn primary" id="btnCopyCode" type="button" data-i18n="btnCopyCode">📋 Скопировать код (iframe)</button>
         </div>
+      </div>
+      <div id="sizeWarning" style="display:none; background:rgba(255,77,77,.15); color:#ffd6d6; padding:8px 14px; font-size:12px; font-weight:700; border-bottom:1px solid rgba(255,77,77,.3);">
+         ⚠️ Текста слишком много! Genially может обрезать ссылку. Сократите вопросы или скачайте игру отдельным файлом.
       </div>
 
       <div class="errbar" id="errbar"></div>
@@ -549,25 +558,6 @@
 
           <div class="muted" style="margin-top:10px" data-i18n="lblExact9" data-i18n-html="true">Строго <b>9 вопросов</b>.</div>
           <div class="muted" data-i18n="lblTypes" data-i18n-html="true">Можно: <b>выбор</b> или <b>ввод</b> (несколько правильных вариантов).</div>
-        </div>
-
-        <div class="section">
-          <div class="title" data-hide="exportTitle" data-i18n="secTitleExport">Экспорт в Genially</div>
-          <div class="muted">
-            <span data-i18n="lblExportHint" data-i18n-html="true">Нажми <b>«📋 Скопировать iframe»</b> — в буфере будет короткий код.</span>
-          </div>
-
-          <div style="margin-top:12px; padding-top:12px; border-top:1px solid rgba(255,255,255,.1);">
-            <div style="display:flex; justify-content:space-between; font-size:12px; margin-bottom:6px;">
-               <span id="lblSizeText" style="font-weight:900; color:var(--ok);">🟢 Код в норме</span>
-            </div>
-            <div style="width:100%; background:rgba(0,0,0,.3); border:1px solid rgba(255,255,255,.1); height:8px; border-radius:4px; overflow:hidden;">
-               <div id="barSize" style="width:0%; height:100%; background:var(--ok); transition: width 0.3s, background 0.3s;"></div>
-            </div>
-            <div id="sizeWarning" style="display:none; color:var(--danger); font-size:12px; margin-top:8px; line-height:1.4; font-weight:700;">
-               ⚠️ Текста слишком много! Genially может не принять такой длинный код. Сократите тексты вопросов или используйте скачивание игры отдельным файлом.
-            </div>
-          </div>
         </div>
 
       </div>
@@ -2104,7 +2094,6 @@ try{
     return out;
   }
 
-  // ВСТРОЕННЫЙ АРХИВАТОР ДАННЫХ (LZString) ДЛЯ КОРОТКИХ ССЫЛОК
   function packPayload(p) {
       const out = {};
       if (p.title && p.title !== "Башня знаний") out.ti = p.title;
@@ -2141,7 +2130,7 @@ try{
 
   function unpackPayload(out) {
       if (!out || typeof out !== 'object') return normalizeCfg({});
-      if (out.questions) return normalizeCfg(out); // Поддержка старых ссылок
+      if (out.questions) return normalizeCfg(out); 
 
       const p = {
           title: out.ti || "Башня знаний",
@@ -2185,7 +2174,6 @@ try{
       const decompressed = LZString.decompressFromEncodedURIComponent(str.slice(1));
       return unpackPayload(JSON.parse(decompressed));
     }
-    // Поддержка старого Base64
     let s = String(str||"").replaceAll("-","+").replaceAll("_","/");
     while(s.length % 4) s += "=";
     const raw = JSON.parse(decodeURIComponent(escape(atob(s))));
@@ -2428,16 +2416,12 @@ try{
     return normalizeCfg({ title: Editor.title || "Башня знаний", useRepoBg: true, bgDataUrl: Editor.bgDataUrl || "", timer: { enabled: !!Editor.timer.enabled, seconds: Number(Editor.timer.seconds || 30) }, useImages: !!Editor.useImages, useLatex: !!Editor.useLatex, instruction: Editor.instruction, feedback: Editor.feedback, questions });
   }
 
-  // ОБНОВЛЕНО: УБИРАЕМ РЕШЕТКУ ИЗ КОДА ДЛЯ ЭКОНОМИИ МЕСТА
   function buildGameUrl(payload){ const data = encodeGameData(payload); return selfPageUrl() + "?game=" + data; }
   function buildIframeFromUrl(src){ return `<iframe src="${src}" style="width:100%;height:100%;min-height:720px;border:0;border-radius:18px;overflow:hidden;background:transparent" allow="autoplay; fullscreen" allowfullscreen loading="lazy"></iframe>`; }
 
-  // ПРОВЕРКА РАЗМЕРА ССЫЛКИ ДЛЯ ПРЕДУПРЕЖДЕНИЯ
   function checkLinkSize(data) {
-      // Genially может глючить при длине свыше 3000 символов, ставим безопасный лимит 1800
       const maxLen = 1800;
       const curLen = data.length;
-      
       const pct = Math.min(100, (curLen / maxLen) * 100);
       const bar = $("barSize");
       const lblText = $("lblSizeText");
@@ -2455,7 +2439,7 @@ try{
           if(warn) warn.style.display = "none";
       } else {
           if(bar) bar.style.background = "var(--danger)";
-          if(lblText) { lblText.textContent = "🔴 ПРЕВЫШЕН ЛИМИТ ГЕНЕРАЦИИ"; lblText.style.color = "var(--danger)"; }
+          if(lblText) { lblText.textContent = "🔴 ПРЕВЫШЕН ЛИМИТ"; lblText.style.color = "var(--danger)"; }
           if(warn) warn.style.display = "block";
       }
   }
@@ -2467,7 +2451,6 @@ try{
     const payload = buildPayload(previewWithDraft); 
     const data = encodeGameData(payload); 
     
-    // Включаем наш светофор проверки длины
     checkLinkSize(data);
 
     const useKey = data.length > 2500; 
@@ -2598,12 +2581,6 @@ try{
 
   setLanguage("ru");
   updatePreview(false);
-  try{
-    const titles = Array.from(document.querySelectorAll(".section .title"));
-    const tEl = titles.find(x=>x.textContent.trim()==="Экспорт в Genially" || x.getAttribute("data-i18n")==="secTitleExport");
-    if(tEl){ const sec = tEl.closest(".section");
-    if(sec) sec.style.display="none"; }
-  }catch(e){}
 
 })();
 </script>
