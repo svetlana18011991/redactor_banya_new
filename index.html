@@ -8,7 +8,6 @@
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Caveat:wght@500&family=Neucha&display=swap');
     
-    /* ЖЕСТКАЯ ФИКСАЦИЯ РАЗМЕРОВ ДЛЯ ЗАЩИТЫ ОТ БАГОВ GENIALLY */
     html, body {
       height: 100%;
       margin: 0;
@@ -289,48 +288,51 @@
       transform:translateX(-50%) translateY(-4px)
     }
 
-    /* ИСПРАВЛЕННЫЙ ФОН МОДАЛЬНОГО ОКНА (АБСОЛЮТНОЕ ПОЗИЦИОНИРОВАНИЕ) */
+    /* ИСПРАВЛЕНИЕ: ЖЕСТКАЯ ФИКСАЦИЯ И СКРОЛЛ ДЛЯ МОДАЛЬНОГО ОКНА */
     .modal-backdrop{
-      position:absolute; /* Привязываемся к размерам документа, а не экрана */
-      top:0; left:0; right:0; bottom:0;
-      background:rgba(0,0,0,.55);
+      position: fixed; /* Привязывает фон строго к размеру iframe */
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,.55);
       backdrop-filter: blur(8px);
-      display:none;
-      align-items:center;
-      justify-content:center;
-      z-index:999998;
-      padding:20px;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 999998;
+      padding: 14px;
       box-sizing: border-box; 
     }
 
     .modal{
-      width:min(820px, 100%);
-      max-height: 100%; /* Четко ограничивается отступами фона */
+      width: 100%;
+      max-width: 820px;
+      max-height: 100%; /* Окно никогда не выйдет за пределы экрана */
+      min-height: 0;    /* МАГИЧЕСКОЕ ПРАВИЛО: не дает контенту распирать окно */
       display: flex;
       flex-direction: column;
-      border-radius:20px;
-      border:1px solid rgba(255,255,255,.14);
+      border-radius: 20px;
+      border: 1px solid rgba(255,255,255,.14);
       background: #16110c !important; 
       box-shadow: var(--neon-box-shadow), 0 30px 80px rgba(0,0,0,.7) !important;
-      overflow:hidden;
+      overflow: hidden;
       border-color: var(--neon-orange-base) !important;
     }
+    
     .modal-head{
-      padding:12px 14px;
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:10px;
-      border-bottom:1px solid rgba(255,255,255,.10);
-      flex-shrink: 0;
+      padding: 12px 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      border-bottom: 1px solid rgba(255,255,255,.10);
+      flex-shrink: 0; /* Шапка не сжимается */
     }
     .modal-head .h{font-weight:950}
     
     .modal-body{
-      padding:14px;
-      overflow-y: auto; /* Скролл работает только внутри этого блока */
-      flex: 1 1 auto;
-      min-height: 0;
+      padding: 14px;
+      overflow-y: auto; /* Включает внутренний скролл */
+      flex: 1 1 auto;   /* Растягивается на свободное место */
+      min-height: 0;    /* Разрешает сжиматься при нехватке места */
     }
     
     .modal-body::-webkit-scrollbar { width: 8px; }
@@ -339,13 +341,13 @@
     .modal-body::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.3); }
 
     .modal-foot{
-      padding:12px 14px;
-      border-top:1px solid rgba(255,255,255,.10);
-      display:flex;
-      gap:10px;
-      justify-content:flex-end;
-      flex-wrap:wrap;
-      flex-shrink: 0;
+      padding: 12px 14px;
+      border-top: 1px solid rgba(255,255,255,.10);
+      display: flex;
+      gap: 10px;
+      justify-content: flex-end;
+      flex-wrap: wrap;
+      flex-shrink: 0; /* Подвал с кнопкой Сохранить всегда на месте */
     }
 
     .choiceBlock{
@@ -677,6 +679,7 @@
 (() => {
   "use strict";
   
+  // ВСТРОЕННЫЙ АРХИВАТОР ДАННЫХ (LZString)
   var LZString=function(){var r=String.fromCharCode,o="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+-=$";var n={compressToEncodedURIComponent:function(r){return n.compress(r,6,function(r){return o.charAt(r)})},decompressFromEncodedURIComponent:function(r){return null==r?"":""==r?null:r.replace(/ /g,"+"),n.decompress(r.length,32,function(n){return o.indexOf(r.charAt(n))})},compress:function(o,n,t){if(null==o)return"";var e,i,u,s={},c={},a="",p="",f="",l=2,d=3,h=2,v=[],m=0,g=0,w;for(u=0;u<o.length;u+=1)if(a=o.charAt(u),Object.prototype.hasOwnProperty.call(s,a)||(s[a]=d++,c[a]=!0),p=f+a,Object.prototype.hasOwnProperty.call(s,p))f=p;else{if(Object.prototype.hasOwnProperty.call(c,f)){if(256>f.charCodeAt(0)){for(e=0;h>e;e++)m=m<<1,g==n-1?(g=0,v.push(t(m)),m=0):g++;for(i=f.charCodeAt(0),e=0;8>e;e++)m=m<<1|1&i,g==n-1?(g=0,v.push(t(m)),m=0):g++,i>>=1}else{for(i=1,e=0;h>e;e++)m=m<<1|i,g==n-1?(g=0,v.push(t(m)),m=0):g++,i=0;for(i=f.charCodeAt(0),e=0;16>e;e++)m=m<<1|1&i,g==n-1?(g=0,v.push(t(m)),m=0):g++,i>>=1}l--,0==l&&(l=Math.pow(2,h),h++),delete c[f]}else for(i=s[f],e=0;h>e;e++)m=m<<1|1&i,g==n-1?(g=0,v.push(t(m)),m=0):g++,i>>=1;l--,0==l&&(l=Math.pow(2,h),h++),s[p]=d++,f=String(a)}if(""!==f){if(Object.prototype.hasOwnProperty.call(c,f)){if(256>f.charCodeAt(0)){for(e=0;h>e;e++)m=m<<1,g==n-1?(g=0,v.push(t(m)),m=0):g++;for(i=f.charCodeAt(0),e=0;8>e;e++)m=m<<1|1&i,g==n-1?(g=0,v.push(t(m)),m=0):g++,i>>=1}else{for(i=1,e=0;h>e;e++)m=m<<1|i,g==n-1?(g=0,v.push(t(m)),m=0):g++,i=0;for(i=f.charCodeAt(0),e=0;16>e;e++)m=m<<1|1&i,g==n-1?(g=0,v.push(t(m)),m=0):g++,i>>=1}l--,0==l&&(l=Math.pow(2,h),h++),delete c[f]}else for(i=s[f],e=0;h>e;e++)m=m<<1|1&i,g==n-1?(g=0,v.push(t(m)),m=0):g++,i>>=1;l--,0==l&&(l=Math.pow(2,h),h++)}for(i=2,e=0;h>e;e++)m=m<<1|1&i,g==n-1?(g=0,v.push(t(m)),m=0):g++,i>>=1;for(;;)if(m<<=1,g==n-1){v.push(t(m));break}else g++;return v.join("")},decompress:function(o,n,t){var e,i,u,s,c,a,p,f=[],l=4,d=4,h=3,v="",m=[],g={val:t(0),position:n,index:1};for(e=0;3>e;e+=1)f[e]=e;for(u=0,c=Math.pow(2,2),a=1;a!=c;)s=g.val&g.position,g.position>>=1,0==g.position&&(g.position=n,g.val=t(g.index++)),u|=(s>0?1:0)*a,a<<=1;switch(u){case 0:for(u=0,c=Math.pow(2,8),a=1;a!=c;)s=g.val&g.position,g.position>>=1,0==g.position&&(g.position=n,g.val=t(g.index++)),u|=(s>0?1:0)*a,a<<=1;p=r(u);break;case 1:for(u=0,c=Math.pow(2,16),a=1;a!=c;)s=g.val&g.position,g.position>>=1,0==g.position&&(g.position=n,g.val=t(g.index++)),u|=(s>0?1:0)*a,a<<=1;p=r(u);break;case 2:return""}for(f[3]=p,i=p,m.push(p);;){if(g.index>o)return"";for(u=0,c=Math.pow(2,h),a=1;a!=c;)s=g.val&g.position,g.position>>=1,0==g.position&&(g.position=n,g.val=t(g.index++)),u|=(s>0?1:0)*a,a<<=1;switch(p=u){case 0:for(u=0,c=Math.pow(2,8),a=1;a!=c;)s=g.val&g.position,g.position>>=1,0==g.position&&(g.position=n,g.val=t(g.index++)),u|=(s>0?1:0)*a,a<<=1;f[d++]=r(u),p=d-1,l--;break;case 1:for(u=0,c=Math.pow(2,16),a=1;a!=c;)s=g.val&g.position,g.position>>=1,0==g.position&&(g.position=n,g.val=t(g.index++)),u|=(s>0?1:0)*a,a<<=1;f[d++]=r(u),p=d-1,l--;break;case 2:return m.join("")}if(0==l&&(l=Math.pow(2,h),h++),f[p])v=f[p];else{if(p!==d)return null;v=i+i.charAt(0)}m.push(v),f[d++]=i+v.charAt(0),l--,i=v,0==l&&(l=Math.pow(2,h),h++)}}};return n}();
 
   const i18n = {
@@ -2392,7 +2395,7 @@ try{
   }
 
   function buildGameUrl(payload){ const data = encodeGameData(payload); return selfPageUrl() + "?game=" + data; }
-  function buildIframeFromUrl(src){ return `<iframe src="${src}" style="width:100%;height:100%;border:0;border-radius:18px;overflow:hidden;background:transparent" allow="autoplay; fullscreen" allowfullscreen loading="lazy"></iframe>`; }
+  function buildIframeFromUrl(src){ return `<iframe src="${src}" style="width:100%;height:100%;min-height:720px;border:0;border-radius:18px;overflow:hidden;background:transparent" allow="autoplay; fullscreen" allowfullscreen loading="lazy"></iframe>`; }
 
   function checkLinkSize(data) {
       const maxLen = 3500;
