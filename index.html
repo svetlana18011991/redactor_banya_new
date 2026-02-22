@@ -454,6 +454,7 @@
                 <div id="barSize" style="width:0%; height:100%; background:var(--ok); transition: width 0.3s, background 0.3s;"></div>
              </div>
           </div>
+          <button class="btn" id="btnResetAll" type="button" title="Сбросить все настройки и начать с чистого листа">🔄 Сбросить всё</button>
           <button class="btn primary" id="btnCopyCode" type="button" data-i18n="btnCopyCode">📋 Скопировать код (iframe)</button>
         </div>
       </div>
@@ -670,27 +671,6 @@
       <div class="modal-foot">
         <button class="btn" id="btnPreviewDraft" type="button" data-i18n="btnPreviewDraft">👁 Показать в превью</button>
         <button class="btn primary" id="btnSaveQ" type="button" data-i18n="btnSaveQ">💾 Сохранить</button>
-      </div>
-    </div>
-  </div>
-
-  <div class="modal-backdrop" id="codeBackdrop" aria-hidden="true">
-    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="codeTitle">
-      <div class="modal-head">
-        <div class="h" id="codeTitle" data-i18n="lblCodeTitle">Ссылка для запуска игры</div>
-        <button class="btn small danger" id="btnCloseCode" type="button" data-i18n="btnClose">Закрыть</button>
-      </div>
-      <div class="modal-body">
-        <div class="muted" style="margin-bottom:8px" data-i18n="lblCodeHint">Это ссылка на игру. Её можно вставлять в Genially (через iframe) и куда угодно.</div>
-        <label style="margin-top:0" data-i18n="lblLink">Ссылка</label>
-        <textarea id="taIframe" spellcheck="false" style="min-height:90px;font-family: ui-monospace, SFMono-Regular, Menlo, monospace;"></textarea>
-        <label data-i18n="lblIframe">iframe (если нужен)</label>
-        <textarea id="taIframe2" spellcheck="false" style="min-height:120px;font-family: ui-monospace, SFMono-Regular, Menlo, monospace;"></textarea>
-        <div class="row" style="margin-top:10px">
-          <button class="btn primary" id="btnCopyFromModal" type="button" data-i18n="btnCopyLink">📋 Скопировать ссылку</button>
-          <button class="btn" id="btnCopyIframe" type="button" data-i18n="btnCopyIframe">📎 Скопировать iframe</button>
-          <button class="btn" id="btnDownloadGame" type="button" data-i18n="btnDownload">⬇ Скачать игру (HTML)</button>
-        </div>
       </div>
     </div>
   </div>
@@ -1644,19 +1624,25 @@ function drawScorePops(){
 
 function draw(){
   ctx.clearRect(0,0,W,H); ctx.save(); ctx.translate(state.cameraX, state.cameraY);
+  
+  // Рисуем фон ВСЕГДА (даже если игра еще не начата, для стартового экрана)
   drawBackground();
-  for(const b of state.tower){ drawBlock(b, false, b.squash, 0); }
-  if(state.current){ drawBlock(state.current, true, 1.0, state.current.char || 0); }
-  for(const s of state.smokes){ const t = s.age / s.life;
-    const a = (1 - t) * 0.35; ctx.fillStyle = "rgba(20,20,20," + a + ")"; ctx.beginPath();
-    ctx.arc(s.x, s.y, s.rad * (1 + t*1.25), 0, Math.PI*2); ctx.fill(); }
-  for(const r of state.rings){ const t = r.age / r.life; const a = (1 - t) * 0.55;
-    ctx.strokeStyle = "rgba(255,255,255," + a + ")"; ctx.lineWidth = 3; ctx.beginPath(); ctx.arc(r.x, r.y, r.r, 0, Math.PI*2); ctx.stroke(); }
-  for(const sp of state.sparks){ const t = sp.age / sp.life; const a = Math.max(0, 1 - t);
-    ctx.strokeStyle = "rgba(255,220,140," + (0.9*a) + ")"; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(sp.x, sp.y); ctx.lineTo(sp.x - sp.vx*0.012, sp.y - sp.vy*0.012); ctx.stroke(); }
-  for(const p of state.particles){ const a = 1 - (p.age/p.life); ctx.fillStyle = "rgba(255,200,120," + (0.78*a) + ")"; ctx.beginPath();
-    ctx.arc(p.x, p.y, p.r, 0, Math.PI*2); ctx.fill(); }
-  drawScorePops();
+  
+  if (state.running || state.finished) {
+      for(const b of state.tower){ drawBlock(b, false, b.squash, 0); }
+      if(state.current){ drawBlock(state.current, true, 1.0, state.current.char || 0); }
+      for(const s of state.smokes){ const t = s.age / s.life;
+        const a = (1 - t) * 0.35; ctx.fillStyle = "rgba(20,20,20," + a + ")"; ctx.beginPath();
+        ctx.arc(s.x, s.y, s.rad * (1 + t*1.25), 0, Math.PI*2); ctx.fill(); }
+      for(const r of state.rings){ const t = r.age / r.life; const a = (1 - t) * 0.55;
+        ctx.strokeStyle = "rgba(255,255,255," + a + ")"; ctx.lineWidth = 3; ctx.beginPath(); ctx.arc(r.x, r.y, r.r, 0, Math.PI*2); ctx.stroke(); }
+      for(const sp of state.sparks){ const t = sp.age / sp.life; const a = Math.max(0, 1 - t);
+        ctx.strokeStyle = "rgba(255,220,140," + (0.9*a) + ")"; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(sp.x, sp.y); ctx.lineTo(sp.x - sp.vx*0.012, sp.y - sp.vy*0.012); ctx.stroke(); }
+      for(const p of state.particles){ const a = 1 - (p.age/p.life); ctx.fillStyle = "rgba(255,200,120," + (0.78*a) + ")"; ctx.beginPath();
+        ctx.arc(p.x, p.y, p.r, 0, Math.PI*2); ctx.fill(); }
+      drawScorePops();
+  }
+
   if(state.flash>0){ ctx.fillStyle = "rgba(255,255,255," + (state.flash*0.22) + ")"; ctx.fillRect(0,0,W,H); }
   ctx.restore(); requestAnimationFrame(draw);
 }
@@ -1856,7 +1842,7 @@ function doPreload() {
     return __assetsPromise;
 }
 
-// Загружаем и сразу применяем фон для стартового экрана
+// Загружаем фон как можно раньше для красивого стартового экрана
 doPreload().then(res => { if(res && res.bg) state.bg = res.bg; }).catch(()=>{});
 
 async function startGame(){
@@ -1917,6 +1903,8 @@ playBtn.addEventListener("click", async ()=>{
   playBtn.innerHTML = origText;
   playBtn.style.opacity = "1"; playBtn.style.pointerEvents = "auto";
 });
+
+// Запускаем отрисовку холста сразу, чтобы фон стартового экрана появился до нажатия "Начать"
 requestAnimationFrame(loop);
 requestAnimationFrame(draw);
 
@@ -2421,7 +2409,7 @@ try{
   function buildIframeFromUrl(src){ return `<iframe src="${src}" style="width:100%;height:100%;min-height:720px;border:0;border-radius:18px;overflow:hidden;background:transparent" allow="autoplay; fullscreen" allowfullscreen loading="lazy"></iframe>`; }
 
   function checkLinkSize(data) {
-      const maxLen = 1800;
+      const maxLen = 3500;
       const curLen = data.length;
       const pct = Math.min(100, (curLen / maxLen) * 100);
       const bar = $("barSize");
@@ -2446,6 +2434,8 @@ try{
   }
 
   const PREVIEW_CFGKEY = "__tower_preview_cfg__";
+  const AUTOSAVE_KEY = "__tower_editor_autosave__";
+
   function storePreviewCfg(cfg){ try{ localStorage.setItem(PREVIEW_CFGKEY, JSON.stringify(cfg)); return PREVIEW_CFGKEY; } catch(e){ return ""; } }
 
   function updatePreview(previewWithDraft){
@@ -2453,6 +2443,11 @@ try{
     const data = encodeGameData(payload); 
     
     checkLinkSize(data);
+
+    // АВТОСОХРАНЕНИЕ
+    if (!previewWithDraft && !document.body.classList.contains("gameOnly")) {
+        try { localStorage.setItem(AUTOSAVE_KEY, JSON.stringify(payload)); } catch(e) {}
+    }
 
     const useKey = data.length > 2500; 
     let urlParams = "?preview=1"; if (previewWithDraft) urlParams += "&autostart=1";
@@ -2509,6 +2504,17 @@ try{
     const payload = buildPayload(false); const url = buildGameUrl(payload); const iframeCode = buildIframeFromUrl(url);
     const ok = await copyToClipboard(iframeCode); toast(ok ? t("toastCopied") : t("toastError"));
   });
+
+  // КНОПКА СБРОСА ВСЕГО
+  if ($("btnResetAll")) {
+    $("btnResetAll").addEventListener("click", ()=>{
+      if(confirm("Вы уверены, что хотите удалить все вопросы и настройки, чтобы начать заново?")) {
+        localStorage.removeItem(AUTOSAVE_KEY);
+        location.reload();
+      }
+    });
+  }
+
   function hideCodeModal(){ if(!$("codeBackdrop")) return; $("codeBackdrop").style.display = "none"; $("codeBackdrop").setAttribute("aria-hidden","true"); }
   if ($("btnCloseCode")) $("btnCloseCode").addEventListener("click", hideCodeModal);
   if ($("codeBackdrop")) { $("codeBackdrop").addEventListener("click", (e)=>{ if(e.target === $("codeBackdrop")) hideCodeModal(); }); }
@@ -2573,12 +2579,42 @@ try{
     return;
   }
 
+  // ЗАГРУЗКА АВТОСОХРАНЕНИЯ
+  try {
+      const saved = localStorage.getItem(AUTOSAVE_KEY);
+      if (saved) {
+          const p = JSON.parse(saved);
+          if(p.title) $("inpTitle").value = p.title;
+          if(p.bgDataUrl) $("inpBgUrl").value = p.bgDataUrl;
+          if(p.timer) {
+              $("chkTimer").checked = !!p.timer.enabled;
+              if(p.timer.seconds) $("inpSeconds").value = p.timer.seconds;
+          }
+          if(p.useLatex !== undefined && $("chkUseLatex")) $("chkUseLatex").checked = !!p.useLatex;
+          if(p.instruction) {
+              if(p.instruction.text !== undefined) $("inpInstruction").value = p.instruction.text;
+              if(p.instruction.color) $("inpInstColor").value = p.instruction.color;
+              $("chkInstGlow").checked = !!p.instruction.glow;
+          }
+          if(p.feedback && p.feedback.text !== undefined) $("inpFeedback").value = p.feedback.text;
+          
+          if(Array.isArray(p.questions)) {
+              Editor.questions = p.questions.map(q => ({...q, id: uid()}));
+          }
+      }
+  } catch(e) {}
+
   Editor.title = $("inpTitle").value || "Башня знаний";
   Editor.timer.enabled = $("chkTimer").checked; Editor.timer.seconds = Number($("inpSeconds").value || 30);
   Editor.useImages = true;
   if($("chkUseImages")) $("chkUseImages").checked = true;
   if($("chkUseLatex")) Editor.useLatex = $("chkUseLatex").checked;
   Editor.useRepoBg = true;
+  
+  Editor.instruction.text = $("inpInstruction").value;
+  Editor.instruction.color = $("inpInstColor").value;
+  Editor.instruction.glow = $("chkInstGlow").checked;
+  Editor.feedback.text = $("inpFeedback").value;
 
   setLanguage("ru");
   updatePreview(false);
