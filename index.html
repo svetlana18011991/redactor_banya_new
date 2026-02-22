@@ -1015,8 +1015,8 @@
       cursor:pointer;
       transition: transform .08s ease, background .12s ease;
       font-size: 16px;
-      white-space: normal !important; /* Разрешаем перенос строк */
-      line-height: 1.4; /* Улучшаем читаемость */
+      white-space: normal !important; 
+      line-height: 1.4; 
       word-break: break-word;
     }
     #gameRoot .btn:hover{ background:rgba(255,255,255,.11); }
@@ -1058,8 +1058,8 @@
     #start{
       position:absolute; inset:0;
       display:flex; align-items:center; justify-content:center;
-      background: radial-gradient(1200px 800px at 50% 45%, rgba(0,0,0,.15), rgba(0,0,0,.55));
-      backdrop-filter: blur(3px);
+      background: radial-gradient(1200px 800px at 50% 45%, rgba(0,0,0,.25), rgba(0,0,0,.65));
+      backdrop-filter: blur(8px);
       z-index: 6;
     }
     #startCard{
@@ -1856,7 +1856,8 @@ function doPreload() {
     return __assetsPromise;
 }
 
-doPreload();
+// Загружаем и сразу применяем фон для стартового экрана
+doPreload().then(res => { if(res && res.bg) state.bg = res.bg; }).catch(()=>{});
 
 async function startGame(){
   if (window.__CFG?.useLatex && !window.MathJax) {
