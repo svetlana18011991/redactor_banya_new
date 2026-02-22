@@ -554,9 +554,18 @@
         <div class="section">
           <div class="title" data-hide="exportTitle" data-i18n="secTitleExport">Экспорт в Genially</div>
           <div class="muted">
-            <span data-i18n="lblExportHint" data-i18n-html="true">Нажми <b>«📋 Скопировать iframe»</b> — в буфере будет короткий код вида:</span>
-            <div style="margin-top:8px; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size:12px; color:rgba(255,255,255,.86)">
-               .../index.html?game=...
+            <span data-i18n="lblExportHint" data-i18n-html="true">Нажми <b>«📋 Скопировать iframe»</b> — в буфере будет короткий код.</span>
+          </div>
+
+          <div style="margin-top:12px; padding-top:12px; border-top:1px solid rgba(255,255,255,.1);">
+            <div style="display:flex; justify-content:space-between; font-size:12px; margin-bottom:6px;">
+               <span id="lblSizeText" style="font-weight:900; color:var(--ok);">🟢 Код в норме</span>
+            </div>
+            <div style="width:100%; background:rgba(0,0,0,.3); border:1px solid rgba(255,255,255,.1); height:8px; border-radius:4px; overflow:hidden;">
+               <div id="barSize" style="width:0%; height:100%; background:var(--ok); transition: width 0.3s, background 0.3s;"></div>
+            </div>
+            <div id="sizeWarning" style="display:none; color:var(--danger); font-size:12px; margin-top:8px; line-height:1.4; font-weight:700;">
+               ⚠️ Текста слишком много! Genially может не принять такой длинный код. Сократите тексты вопросов или используйте скачивание игры отдельным файлом.
             </div>
           </div>
         </div>
@@ -714,7 +723,7 @@
       secTitleTimer: "Таймер", lblEnableTimer: "Включить таймер", lblTimerHint: "Если время вышло — ответ неверный, блок сгорает.",
       lblSecPerQ: "Секунд на вопрос", secTitleQuestions: "Вопросы", btnAdd: "➕ Добавить", btnClear: "🧹 Очистить",
       lblExact9: "Строго <b>9 вопросов</b>.", lblTypes: "Можно: <b>выбор</b> или <b>ввод</b> (несколько правильных вариантов).",
-      secTitleExport: "Экспорт в Genially", lblExportHint: "Нажми <b>«📋 Скопировать iframe»</b> — в буфере будет короткий код вида:",
+      secTitleExport: "Экспорт в Genially", lblExportHint: "Нажми <b>«📋 Скопировать iframe»</b> — в буфере будет короткий код.",
       previewTitle: "Просмотр", previewHint: "Живое превью (игра запускается как в Genially)", previewSub: "Башня + карточки + финальный экран",
       modalTitleAdd: "Добавить вопрос", modalTitleEdit: "Редактировать вопрос", btnClose: "Закрыть",
       lblQType: "Тип вопроса", optChoice: "С выбором ответа", optText: "С вводом ответа", lblQuestionText: "Вопрос", phQuestion: "Введите вопрос...",
@@ -744,7 +753,7 @@
       secTitleTimer: "Timer", lblEnableTimer: "Enable timer", lblTimerHint: "If time runs out — wrong answer, block burns.",
       lblSecPerQ: "Seconds per question", secTitleQuestions: "Questions", btnAdd: "➕ Add", btnClear: "🧹 Clear",
       lblExact9: "Strictly <b>9 questions</b>.", lblTypes: "Allowed: <b>choice</b> or <b>input</b> (multiple correct options).",
-      secTitleExport: "Export to Genially", lblExportHint: "Click <b>«📋 Copy iframe»</b> — a short code will be in your clipboard:",
+      secTitleExport: "Export to Genially", lblExportHint: "Click <b>«📋 Copy iframe»</b> — a short code will be in your clipboard.",
       previewTitle: "Preview", previewHint: "Live preview (game runs as in Genially)", previewSub: "Tower + cards + final screen",
       modalTitleAdd: "Add question", modalTitleEdit: "Edit question", btnClose: "Close",
       lblQType: "Question type", optChoice: "Multiple choice", optText: "Text input", lblQuestionText: "Question", phQuestion: "Enter question...",
@@ -774,7 +783,7 @@
       secTitleTimer: "Timer", lblEnableTimer: "Timer aktivieren", lblTimerHint: "Wenn die Zeit abläuft — falsche Antwort, Block verbrennt.",
       lblSecPerQ: "Sekunden pro Frage", secTitleQuestions: "Fragen", btnAdd: "➕ Hinzufügen", btnClear: "🧹 Leeren",
       lblExact9: "Streng <b>9 Fragen</b>.", lblTypes: "Erlaubt: <b>Auswahl</b> oder <b>Eingabe</b> (mehrere richtige Optionen).",
-      secTitleExport: "Export nach Genially", lblExportHint: "Klicke auf <b>«📋 iframe kopieren»</b> — ein kurzer Code befindet sich in der Zwischenablage:",
+      secTitleExport: "Export nach Genially", lblExportHint: "Klicke auf <b>«📋 iframe kopieren»</b> — ein kurzer Code befindet sich in der Zwischenablage.",
       previewTitle: "Vorschau", previewHint: "Live-Vorschau (Spiel läuft wie in Genially)", previewSub: "Turm + Karten + Endbildschirm",
       modalTitleAdd: "Frage hinzufügen", modalTitleEdit: "Frage bearbeiten", btnClose: "Schließen",
       lblQType: "Fragetyp", optChoice: "Mehrfachauswahl", optText: "Texteingabe", lblQuestionText: "Frage", phQuestion: "Frage eingeben...",
@@ -804,7 +813,7 @@
       secTitleTimer: "计时器", lblEnableTimer: "启用计时器", lblTimerHint: "如果时间用完 — 回答错误，方块烧毁。",
       lblSecPerQ: "每题秒数", secTitleQuestions: "问题", btnAdd: "➕ 添加", btnClear: "🧹 清除",
       lblExact9: "严格 <b>9 个问题</b>.", lblTypes: "允许：<b>选择</b> 或 <b>输入</b> (多个正确选项)。",
-      secTitleExport: "导出到 Genially", lblExportHint: "点击 <b>«📋 复制 iframe»</b> — 简短的代码将在您的剪贴板中：",
+      secTitleExport: "导出到 Genially", lblExportHint: "点击 <b>«📋 复制 iframe»</b> — 简短的代码将在您的剪贴板中。",
       previewTitle: "预览", previewHint: "实时预览 (游戏如在 Genially 中运行)", previewSub: "塔楼 + 卡片 + 最终屏幕",
       modalTitleAdd: "添加问题", modalTitleEdit: "编辑问题", btnClose: "关闭",
       lblQType: "问题类型", optChoice: "选择题", optText: "文本输入", lblQuestionText: "问题", phQuestion: "输入问题...",
@@ -1004,21 +1013,27 @@
       font-family: system-ui, sans-serif;
     }
     #answers{ display:flex; flex-direction:column; gap:10px; margin-top:14px; }
-    .btn{
+    
+    /* ИСПРАВЛЕННАЯ КНОПКА ОТВЕТА В ИГРЕ */
+    #gameRoot .btn{
       width:100%; text-align:left;
       background:rgba(255,255,255,.08);
       border:1px solid rgba(255,255,255,.12);
       border-radius:14px;
-      padding:12px 12px;
+      padding:14px 16px;
       color:var(--text);
       cursor:pointer;
       transition: transform .08s ease, background .12s ease;
       font-size: 16px;
+      white-space: normal !important; /* Разрешаем перенос строк */
+      line-height: 1.4; /* Улучшаем читаемость */
+      word-break: break-word;
     }
-    .btn:hover{ background:rgba(255,255,255,.11); }
-    .btn:active{ transform:scale(.99); }
+    #gameRoot .btn:hover{ background:rgba(255,255,255,.11); }
+    #gameRoot .btn:active{ transform:scale(.99); }
+    
     /* Для мульти-выбора: */
-    .btn.selected {
+    #gameRoot .btn.selected {
       background: rgba(120,255,170,.25) !important;
       border-color: rgba(120,255,170,.5) !important;
       transform: scale(0.98);
@@ -2089,7 +2104,7 @@ try{
     return out;
   }
 
-  // НОВЫЕ ФУНКЦИИ СЖАТИЯ ДАННЫХ
+  // ВСТРОЕННЫЙ АРХИВАТОР ДАННЫХ (LZString) ДЛЯ КОРОТКИХ ССЫЛОК
   function packPayload(p) {
       const out = {};
       if (p.title && p.title !== "Башня знаний") out.ti = p.title;
@@ -2413,8 +2428,37 @@ try{
     return normalizeCfg({ title: Editor.title || "Башня знаний", useRepoBg: true, bgDataUrl: Editor.bgDataUrl || "", timer: { enabled: !!Editor.timer.enabled, seconds: Number(Editor.timer.seconds || 30) }, useImages: !!Editor.useImages, useLatex: !!Editor.useLatex, instruction: Editor.instruction, feedback: Editor.feedback, questions });
   }
 
-  function buildGameUrl(payload){ const data = encodeGameData(payload); return selfPageUrl() + "?game=" + data + "#game=" + data; }
+  // ОБНОВЛЕНО: УБИРАЕМ РЕШЕТКУ ИЗ КОДА ДЛЯ ЭКОНОМИИ МЕСТА
+  function buildGameUrl(payload){ const data = encodeGameData(payload); return selfPageUrl() + "?game=" + data; }
   function buildIframeFromUrl(src){ return `<iframe src="${src}" style="width:100%;height:100%;min-height:720px;border:0;border-radius:18px;overflow:hidden;background:transparent" allow="autoplay; fullscreen" allowfullscreen loading="lazy"></iframe>`; }
+
+  // ПРОВЕРКА РАЗМЕРА ССЫЛКИ ДЛЯ ПРЕДУПРЕЖДЕНИЯ
+  function checkLinkSize(data) {
+      // Genially может глючить при длине свыше 3000 символов, ставим безопасный лимит 1800
+      const maxLen = 1800;
+      const curLen = data.length;
+      
+      const pct = Math.min(100, (curLen / maxLen) * 100);
+      const bar = $("barSize");
+      const lblText = $("lblSizeText");
+      const warn = $("sizeWarning");
+      
+      if (bar) bar.style.width = pct + "%";
+      
+      if (curLen < maxLen * 0.75) {
+          if(bar) bar.style.background = "var(--ok)";
+          if(lblText) { lblText.textContent = "🟢 Код в норме"; lblText.style.color = "var(--ok)"; }
+          if(warn) warn.style.display = "none";
+      } else if (curLen <= maxLen) {
+          if(bar) bar.style.background = "var(--neon)";
+          if(lblText) { lblText.textContent = "🟡 Код почти достиг лимита"; lblText.style.color = "var(--neon)"; }
+          if(warn) warn.style.display = "none";
+      } else {
+          if(bar) bar.style.background = "var(--danger)";
+          if(lblText) { lblText.textContent = "🔴 ПРЕВЫШЕН ЛИМИТ ГЕНЕРАЦИИ"; lblText.style.color = "var(--danger)"; }
+          if(warn) warn.style.display = "block";
+      }
+  }
 
   const PREVIEW_CFGKEY = "__tower_preview_cfg__";
   function storePreviewCfg(cfg){ try{ localStorage.setItem(PREVIEW_CFGKEY, JSON.stringify(cfg)); return PREVIEW_CFGKEY; } catch(e){ return ""; } }
@@ -2422,13 +2466,17 @@ try{
   function updatePreview(previewWithDraft){
     const payload = buildPayload(previewWithDraft); 
     const data = encodeGameData(payload); 
+    
+    // Включаем наш светофор проверки длины
+    checkLinkSize(data);
+
     const useKey = data.length > 2500; 
     let urlParams = "?preview=1"; if (previewWithDraft) urlParams += "&autostart=1";
     if(useKey){
       const key = storePreviewCfg(payload);
       if(key){ const src = selfPageUrl() + urlParams + "&cfgkey=" + encodeURIComponent(key) + "#cfgkey=" + encodeURIComponent(key); $("livePreview").src = src; return; }
     }
-    const src = selfPageUrl() + urlParams + "&game=" + data + "#game=" + data; $("livePreview").src = src;
+    const src = selfPageUrl() + urlParams + "&game=" + data; $("livePreview").src = src;
   }
 
   let _previewTid = null;
