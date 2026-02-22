@@ -8,6 +8,7 @@
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Caveat:wght@500&family=Neucha&display=swap');
     
+    /* ЖЕСТКАЯ ФИКСАЦИЯ РАЗМЕРОВ ДЛЯ ЗАЩИТЫ ОТ БАГОВ GENIALLY */
     html, body {
       height: 100%;
       margin: 0;
@@ -288,33 +289,32 @@
       transform:translateX(-50%) translateY(-4px)
     }
 
-    /* ИСПРАВЛЕНИЕ: ЖЕСТКАЯ ФИКСАЦИЯ И СКРОЛЛ ДЛЯ МОДАЛЬНОГО ОКНА */
+    /* АТОМНОЕ ИСПРАВЛЕНИЕ: ЖЕСТКАЯ ФИКСАЦИЯ И СКРОЛЛ ДЛЯ МОДАЛЬНОГО ОКНА */
     .modal-backdrop{
-      position: fixed; /* Привязывает фон строго к размеру iframe */
+      position: fixed; 
       top: 0; left: 0; right: 0; bottom: 0;
-      background: rgba(0,0,0,.55);
+      background: rgba(0,0,0,.65);
       backdrop-filter: blur(8px);
       display: none;
-      align-items: center;
-      justify-content: center;
       z-index: 999998;
-      padding: 14px;
-      box-sizing: border-box; 
     }
 
     .modal{
-      width: 100%;
+      position: absolute;
+      top: 15px; 
+      bottom: 15px;
+      left: 15px;
+      right: 15px;
+      margin: auto;
       max-width: 820px;
-      max-height: 100%; /* Окно никогда не выйдет за пределы экрана */
-      min-height: 0;    /* МАГИЧЕСКОЕ ПРАВИЛО: не дает контенту распирать окно */
+      width: auto;
       display: flex;
       flex-direction: column;
       border-radius: 20px;
-      border: 1px solid rgba(255,255,255,.14);
+      border: 1px solid var(--neon-orange-base) !important;
       background: #16110c !important; 
       box-shadow: var(--neon-box-shadow), 0 30px 80px rgba(0,0,0,.7) !important;
       overflow: hidden;
-      border-color: var(--neon-orange-base) !important;
     }
     
     .modal-head{
@@ -324,15 +324,17 @@
       justify-content: space-between;
       gap: 10px;
       border-bottom: 1px solid rgba(255,255,255,.10);
-      flex-shrink: 0; /* Шапка не сжимается */
+      flex-shrink: 0; /* Шапка намертво прибита */
     }
     .modal-head .h{font-weight:950}
     
     .modal-body{
       padding: 14px;
       overflow-y: auto; /* Включает внутренний скролл */
-      flex: 1 1 auto;   /* Растягивается на свободное место */
-      min-height: 0;    /* Разрешает сжиматься при нехватке места */
+      -webkit-overflow-scrolling: touch;
+      overscroll-behavior: contain;
+      flex: 1 1 auto;
+      min-height: 0; /* Главный фикс - разрешает сжиматься при нехватке места */
     }
     
     .modal-body::-webkit-scrollbar { width: 8px; }
@@ -347,7 +349,7 @@
       gap: 10px;
       justify-content: flex-end;
       flex-wrap: wrap;
-      flex-shrink: 0; /* Подвал с кнопкой Сохранить всегда на месте */
+      flex-shrink: 0; /* Подвал с кнопкой Сохранить намертво прибит */
     }
 
     .choiceBlock{
@@ -2244,7 +2246,8 @@ try{
     });
   }
 
-  function showModal(){ $("modalBackdrop").style.display = "flex"; $("modalBackdrop").setAttribute("aria-hidden","false"); }
+  /* ИЗМЕНЕНИЕ ДЛЯ СТАБИЛЬНОГО ОТОБРАЖЕНИЯ ФОНА */
+  function showModal(){ $("modalBackdrop").style.display = "block"; $("modalBackdrop").setAttribute("aria-hidden","false"); }
   function hideModal(){ $("modalBackdrop").style.display = "none"; $("modalBackdrop").setAttribute("aria-hidden","true"); }
 
   function syncModalType(){
