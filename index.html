@@ -1436,7 +1436,8 @@ const state = {
   running:false, bg:null, blocks:[], towerScale:1, tower:[], current:null,
   particles:[], smokes:[], rings:[], sparks:[], flash:0, cameraShake:0, cameraX:0, cameraY:0,
   towerOffsetY:0, towerOffsetV:0, questionIndex:0, waitingAnswer:false, dropping:false,
-  blockIndex:0, readyForNext:false, finished:false, score:0, scoreFloats:[], correct:0, wrong:0, landingBounce: null
+  blockIndex:0, readyForNext:false, finished:false, score:0, scoreFloats:[], correct:0, wrong:0, landingBounce: null,
+  answered: false
 };
 function setNextEnabled(on){ state.readyForNext = on; nextBtn.disabled = !on; }
 function updateRemain(){ remainNum.textContent = String(Math.max(0, 9 - state.questionIndex)); }
@@ -1472,6 +1473,7 @@ function spawnBlock(){
   const idx = state.blockIndex; const {w,h} = blockSize(idx);
   state.current = { idx, w,h, x: alignedXForIdx(idx), y: -h - 30, char:0 };
   state.dropping=false; state.waitingAnswer=false; state.landingBounce=null;
+  state.answered = false; /* ЗАЩИТА ОТ ДВОЙНОГО КЛИКА: открываем замок для нового блока */
   setNextEnabled(false);
 }
 
@@ -1757,6 +1759,10 @@ function __applyTitle__(title){
 }
 
 function checkAnswer(userValue){
+  /* ЗАЩИТА ОТ ДВОЙНОГО КЛИКА: Если ответ уже принят, игнорируем новые клики */
+  if (state.answered) return;
+  state.answered = true;
+
   try{ if(window.__qTimerId){ clearInterval(window.__qTimerId); window.__qTimerId=null; } }catch(e){}
   try{ document.getElementById("qAudio").pause(); }catch(e){}
 
@@ -1879,7 +1885,7 @@ async function startGame(){
   }
   
   errBox.style.display="none"; errList.innerHTML="";
-  Object.assign(state, { running:false, bg:null, blocks:[], towerScale:1, tower:[], current:null, particles:[], smokes:[], rings:[], sparks:[], flash:0, cameraShake:0, cameraX:0, cameraY:0, towerOffsetY:0, towerOffsetV:0, questionIndex:0, waitingAnswer:false, dropping:false, blockIndex:0, readyForNext:false, finished:false, score:0, scoreFloats:[], correct:0, wrong:0, landingBounce:null });
+  Object.assign(state, { running:false, bg:null, blocks:[], towerScale:1, tower:[], current:null, particles:[], smokes:[], rings:[], sparks:[], flash:0, cameraShake:0, cameraX:0, cameraY:0, towerOffsetY:0, towerOffsetV:0, questionIndex:0, waitingAnswer:false, dropping:false, blockIndex:0, readyForNext:false, finished:false, score:0, scoreFloats:[], correct:0, wrong:0, landingBounce:null, answered:false });
   scoreNum.textContent = "0"; setNextEnabled(false); updateRemain();
 
   state.bg = bg;
