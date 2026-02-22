@@ -8,11 +8,12 @@
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Caveat:wght@500&family=Neucha&display=swap');
     
-    /* ИСПРАВЛЕНИЕ ВЫСОТЫ: Жесткая фиксация в рамках 100% */
+    /* ЖЕСТКАЯ ФИКСАЦИЯ РАЗМЕРОВ ДЛЯ ЗАЩИТЫ ОТ БАГОВ GENIALLY */
     html, body {
       height: 100%;
       margin: 0;
-      overflow: hidden; /* Полностью запрещаем внешний скролл */
+      overflow: hidden; /* Запрещаем внешний скролл */
+      position: relative;
     }
 
     :root{
@@ -48,8 +49,9 @@
       padding:14px;
       max-width: 1540px;
       margin: 0 auto;
-      height: 100%; /* Адаптация под Genially */
+      height: 100%;
     }
+    
     @media (max-width: 1020px){
       .app { display: flex; flex-direction: column; overflow-y: auto; }
       .settings, .preview { height: auto !important; flex: none; min-height: 600px; }
@@ -249,17 +251,18 @@
 
     .preview .panel-body {
       flex: 1;
+      display: flex;
+      flex-direction: column;
       min-height: 0;
       padding-bottom: 0;
-      height: 100%;
     }
 
     .preview-stage{
+      flex: 1;
       position:relative;
       border-radius:var(--radius2);
       border:1px solid rgba(255,255,255,.10);
       overflow:hidden;
-      height: 100%; /* Убрана жесткая привязка */
       background:rgba(0,0,0,.18);
       box-shadow: var(--shadow2);
     }
@@ -286,22 +289,23 @@
       transform:translateX(-50%) translateY(-4px)
     }
 
+    /* ИСПРАВЛЕННЫЙ ФОН МОДАЛЬНОГО ОКНА (АБСОЛЮТНОЕ ПОЗИЦИОНИРОВАНИЕ) */
     .modal-backdrop{
-      position:fixed;
-      inset:0;
+      position:absolute; /* Привязываемся к размерам документа, а не экрана */
+      top:0; left:0; right:0; bottom:0;
       background:rgba(0,0,0,.55);
       backdrop-filter: blur(8px);
       display:none;
       align-items:center;
       justify-content:center;
       z-index:999998;
-      padding:14px;
-      box-sizing: border-box; /* Важно для 100% max-height */
+      padding:20px;
+      box-sizing: border-box; 
     }
 
     .modal{
       width:min(820px, 100%);
-      max-height: 100%; /* Идеальная адаптация внутри iframe */
+      max-height: 100%; /* Четко ограничивается отступами фона */
       display: flex;
       flex-direction: column;
       border-radius:20px;
@@ -321,10 +325,11 @@
       flex-shrink: 0;
     }
     .modal-head .h{font-weight:950}
+    
     .modal-body{
       padding:14px;
-      overflow-y: auto;
-      flex: 1;
+      overflow-y: auto; /* Скролл работает только внутри этого блока */
+      flex: 1 1 auto;
       min-height: 0;
     }
     
@@ -672,7 +677,6 @@
 (() => {
   "use strict";
   
-  // ВСТРОЕННЫЙ АРХИВАТОР ДАННЫХ (LZString)
   var LZString=function(){var r=String.fromCharCode,o="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+-=$";var n={compressToEncodedURIComponent:function(r){return n.compress(r,6,function(r){return o.charAt(r)})},decompressFromEncodedURIComponent:function(r){return null==r?"":""==r?null:r.replace(/ /g,"+"),n.decompress(r.length,32,function(n){return o.indexOf(r.charAt(n))})},compress:function(o,n,t){if(null==o)return"";var e,i,u,s={},c={},a="",p="",f="",l=2,d=3,h=2,v=[],m=0,g=0,w;for(u=0;u<o.length;u+=1)if(a=o.charAt(u),Object.prototype.hasOwnProperty.call(s,a)||(s[a]=d++,c[a]=!0),p=f+a,Object.prototype.hasOwnProperty.call(s,p))f=p;else{if(Object.prototype.hasOwnProperty.call(c,f)){if(256>f.charCodeAt(0)){for(e=0;h>e;e++)m=m<<1,g==n-1?(g=0,v.push(t(m)),m=0):g++;for(i=f.charCodeAt(0),e=0;8>e;e++)m=m<<1|1&i,g==n-1?(g=0,v.push(t(m)),m=0):g++,i>>=1}else{for(i=1,e=0;h>e;e++)m=m<<1|i,g==n-1?(g=0,v.push(t(m)),m=0):g++,i=0;for(i=f.charCodeAt(0),e=0;16>e;e++)m=m<<1|1&i,g==n-1?(g=0,v.push(t(m)),m=0):g++,i>>=1}l--,0==l&&(l=Math.pow(2,h),h++),delete c[f]}else for(i=s[f],e=0;h>e;e++)m=m<<1|1&i,g==n-1?(g=0,v.push(t(m)),m=0):g++,i>>=1;l--,0==l&&(l=Math.pow(2,h),h++),s[p]=d++,f=String(a)}if(""!==f){if(Object.prototype.hasOwnProperty.call(c,f)){if(256>f.charCodeAt(0)){for(e=0;h>e;e++)m=m<<1,g==n-1?(g=0,v.push(t(m)),m=0):g++;for(i=f.charCodeAt(0),e=0;8>e;e++)m=m<<1|1&i,g==n-1?(g=0,v.push(t(m)),m=0):g++,i>>=1}else{for(i=1,e=0;h>e;e++)m=m<<1|i,g==n-1?(g=0,v.push(t(m)),m=0):g++,i=0;for(i=f.charCodeAt(0),e=0;16>e;e++)m=m<<1|1&i,g==n-1?(g=0,v.push(t(m)),m=0):g++,i>>=1}l--,0==l&&(l=Math.pow(2,h),h++),delete c[f]}else for(i=s[f],e=0;h>e;e++)m=m<<1|1&i,g==n-1?(g=0,v.push(t(m)),m=0):g++,i>>=1;l--,0==l&&(l=Math.pow(2,h),h++)}for(i=2,e=0;h>e;e++)m=m<<1|1&i,g==n-1?(g=0,v.push(t(m)),m=0):g++,i>>=1;for(;;)if(m<<=1,g==n-1){v.push(t(m));break}else g++;return v.join("")},decompress:function(o,n,t){var e,i,u,s,c,a,p,f=[],l=4,d=4,h=3,v="",m=[],g={val:t(0),position:n,index:1};for(e=0;3>e;e+=1)f[e]=e;for(u=0,c=Math.pow(2,2),a=1;a!=c;)s=g.val&g.position,g.position>>=1,0==g.position&&(g.position=n,g.val=t(g.index++)),u|=(s>0?1:0)*a,a<<=1;switch(u){case 0:for(u=0,c=Math.pow(2,8),a=1;a!=c;)s=g.val&g.position,g.position>>=1,0==g.position&&(g.position=n,g.val=t(g.index++)),u|=(s>0?1:0)*a,a<<=1;p=r(u);break;case 1:for(u=0,c=Math.pow(2,16),a=1;a!=c;)s=g.val&g.position,g.position>>=1,0==g.position&&(g.position=n,g.val=t(g.index++)),u|=(s>0?1:0)*a,a<<=1;p=r(u);break;case 2:return""}for(f[3]=p,i=p,m.push(p);;){if(g.index>o)return"";for(u=0,c=Math.pow(2,h),a=1;a!=c;)s=g.val&g.position,g.position>>=1,0==g.position&&(g.position=n,g.val=t(g.index++)),u|=(s>0?1:0)*a,a<<=1;switch(p=u){case 0:for(u=0,c=Math.pow(2,8),a=1;a!=c;)s=g.val&g.position,g.position>>=1,0==g.position&&(g.position=n,g.val=t(g.index++)),u|=(s>0?1:0)*a,a<<=1;f[d++]=r(u),p=d-1,l--;break;case 1:for(u=0,c=Math.pow(2,16),a=1;a!=c;)s=g.val&g.position,g.position>>=1,0==g.position&&(g.position=n,g.val=t(g.index++)),u|=(s>0?1:0)*a,a<<=1;f[d++]=r(u),p=d-1,l--;break;case 2:return m.join("")}if(0==l&&(l=Math.pow(2,h),h++),f[p])v=f[p];else{if(p!==d)return null;v=i+i.charAt(0)}m.push(v),f[d++]=i+v.charAt(0),l--,i=v,0==l&&(l=Math.pow(2,h),h++)}}};return n}();
 
   const i18n = {
@@ -971,7 +975,6 @@
     }
     #answers{ display:flex; flex-direction:column; gap:10px; margin-top:14px; }
     
-    /* ИСПРАВЛЕННАЯ КНОПКА ОТВЕТА В ИГРЕ */
     #gameRoot .btn{
       width:100%; text-align:left;
       background:rgba(255,255,255,.08);
@@ -989,7 +992,6 @@
     #gameRoot .btn:hover{ background:rgba(255,255,255,.11); }
     #gameRoot .btn:active{ transform:scale(.99); }
     
-    /* Для мульти-выбора: */
     #gameRoot .btn.selected {
       background: rgba(120,255,170,.25) !important;
       border-color: rgba(120,255,170,.5) !important;
@@ -1612,7 +1614,6 @@ function drawScorePops(){
 function draw(){
   ctx.clearRect(0,0,W,H); ctx.save(); ctx.translate(state.cameraX, state.cameraY);
   
-  // Рисуем фон ВСЕГДА (даже если игра еще не начата, для стартового экрана)
   drawBackground();
   
   if (state.running || state.finished) {
@@ -1829,7 +1830,6 @@ function doPreload() {
     return __assetsPromise;
 }
 
-// Загружаем фон как можно раньше для красивого стартового экрана
 doPreload().then(res => { if(res && res.bg) state.bg = res.bg; }).catch(()=>{});
 
 async function startGame(){
@@ -1891,7 +1891,6 @@ playBtn.addEventListener("click", async ()=>{
   playBtn.style.opacity = "1"; playBtn.style.pointerEvents = "auto";
 });
 
-// Запускаем отрисовку холста сразу, чтобы фон стартового экрана появился до нажатия "Начать"
 requestAnimationFrame(loop);
 requestAnimationFrame(draw);
 
