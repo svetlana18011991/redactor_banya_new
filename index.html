@@ -2296,10 +2296,11 @@ try{
     updatePreview(false);
   };
 
+  // Делаем функции-помощники глобальными для кнопок
   window.copyQ = (i) => {
     if(Editor.questions.length >= 9) { toast("Максимум 9 вопросов!"); return; }
     const qCopy = deepClone(Editor.questions[i]);
-    qCopy.id = uid(); // Генерируем новый ID для копии
+    qCopy.id = uid(); 
     Editor.questions.splice(i + 1, 0, qCopy);
     renderList();
     updatePreview(false);
@@ -2311,6 +2312,16 @@ try{
     renderList(); 
     updatePreview(false); 
     toast(t("toastDeleted")); 
+  };
+
+  window.previewQ = (i) => {
+    Editor.draft = deepClone(Editor.questions[i]); 
+    updatePreview(true); 
+    toast(t('toastShown'));
+  };
+
+  window.editQ = (i) => {
+    openModal(Editor.questions[i]);
   };
 
   function renderList() {
@@ -2330,9 +2341,9 @@ try{
               <div class="s">${escapeHtml(s.sub)}</div>
             </div>
             <div style="display:flex; gap:4px;">
-              <button class="btn small" onclick="window.Editor.draft = deepClone(window.Editor.questions[${i}]); window.updatePreview(true); window.toast(t('toastShown'));" type="button" title="В превью">👁</button>
+              <button class="btn small" onclick="previewQ(${i})" type="button" title="В превью">👁</button>
               <button class="btn small" onclick="copyQ(${i})" type="button" title="Дублировать">📋</button>
-              <button class="btn small" onclick="window.openModal(window.Editor.questions[${i}])" type="button" title="Редактировать">✏️</button> 
+              <button class="btn small" onclick="editQ(${i})" type="button" title="Редактировать">✏️</button> 
               <button class="btn small danger" onclick="delQ('${q.id}')" type="button" title="Удалить">🗑</button>
             </div>
           </div>
@@ -2344,20 +2355,14 @@ try{
     const sel = $("newQTemplate");
     if(sel){
         const val = sel.value;
-        sel.innerHTML = `<option value="-1">Стандартные (по умолчанию)</option>`;
+        sel.innerHTML = '<option value="-1">Стандартные (по умолчанию)</option>';
         Editor.questions.forEach((q, i) => {
-            sel.innerHTML += `<option value="${i}">Как в вопросе #${i+1}</option>`;
+            sel.innerHTML += '<option value="' + i + '">Как в вопросе #' + (i+1) + '</option>';
         });
         if(val && Editor.questions[val]) sel.value = val;
         else sel.value = "-1";
     }
   }
-
-  // Делаем доступными для инлайн-кнопок
-  window.Editor = Editor;
-  window.updatePreview = updatePreview;
-  window.toast = toast;
-  window.openModal = openModal;
 
   // --- ШАБЛОНЫ НАСТРОЕК ---
   window.applyTemplateToAll = () => {
