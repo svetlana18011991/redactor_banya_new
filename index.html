@@ -564,7 +564,7 @@
           </div>
 
           <div style="background: rgba(214, 177, 74, 0.1); padding: 10px; border-radius: 12px; border: 1px solid rgba(214,177,74,.4); margin-bottom: 12px;">
-            <div style="font-size: 12px; color: var(--neon); font-weight: bold; margin-bottom: 8px;">🎨 Управление настройками (Шрифт, Таймер):</div>
+            <div style="font-size: 12px; color: var(--neon); font-weight: bold; margin-bottom: 8px;">🎨 Управление настройками (Шрифт, Таймер, Тип вопроса):</div>
             <div style="display:flex; align-items:center; gap:8px; flex-wrap: wrap;">
               <select id="newQTemplate" style="flex:1; min-width: 160px; border: 1px solid rgba(214,177,74,.4); border-radius: 12px; padding: 6px; font-size: 13px; background: rgba(0,0,0,0.5); color: #fff; outline: none;">
                 <option value="-1">Стандартные (по умолчанию)</option>
@@ -573,7 +573,7 @@
             </div>
             <div style="font-size: 11px; color: rgba(255,255,255,0.7); margin-top: 8px; line-height: 1.3;">
               * Выбранный шаблон автоматически применяется ко всем <b>новым</b> и импортируемым вопросам.<br>
-              * Кнопка «Применить ко всем» обновляет настройки (шрифт, таймер) у <b>уже существующих</b> вопросов.
+              * Кнопка «Применить ко всем» обновляет настройки (шрифт, таймер, <b>тип вопроса</b>) у <b>уже существующих</b> вопросов.
             </div>
           </div>
 
@@ -1924,7 +1924,12 @@ function normalizeAnswer(s){ return String(s||"").trim().toLowerCase(); }
 function showQuestion(){
   // Очищаем и скрываем черновик перед новым вопросом
   if(cardEl) cardEl.classList.remove('draw-mode');
-  if(ctxScratch && canvasScratch) ctxScratch.clearRect(0, 0, canvasScratch.width, canvasScratch.height);
+  if(ctxScratch && canvasScratch) {
+      ctxScratch.save();
+      ctxScratch.setTransform(1, 0, 0, 1, 0, 0);
+      ctxScratch.clearRect(0, 0, canvasScratch.width, canvasScratch.height);
+      ctxScratch.restore();
+  }
   if(drawEraser) { isEraser = false; drawEraser.classList.remove('active'); }
 
   const qi = state.questionIndex;
@@ -2607,18 +2612,39 @@ try{
     if(Editor.questions.length === 0) return;
     const tplIdx = parseInt($("newQTemplate").value);
     
-    if(!confirm("Применить настройки (шрифт, размер, таймер) ко всем вопросам?\nТексты и ответы НЕ изменятся.")) return;
+    if(!confirm("Применить настройки (шрифт, размер, таймер, ТИП вопроса) ко всем вопросам?\\nПри смене типа вопроса ответы будут аккуратно сконвертированы.")) return;
     
-    let baseQ = { font: "", fontSize: 20, seconds: null };
+    let baseQ = { font: "", fontSize: 20, seconds: null, type: "choice" };
     if (tplIdx >= 0 && Editor.questions[tplIdx]) {
         const tq = Editor.questions[tplIdx];
-        baseQ = { font: tq.font, fontSize: tq.fontSize, seconds: tq.seconds };
+        baseQ = { font: tq.font, fontSize: tq.fontSize, seconds: tq.seconds, type: tq.type };
     }
     
     Editor.questions.forEach(q => {
         q.font = baseQ.font;
         q.fontSize = baseQ.fontSize;
         q.seconds = baseQ.seconds;
+
+        // Меняем тип вопроса с сохранением ответа
+        if (q.type !== baseQ.type) {
+            q.type = baseQ.type;
+            if (q.type === 'choice') {
+                // Из текста в выбор
+                let ans = (q.accepts && q.accepts.length > 0) ? q.accepts[0] : "";
+                q.options = [ans, "Вариант 2"];
+                q.correctIndices = [0];
+                delete q.accepts;
+            } else {
+                // Из выбора в текст
+                let ans = "";
+                if (q.options && q.correctIndices && q.correctIndices.length > 0) {
+                    ans = q.options[q.correctIndices[0]] || "";
+                }
+                q.accepts = [ans];
+                delete q.options;
+                delete q.correctIndices;
+            }
+        }
     });
     
     renderList();
@@ -2709,6 +2735,16 @@ try{
       if (tplIdx >= 0 && Editor.questions[tplIdx]) {
           const tq = Editor.questions[tplIdx];
           Editor.draft.font = tq.font; Editor.draft.fontSize = tq.fontSize; Editor.draft.seconds = tq.seconds;
+          Editor.draft.type = tq.type;
+          if (tq.type === 'choice') {
+              Editor.draft.options = ["",""];
+              Editor.draft.correctIndices = [0];
+              delete Editor.draft.accepts;
+          } else {
+              Editor.draft.accepts = [""];
+              delete Editor.draft.options;
+              delete Editor.draft.correctIndices;
+          }
       }
     }
 
