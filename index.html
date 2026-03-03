@@ -1226,14 +1226,34 @@
   background-size: 25px 25px;
   position: relative; z-index: 10;
   box-shadow: inset 0 0 20px rgba(0,0,0,0.1);
+  overflow: hidden;
 }
 #card.draw-mode #gDrawArea { display: block; }
 #gCanvas { width: 100%; height: 100%; touch-action: none; cursor: crosshair; border-radius: 12px; }
 
+#gDrawTools {
+  position: absolute; top: 10px; left: 10px; right: 10px; z-index: 15;
+  display: flex; gap: 10px; align-items: center;
+  background: rgba(255, 255, 255, 0.85); padding: 8px 12px; border-radius: 12px;
+  backdrop-filter: blur(5px); border: 1px solid rgba(0,0,0,0.1);
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
+#gDrawColor { width: 32px; height: 32px; padding: 0; border: none; border-radius: 8px; cursor: pointer; background: transparent; }
+#gDrawColor::-webkit-color-swatch-wrapper { padding: 0; }
+#gDrawColor::-webkit-color-swatch { border: 2px solid rgba(0,0,0,0.2); border-radius: 8px; }
+
+#gDrawSize { flex: 1; max-width: 100px; accent-color: #0f4c81; cursor: pointer; }
+
+#gDrawEraser { 
+  background: rgba(0, 0, 0, 0.05); border: 1px solid rgba(0, 0, 0, 0.2);
+  color: #333; padding: 6px 12px; border-radius: 8px; font-size: 13px; font-weight: bold; cursor: pointer; transition: 0.2s;
+}
+#gDrawEraser.active { background: #d6b14a; color: #000; border-color: #d6b14a; }
+
 #gCanvasClear {
-  position: absolute; top: 10px; right: 10px; z-index: 15;
+  margin-left: auto;
   background: rgba(255, 77, 77, 0.15); border: 1px solid rgba(255, 77, 77, 0.5);
-  color: #fff; padding: 6px 12px; border-radius: 10px; font-size: 12px; font-weight: bold; cursor: pointer; transition: 0.2s;
+  color: #d90000; padding: 6px 12px; border-radius: 8px; font-size: 13px; font-weight: bold; cursor: pointer; transition: 0.2s;
 }
 #gCanvasClear:hover { background: rgba(255, 77, 77, 0.3); }
 `;
@@ -1292,8 +1312,13 @@
       <div id="hint">Верно → блок опускается и становится этажом (+100). Неверно → обугливание, взрыв и исчезает.</div>
 
       <div id="gDrawArea">
+        <div id="gDrawTools">
+            <input type="color" id="gDrawColor" value="#0f4c81" title="Цвет маркера">
+            <input type="range" id="gDrawSize" min="1" max="30" value="4" title="Толщина линии">
+            <button id="gDrawEraser" title="Ластик">🧽 Ластик</button>
+            <button id="gCanvasClear">🗑 Очистить</button>
+        </div>
         <canvas id="gCanvas"></canvas>
-        <button id="gCanvasClear">🗑 Очистить</button>
       </div>
       
     </div>
@@ -1392,12 +1417,27 @@ const ctxScratch = canvasScratch ? canvasScratch.getContext('2d') : null;
 const cardEl = document.getElementById('card');
 const drawToggle = document.getElementById('gDrawToggle');
 const canvasClearBtn = document.getElementById('gCanvasClear');
+const drawColor = document.getElementById('gDrawColor');
+const drawSize = document.getElementById('gDrawSize');
+const drawEraser = document.getElementById('gDrawEraser');
+
 let isScratchDrawing = false;
+let isEraser = false;
+let lastX = 0;
+let lastY = 0;
 
 if (canvasScratch) {
     function resizeScratchCanvas() {
+        const tempCanvas = document.createElement('canvas');
+        tempCanvas.width = canvasScratch.width;
+        tempCanvas.height = canvasScratch.height;
+        const tempCtx = tempCanvas.getContext('2d');
+        tempCtx.drawImage(canvasScratch, 0, 0);
+
         canvasScratch.width = drawArea.offsetWidth;
         canvasScratch.height = drawArea.offsetHeight;
+
+        ctxScratch.drawImage(tempCanvas, 0, 0);
     }
 
     function getScratchMousePos(e) {
@@ -1407,29 +1447,56 @@ if (canvasScratch) {
         return { x: clientX - rect.left, y: clientY - rect.top };
     }
 
+    function applyCtxStyle() {
+        ctxScratch.lineWidth = drawSize.value;
+        ctxScratch.lineCap = 'round';
+        ctxScratch.lineJoin = 'round';
+        if (isEraser) {
+            ctxScratch.globalCompositeOperation = 'destination-out';
+            ctxScratch.strokeStyle = 'rgba(0,0,0,1)';
+        } else {
+            ctxScratch.globalCompositeOperation = 'source-over';
+            ctxScratch.strokeStyle = drawColor.value;
+        }
+    }
+
     const startScratchDraw = (e) => {
         isScratchDrawing = true;
         const pos = getScratchMousePos(e);
+        lastX = pos.x;
+        lastY = pos.y;
+        
+        applyCtxStyle();
         ctxScratch.beginPath();
-        ctxScratch.moveTo(pos.x, pos.y);
+        ctxScratch.moveTo(lastX, lastY);
+        // Рисуем точку на месте клика
+        ctxScratch.lineTo(lastX, lastY);
+        ctxScratch.stroke();
+        
+        if(e.cancelable) e.preventDefault();
     };
 
     const doScratchDraw = (e) => {
         if (!isScratchDrawing) return;
         const pos = getScratchMousePos(e);
+        
+        applyCtxStyle();
+        ctxScratch.beginPath();
+        ctxScratch.moveTo(lastX, lastY);
         ctxScratch.lineTo(pos.x, pos.y);
-        ctxScratch.strokeStyle = '#0f4c81';
-        ctxScratch.lineWidth = 3;
-        ctxScratch.lineCap = 'round';
-        ctxScratch.lineJoin = 'round';
         ctxScratch.stroke();
+        
+        lastX = pos.x;
+        lastY = pos.y;
+        
         if(e.cancelable) e.preventDefault();
     };
 
     const stopScratchDraw = () => isScratchDrawing = false;
 
-    canvasScratch.addEventListener('pointerdown', startScratchDraw);
-    canvasScratch.addEventListener('pointermove', doScratchDraw);
+    // passive: false отключает скроллинг страницы при рисовании на тачскринах
+    canvasScratch.addEventListener('pointerdown', startScratchDraw, {passive: false});
+    canvasScratch.addEventListener('pointermove', doScratchDraw, {passive: false});
     canvasScratch.addEventListener('pointerup', stopScratchDraw);
     canvasScratch.addEventListener('pointerout', stopScratchDraw);
 
@@ -1437,10 +1504,25 @@ if (canvasScratch) {
         ctxScratch.clearRect(0, 0, canvasScratch.width, canvasScratch.height);
     };
 
+    drawEraser.onclick = () => {
+        isEraser = !isEraser;
+        drawEraser.classList.toggle('active', isEraser);
+    };
+
+    // Если меняем цвет — выключаем ластик автоматически
+    drawColor.addEventListener('input', () => {
+        isEraser = false;
+        drawEraser.classList.remove('active');
+    });
+
     drawToggle.onclick = () => {
         cardEl.classList.toggle('draw-mode');
         if(cardEl.classList.contains('draw-mode')) {
-            setTimeout(resizeScratchCanvas, 50);
+            // Подгоняем размер только если холст был свернут
+            if (canvasScratch.width === 0 || canvasScratch.width === 300) {
+                canvasScratch.width = drawArea.offsetWidth;
+                canvasScratch.height = drawArea.offsetHeight;
+            }
         }
     };
 }
@@ -1824,6 +1906,7 @@ function showQuestion(){
   // Очищаем и скрываем черновик перед новым вопросом
   if(cardEl) cardEl.classList.remove('draw-mode');
   if(ctxScratch && canvasScratch) ctxScratch.clearRect(0, 0, canvasScratch.width, canvasScratch.height);
+  if(drawEraser) { isEraser = false; drawEraser.classList.remove('active'); }
 
   const qi = state.questionIndex;
   const q = QUESTIONS[(QUESTIONS.length? (qi % QUESTIONS.length):0)];
