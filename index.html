@@ -7,7 +7,6 @@
 
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Caveat:wght@500&family=Neucha&display=swap');
-    
     /* ЖЕСТКАЯ ФИКСАЦИЯ РАЗМЕРОВ ДЛЯ ЗАЩИТЫ ОТ БАГОВ GENIALLY */
     html, body {
       height: 100%;
@@ -192,7 +191,16 @@
       gap:10px;
       align-items:center;
       justify-content:space-between;
+      transition: border-color 0.2s, transform 0.2s;
     }
+    .q-item.drag-over { 
+      border-color: var(--neon); 
+      background: rgba(214, 177, 74, 0.15); 
+      transform: scale(1.02); 
+    }
+    .cursor-grab { cursor: grab; }
+    .cursor-grab:active { cursor: grabbing; }
+
     .q-item .meta{
       display:flex;
       flex-direction:column;
@@ -291,7 +299,7 @@
 
     /* АТОМНОЕ ИСПРАВЛЕНИЕ: ЖЕСТКАЯ ФИКСАЦИЯ И СКРОЛЛ ДЛЯ МОДАЛЬНОГО ОКНА */
     .modal-backdrop{
-      position: fixed; 
+      position: fixed;
       top: 0; left: 0; right: 0; bottom: 0;
       background: rgba(0,0,0,.65);
       backdrop-filter: blur(8px);
@@ -312,7 +320,7 @@
       flex-direction: column;
       border-radius: 20px;
       border: 1px solid var(--neon-orange-base) !important;
-      background: #16110c !important; 
+      background: #16110c !important;
       box-shadow: var(--neon-box-shadow), 0 30px 80px rgba(0,0,0,.7) !important;
       overflow: hidden;
     }
@@ -324,7 +332,7 @@
       justify-content: space-between;
       gap: 10px;
       border-bottom: 1px solid rgba(255,255,255,.10);
-      flex-shrink: 0; /* Шапка намертво прибита */
+      flex-shrink: 0;
     }
     .modal-head .h{font-weight:950}
     
@@ -349,7 +357,7 @@
       gap: 10px;
       justify-content: flex-end;
       flex-wrap: wrap;
-      flex-shrink: 0; /* Подвал с кнопкой Сохранить намертво прибит */
+      flex-shrink: 0;
     }
 
     .choiceBlock{
@@ -432,7 +440,6 @@
         border-color: var(--neon-orange-base) !important;
         box-shadow: 0 0 8px var(--neon-orange-glow), inset 0 0 4px rgba(255, 136, 0, 0.2) !important;
     }
-
 </style>
 </head>
 
@@ -441,9 +448,9 @@
     <div class="panel settings">
       <div class="panel-header" style="flex-wrap: wrap; gap: 14px;">
         <div class="h">
-          <img src="63.png" alt="Логотип" />
+          <img src="logo.png" alt="Логотип" onerror="this.style.display='none'"/>
           <div style="display:flex; flex-direction:column; justify-content:center;">
-            <span style="font-size: 16px; font-weight: 900; line-height: 1.2;">Светлана Быкова</span>
+            <span style="font-size: 16px; font-weight: 900; line-height: 1.2;">Шкатулка интерактивов</span>
             <span data-i18n="editorTitle" style="font-size: 12px; color: var(--neon-orange-base); font-weight: 700; line-height: 1.2;">Редактор «Башня»</span>
           </div>
         </div>
@@ -550,12 +557,29 @@
         <div class="section">
           <div class="title"><span data-i18n="secTitleQuestions">Вопросы</span> <span class="pill" id="pillCount">0 / 9</span></div>
 
-          <div class="row">
+          <div class="row" style="margin-bottom:12px; align-items: center;">
             <button class="btn primary" id="btnAddQ" type="button" data-i18n="btnAdd">➕ Добавить</button>
+            <button class="btn primary" id="btnImportQ" type="button" style="background: linear-gradient(90deg, #33d17a, #28a745); border-color: #28a745;">📥 Импорт</button>
             <button class="btn" id="btnClearQs" type="button" data-i18n="btnClear">🧹 Очистить</button>
           </div>
 
-          <div class="q-list" id="qList" style="margin-top:12px"></div>
+          <div style="background: rgba(214, 177, 74, 0.1); padding: 10px; border-radius: 12px; border: 1px solid rgba(214,177,74,.4); margin-bottom: 12px;">
+            <div style="font-size: 12px; color: var(--neon); font-weight: bold; margin-bottom: 8px;">🎨 Управление настройками (Шрифт, Таймер):</div>
+            <div style="display:flex; align-items:center; gap:8px; flex-wrap: wrap;">
+              <select id="newQTemplate" style="flex:1; min-width: 160px; border: 1px solid rgba(214,177,74,.4); border-radius: 12px; padding: 6px; font-size: 13px; background: rgba(0,0,0,0.5); color: #fff; outline: none;">
+                <option value="-1">Стандартные (по умолчанию)</option>
+              </select>
+              <button class="btn small" style="background:var(--neon); color:#000; border:none; font-weight:bold; padding: 8px 12px;" onclick="applyTemplateToAll()" id="btnApplyAll" type="button">🔄 Применить ко всем</button>
+            </div>
+            <div style="font-size: 11px; color: rgba(255,255,255,0.7); margin-top: 8px; line-height: 1.3;">
+              * Выбранный шаблон автоматически применяется ко всем <b>новым</b> и импортируемым вопросам.<br>
+              * Кнопка «Применить ко всем» обновляет настройки (шрифт, таймер) у <b>уже существующих</b> вопросов.
+            </div>
+          </div>
+
+          <div style="font-size:11px; color:var(--neon); margin-bottom:8px;">💡 Можно перетаскивать вопросы (за значок ☰), чтобы менять их порядок.</div>
+          
+          <div class="q-list" id="qList"></div>
 
           <div class="muted" style="margin-top:10px" data-i18n="lblExact9" data-i18n-html="true">Строго <b>9 вопросов</b>.</div>
           <div class="muted" data-i18n="lblTypes" data-i18n-html="true">Можно: <b>выбор</b> или <b>ввод</b> (несколько правильных вариантов).</div>
@@ -675,15 +699,47 @@
     </div>
   </div>
 
+  <div class="modal-backdrop" id="importBackdrop" aria-hidden="true">
+    <div class="modal" role="dialog" aria-modal="true">
+      <div class="modal-head">
+        <div class="h" style="color:#33d17a;">📥 Умный Импорт</div>
+        <button class="btn small danger" onclick="closeImport()" type="button">Закрыть</button>
+      </div>
+      <div class="modal-body">
+        <div class="row" style="margin-bottom:15px;">
+          <div>
+            <label>Режим импорта текста:</label>
+            <select id="importMode" style="border-color:#33d17a;">
+              <option value="ege">Текст блоками (с вариантами ответов)</option>
+              <option value="line">Простой список (каждая строка — новый вопрос)</option>
+            </select>
+          </div>
+        </div>
+
+        <div style="font-size:12px; color:rgba(255,255,255,0.7); margin-bottom:10px; line-height:1.4;">
+          <b>Подсказка:</b> Если в конце скопированного блока есть строка <code>Ответ: 2</code>, умный алгоритм сам найдет правильный вариант!
+        </div>
+        
+        <textarea id="importText" style="height:250px; font-family:'Courier New', monospace; font-size:14px;" placeholder="Вставьте скопированный текст сюда..."></textarea>
+        
+        <button class="btn small" style="background:rgba(255,255,255,0.1); margin-top: 10px; width: 100%; border-color:rgba(255,255,255,0.2);" onclick="fixEgeText()" type="button">
+          🛠 Починить шрифты (Решу ЕГЭ)
+        </button>
+      </div>
+      <div class="modal-foot">
+        <button class="btn" onclick="closeImport()" type="button">Отмена</button>
+        <button class="btn primary" style="background: linear-gradient(90deg, #33d17a, #28a745); border-color: #28a745;" onclick="processImport()" type="button">✨ Распознать и добавить</button>
+      </div>
+    </div>
+  </div>
+
   <div class="toast" id="toast">Скопировано</div>
 
 <script>
 (() => {
   "use strict";
-  
   // ВСТРОЕННЫЙ АРХИВАТОР ДАННЫХ (LZString)
   var LZString=function(){var r=String.fromCharCode,o="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+-=$";var n={compressToEncodedURIComponent:function(r){return n.compress(r,6,function(r){return o.charAt(r)})},decompressFromEncodedURIComponent:function(r){return null==r?"":""==r?null:r.replace(/ /g,"+"),n.decompress(r.length,32,function(n){return o.indexOf(r.charAt(n))})},compress:function(o,n,t){if(null==o)return"";var e,i,u,s={},c={},a="",p="",f="",l=2,d=3,h=2,v=[],m=0,g=0,w;for(u=0;u<o.length;u+=1)if(a=o.charAt(u),Object.prototype.hasOwnProperty.call(s,a)||(s[a]=d++,c[a]=!0),p=f+a,Object.prototype.hasOwnProperty.call(s,p))f=p;else{if(Object.prototype.hasOwnProperty.call(c,f)){if(256>f.charCodeAt(0)){for(e=0;h>e;e++)m=m<<1,g==n-1?(g=0,v.push(t(m)),m=0):g++;for(i=f.charCodeAt(0),e=0;8>e;e++)m=m<<1|1&i,g==n-1?(g=0,v.push(t(m)),m=0):g++,i>>=1}else{for(i=1,e=0;h>e;e++)m=m<<1|i,g==n-1?(g=0,v.push(t(m)),m=0):g++,i=0;for(i=f.charCodeAt(0),e=0;16>e;e++)m=m<<1|1&i,g==n-1?(g=0,v.push(t(m)),m=0):g++,i>>=1}l--,0==l&&(l=Math.pow(2,h),h++),delete c[f]}else for(i=s[f],e=0;h>e;e++)m=m<<1|1&i,g==n-1?(g=0,v.push(t(m)),m=0):g++,i>>=1;l--,0==l&&(l=Math.pow(2,h),h++),s[p]=d++,f=String(a)}if(""!==f){if(Object.prototype.hasOwnProperty.call(c,f)){if(256>f.charCodeAt(0)){for(e=0;h>e;e++)m=m<<1,g==n-1?(g=0,v.push(t(m)),m=0):g++;for(i=f.charCodeAt(0),e=0;8>e;e++)m=m<<1|1&i,g==n-1?(g=0,v.push(t(m)),m=0):g++,i>>=1}else{for(i=1,e=0;h>e;e++)m=m<<1|i,g==n-1?(g=0,v.push(t(m)),m=0):g++,i=0;for(i=f.charCodeAt(0),e=0;16>e;e++)m=m<<1|1&i,g==n-1?(g=0,v.push(t(m)),m=0):g++,i>>=1}l--,0==l&&(l=Math.pow(2,h),h++),delete c[f]}else for(i=s[f],e=0;h>e;e++)m=m<<1|1&i,g==n-1?(g=0,v.push(t(m)),m=0):g++,i>>=1;l--,0==l&&(l=Math.pow(2,h),h++)}for(i=2,e=0;h>e;e++)m=m<<1|1&i,g==n-1?(g=0,v.push(t(m)),m=0):g++,i>>=1;for(;;)if(m<<=1,g==n-1){v.push(t(m));break}else g++;return v.join("")},decompress:function(o,n,t){var e,i,u,s,c,a,p,f=[],l=4,d=4,h=3,v="",m=[],g={val:t(0),position:n,index:1};for(e=0;3>e;e+=1)f[e]=e;for(u=0,c=Math.pow(2,2),a=1;a!=c;)s=g.val&g.position,g.position>>=1,0==g.position&&(g.position=n,g.val=t(g.index++)),u|=(s>0?1:0)*a,a<<=1;switch(u){case 0:for(u=0,c=Math.pow(2,8),a=1;a!=c;)s=g.val&g.position,g.position>>=1,0==g.position&&(g.position=n,g.val=t(g.index++)),u|=(s>0?1:0)*a,a<<=1;p=r(u);break;case 1:for(u=0,c=Math.pow(2,16),a=1;a!=c;)s=g.val&g.position,g.position>>=1,0==g.position&&(g.position=n,g.val=t(g.index++)),u|=(s>0?1:0)*a,a<<=1;p=r(u);break;case 2:return""}for(f[3]=p,i=p,m.push(p);;){if(g.index>o)return"";for(u=0,c=Math.pow(2,h),a=1;a!=c;)s=g.val&g.position,g.position>>=1,0==g.position&&(g.position=n,g.val=t(g.index++)),u|=(s>0?1:0)*a,a<<=1;switch(p=u){case 0:for(u=0,c=Math.pow(2,8),a=1;a!=c;)s=g.val&g.position,g.position>>=1,0==g.position&&(g.position=n,g.val=t(g.index++)),u|=(s>0?1:0)*a,a<<=1;f[d++]=r(u),p=d-1,l--;break;case 1:for(u=0,c=Math.pow(2,16),a=1;a!=c;)s=g.val&g.position,g.position>>=1,0==g.position&&(g.position=n,g.val=t(g.index++)),u|=(s>0?1:0)*a,a<<=1;f[d++]=r(u),p=d-1,l--;break;case 2:return m.join("")}if(0==l&&(l=Math.pow(2,h),h++),f[p])v=f[p];else{if(p!==d)return null;v=i+i.charAt(0)}m.push(v),f[d++]=i+v.charAt(0),l--,i=v,0==l&&(l=Math.pow(2,h),h++)}}};return n}();
-
   const i18n = {
     ru: {
       editorTitle: "Редактор «Башня»", btnCopyCode: "📋 Скопировать код (iframe)", langTitle: "Язык интерфейса",
@@ -703,7 +759,7 @@
       lblTextAns: "Верные ответы (ввод)", lblTextAnsHint: "Можно несколько вариантов — принимается любой.", btnAddText: "➕ Добавить вариант",
       btnPreviewDraft: "👁 Показать в превью", btnSaveQ: "💾 Сохранить", lblCodeTitle: "Ссылка для запуска игры",
       btnCopyLink: "📋 Скопировать ссылку", btnCopyIframe: "📎 Скопировать iframe", btnDownload: "⬇ Скачать игру (HTML)",
-      noQs: "Пока нет вопросов. Нажмите «Добавить» и заполните 9 вопросов.", rightAns: "✅ Верный ответ", optionN: "Вариант ",
+      noQs: "Пока нет вопросов. Нажмите «Добавить» или «Импорт» и заполните 9 вопросов.", rightAns: "✅ Верный ответ", optionN: "Вариант ",
       rightOptionN: "Верный вариант ", toastCopied: "Скопировано ✅", toastError: "Не удалось скопировать", toastBgLoaded: "Фон загружен",
       toast9Q: "Вопросов уже 9 🙂", toastCleared: "Очищено", toastQAdded: "Вопрос добавлен", toastQUpdated: "Вопрос обновлён",
       toastDraft: "Черновик показан в превью", toastEmptyQ: "Пустой вопрос", toastNoText: "Введите текст вопроса",
@@ -990,7 +1046,7 @@
       cursor:pointer;
       transition: transform .08s ease, background .12s ease;
       font-size: 16px;
-      white-space: normal !important; 
+      white-space: normal !important;
       line-height: 1.4; 
       word-break: break-word;
     }
@@ -1287,7 +1343,6 @@ function resize(){
 }
 window.addEventListener("resize", resize);
 resize();
-
 let audioCtx=null;
 function ensureAudio(){ if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)(); }
 
@@ -1304,13 +1359,11 @@ function playBoom(){
   gain.gain.setValueAtTime(0.0001, t);
   gain.gain.exponentialRampToValueAtTime(0.50, t + 0.02);
   gain.gain.exponentialRampToValueAtTime(0.0001, t + 0.34);
-
   const noiseBuf = audioCtx.createBuffer(1, audioCtx.sampleRate * 0.30, audioCtx.sampleRate);
   const data = noiseBuf.getChannelData(0);
   for(let i=0; i<data.length; i++) data[i] = (Math.random() * 2 - 1) * 0.95;
   const noise = audioCtx.createBufferSource();
   noise.buffer = noiseBuf;
-  
   const nGain = audioCtx.createGain();
   nGain.gain.setValueAtTime(0.0001, t);
   nGain.gain.exponentialRampToValueAtTime(0.40, t + 0.01);
@@ -1528,7 +1581,8 @@ function finishGame(){
 
 restartBtn.addEventListener("click", async ()=>{ finishLayer.style.display="none"; startLayer.style.display="flex"; });
 
-function showOverlayAnimated(){ overlay.style.display="flex"; requestAnimationFrame(()=> overlay.classList.add("show")); }
+function showOverlayAnimated(){ overlay.style.display="flex";
+  requestAnimationFrame(()=> overlay.classList.add("show")); }
 function hideOverlayAnimated(){ overlay.classList.remove("show"); setTimeout(()=>{ overlay.style.display="none"; }, 140); }
 
 function update(dt){
@@ -1540,11 +1594,13 @@ function update(dt){
   const aT = -55*(state.towerOffsetY) - 10*state.towerOffsetV; state.towerOffsetV += aT*dt; state.towerOffsetY += state.towerOffsetV*dt; state.towerOffsetY = Math.max(-10, Math.min(10, state.towerOffsetY));
   for(const b of state.tower){ const aB=-40*(b.squash-1)-8*b.squashV; b.squashV += aB*dt; b.squash += b.squashV*dt; b.squash = Math.max(0.88, Math.min(1.08, b.squash)); }
   for(const p of state.particles){ p.age += dt; p.vy += 980*dt; p.x += p.vx*dt; p.y += p.vy*dt; } state.particles = state.particles.filter(p => p.age < p.life);
-  for(const s of state.smokes){ s.age += dt; s.vy += 120*dt; s.x += s.vx*dt; s.y += s.vy*dt; } state.smokes = state.smokes.filter(s => s.age < s.life);
+  for(const s of state.smokes){ s.age += dt; s.vy += 120*dt;
+    s.x += s.vx*dt; s.y += s.vy*dt; } state.smokes = state.smokes.filter(s => s.age < s.life);
   for(const r of state.rings){ r.age += dt; r.r += r.vr*dt; } state.rings = state.rings.filter(r => r.age < r.life);
-  for(const sp of state.sparks){ sp.age += dt; sp.vy += 980*dt; sp.x += sp.vx*dt; sp.y += sp.vy*dt; sp.vx *= (1 - dt*1.8); } state.sparks = state.sparks.filter(s => s.age < s.life);
-  for(const f of state.scoreFloats){ f.age += dt; f.vy += 260*dt; f.x += f.vx*dt; f.y += f.vy*dt; } state.scoreFloats = state.scoreFloats.filter(f => f.age < f.life);
-  
+  for(const sp of state.sparks){ sp.age += dt; sp.vy += 980*dt; sp.x += sp.vx*dt; sp.y += sp.vy*dt;
+    sp.vx *= (1 - dt*1.8); } state.sparks = state.sparks.filter(s => s.age < s.life);
+  for(const f of state.scoreFloats){ f.age += dt;
+    f.vy += 260*dt; f.x += f.vx*dt; f.y += f.vy*dt; } state.scoreFloats = state.scoreFloats.filter(f => f.age < f.life);
   if(state.landingBounce && state.current){
     const bb = state.landingBounce; bb.age += dt; const t = Math.min(1, bb.age / bb.dur);
     const ease = 1 - Math.pow(1 - t, 3);
@@ -1620,19 +1676,25 @@ function draw(){
   ctx.clearRect(0,0,W,H); ctx.save(); ctx.translate(state.cameraX, state.cameraY);
   
   drawBackground();
-  
   if (state.running || state.finished) {
       for(const b of state.tower){ drawBlock(b, false, b.squash, 0); }
       if(state.current){ drawBlock(state.current, true, 1.0, state.current.char || 0); }
       for(const s of state.smokes){ const t = s.age / s.life;
         const a = (1 - t) * 0.35; ctx.fillStyle = "rgba(20,20,20," + a + ")"; ctx.beginPath();
-        ctx.arc(s.x, s.y, s.rad * (1 + t*1.25), 0, Math.PI*2); ctx.fill(); }
-      for(const r of state.rings){ const t = r.age / r.life; const a = (1 - t) * 0.55;
-        ctx.strokeStyle = "rgba(255,255,255," + a + ")"; ctx.lineWidth = 3; ctx.beginPath(); ctx.arc(r.x, r.y, r.r, 0, Math.PI*2); ctx.stroke(); }
-      for(const sp of state.sparks){ const t = sp.age / sp.life; const a = Math.max(0, 1 - t);
-        ctx.strokeStyle = "rgba(255,220,140," + (0.9*a) + ")"; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(sp.x, sp.y); ctx.lineTo(sp.x - sp.vx*0.012, sp.y - sp.vy*0.012); ctx.stroke(); }
-      for(const p of state.particles){ const a = 1 - (p.age/p.life); ctx.fillStyle = "rgba(255,200,120," + (0.78*a) + ")"; ctx.beginPath();
-        ctx.arc(p.x, p.y, p.r, 0, Math.PI*2); ctx.fill(); }
+        ctx.arc(s.x, s.y, s.rad * (1 + t*1.25), 0, Math.PI*2); ctx.fill();
+      }
+      for(const r of state.rings){ const t = r.age / r.life;
+        const a = (1 - t) * 0.55;
+        ctx.strokeStyle = "rgba(255,255,255," + a + ")"; ctx.lineWidth = 3; ctx.beginPath();
+        ctx.arc(r.x, r.y, r.r, 0, Math.PI*2); ctx.stroke(); }
+      for(const sp of state.sparks){ const t = sp.age / sp.life;
+        const a = Math.max(0, 1 - t);
+        ctx.strokeStyle = "rgba(255,220,140," + (0.9*a) + ")"; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(sp.x, sp.y);
+        ctx.lineTo(sp.x - sp.vx*0.012, sp.y - sp.vy*0.012); ctx.stroke(); }
+      for(const p of state.particles){ const a = 1 - (p.age/p.life);
+        ctx.fillStyle = "rgba(255,200,120," + (0.78*a) + ")"; ctx.beginPath();
+        ctx.arc(p.x, p.y, p.r, 0, Math.PI*2); ctx.fill();
+      }
       drawScorePops();
   }
 
@@ -1672,8 +1734,7 @@ function showQuestion(){
     if(q.audio) { qAudio.src = q.audio; qAudio.style.display = "block"; }
   }
 
-  ansInput.style.display = "block"; 
-
+  ansInput.style.display = "block";
   if(q.type==="choice"){
     const isMulti = q.answers && q.answers.length > 1;
     const shuffledOpts = [...q.options];
@@ -1694,7 +1755,7 @@ function showQuestion(){
     }
     if (isMulti) {
       inputRow.style.display="flex";
-      ansInput.style.display="none"; 
+      ansInput.style.display="none";
       submitBtn.onclick = () => {
         const selected = Array.from(answersEl.querySelectorAll(".btn.selected")).map(b => b.textContent);
         checkAnswer(selected);
@@ -1755,7 +1816,6 @@ function checkAnswer(userValue){
 
   const qi = state.questionIndex; const q = QUESTIONS[(QUESTIONS.length? (qi % QUESTIONS.length):0)];
   let ok=false;
-  
   if(q.type==="input"){
     const valStr = normalizeAnswer(Array.isArray(userValue) ? userValue[0] : userValue);
     const acc = (q.accepts && q.accepts.length) ? q.accepts : [q.answer];
@@ -1836,7 +1896,6 @@ function doPreload() {
 }
 
 doPreload().then(res => { if(res && res.bg) state.bg = res.bg; }).catch(()=>{});
-
 async function startGame(){
   if (window.__CFG?.useLatex && !window.MathJax) {
     window.MathJax = { tex: { inlineMath: [['$', '$']], displayMath: [['$$', '$$']] }, startup: { typeset: false } };
@@ -1864,10 +1923,10 @@ async function startGame(){
   ensureAudio(); if(audioCtx && audioCtx.state==="suspended"){ try{ await audioCtx.resume(); }catch(e){} }
 
   const { bg, blocks, missing } = await doPreload();
-
   if(missing.length){
     errBox.style.display="block"; errList.innerHTML="";
-    for(const f of missing){ const li=document.createElement("li"); li.textContent = f + " (не найден/не загружается)"; errList.appendChild(li); }
+    for(const f of missing){ const li=document.createElement("li"); li.textContent = f + " (не найден/не загружается)";
+      errList.appendChild(li); }
     return false;
   }
   
@@ -1895,7 +1954,6 @@ playBtn.addEventListener("click", async ()=>{
   playBtn.innerHTML = origText;
   playBtn.style.opacity = "1"; playBtn.style.pointerEvents = "auto";
 });
-
 requestAnimationFrame(loop);
 requestAnimationFrame(draw);
 
@@ -1977,6 +2035,7 @@ try{
         instruction: cfg.instruction,
         feedback: cfg.feedback
     };
+
     try{
         const instCfg = window.__CFG?.instruction || {};
         const instText = instCfg.text !== undefined ? instCfg.text : "Первый блок падает сам. Дальше — нажимай <b>Далее</b>.\nКогда блок остановится — ответь на вопрос.\nВерно → блок опускается и становится этажом (+100).\nНеверно → блок обугливается, взрывается и исчезает.";
@@ -2028,7 +2087,8 @@ try{
   async function copyToClipboard(text){
     try{
       if (navigator.clipboard && window.isSecureContext){
-        await navigator.clipboard.writeText(text); return true;
+        await navigator.clipboard.writeText(text);
+        return true;
       }
     }catch(e){}
     try{
@@ -2036,7 +2096,8 @@ try{
       ta.value = text;
       ta.setAttribute("readonly", "");
       ta.style.position = "fixed"; ta.style.left = "0"; ta.style.top = "0"; ta.style.opacity = "0";
-      ta.style.width = "1px"; ta.style.height = "1px"; ta.style.pointerEvents = "none"; ta.style.zIndex = "-1";
+      ta.style.width = "1px";
+      ta.style.height = "1px"; ta.style.pointerEvents = "none"; ta.style.zIndex = "-1";
       document.body.appendChild(ta); ta.focus(); ta.select(); ta.setSelectionRange(0, ta.value.length);
       const ok = document.execCommand("copy"); document.body.removeChild(ta);
       return ok;
@@ -2052,6 +2113,7 @@ try{
   }
 
   const blockUrls = Array.from({length:9}, (_,i)=> BASE + (i+3) + ".png");
+
   function parseQueryParams(){
     const q = {};
     const s = window.location.search.replace(/^\?/, "");
@@ -2084,10 +2146,9 @@ try{
           if (p.instruction.text !== "Первый блок падает сам. Дальше — нажимай <b>Далее</b>.\nКогда блок остановится — ответь на вопрос.\nВерно → блок опускается и становится этажом (+100).\nНеверно → блок обугливается, взрывается и исчезает.") out.i.t = p.instruction.text;
           if (p.instruction.color !== "#ffffff") out.i.c = p.instruction.color;
           if (p.instruction.glow) out.i.g = 1;
-          if (Object.keys(out.i).length === 0) delete out.i; 
+          if (Object.keys(out.i).length === 0) delete out.i;
       }
       if (p.feedback && p.feedback.text) out.f = p.feedback.text;
-      
       out.q = (p.questions || []).map(q => {
           const mq = {};
           mq.t = q.type === "text" ? 1 : 0;
@@ -2201,9 +2262,11 @@ try{
     instruction: { text: "Первый блок падает сам. Дальше — нажимай <b>Далее</b>.\nКогда блок остановится — ответь на вопрос.\nВерно → блок опускается и становится этажом (+100).\nНеверно → блок обугливается, взрывается и исчезает.", color: "#ffffff", glow: false },
     feedback: { text: "" }, questions: [], draft: null, editingId: null
   };
+
   function setCountPill(){
     $("pillCount").textContent = Editor.questions.length + " / 9";
     $("btnAddQ").disabled = (Editor.questions.length >= 9);
+    if($("btnImportQ")) $("btnImportQ").disabled = (Editor.questions.length >= 9);
   }
 
   function escapeHtml(s){ return String(s ?? "").replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;").replaceAll('"',"&quot;").replaceAll("'","&#039;"); }
@@ -2216,37 +2279,110 @@ try{
     return { title: short || "(пусто)", sub: type };
   }
 
-  function renderList(){
-    const list = $("qList"); list.innerHTML = ""; setCountPill();
+  // --- DRAG & DROP и Рендер списка ---
+  let draggedQIdx = null;
+  window.dragQ = (e, i) => { draggedQIdx = i; e.dataTransfer.effectAllowed = 'move'; setTimeout(() => e.target.style.opacity = '0.5', 0); };
+  window.dragEndQ = (e) => { e.target.style.opacity = '1'; };
+  window.allowDropQ = (e) => { e.preventDefault(); e.dataTransfer.dropEffect = 'move'; };
+  window.dragEnterQ = (e) => { e.preventDefault(); e.currentTarget.classList.add('drag-over'); };
+  window.dragLeaveQ = (e) => { e.currentTarget.classList.remove('drag-over'); };
+  window.dropQ = (e, i) => {
+    e.preventDefault(); e.currentTarget.classList.remove('drag-over');
+    if(draggedQIdx === null || draggedQIdx === i) return;
+    const item = Editor.questions.splice(draggedQIdx, 1)[0];
+    Editor.questions.splice(i, 0, item);
+    draggedQIdx = null; 
+    renderList(); 
+    updatePreview(false);
+  };
+
+  window.copyQ = (i) => {
+    if(Editor.questions.length >= 9) { toast("Максимум 9 вопросов!"); return; }
+    const qCopy = deepClone(Editor.questions[i]);
+    qCopy.id = uid(); // Генерируем новый ID для копии
+    Editor.questions.splice(i + 1, 0, qCopy);
+    renderList();
+    updatePreview(false);
+    toast("Вопрос скопирован");
+  };
+
+  window.delQ = (id) => { 
+    Editor.questions = Editor.questions.filter(x => x.id !== id); 
+    renderList(); 
+    updatePreview(false); 
+    toast(t("toastDeleted")); 
+  };
+
+  function renderList() {
+    const list = $("qList"); 
+    list.innerHTML = ""; 
+    setCountPill();
 
     if(Editor.questions.length === 0){
-      const d = document.createElement("div"); d.className = "muted"; d.textContent = t("noQs"); list.appendChild(d); return;
+      const d = document.createElement("div"); d.className = "muted"; d.textContent = t("noQs"); list.appendChild(d);
+    } else {
+      list.innerHTML = Editor.questions.map((q, i) => {
+        const s = qSummary(q);
+        return `
+          <div class="q-item" draggable="true" ondragstart="dragQ(event, ${i})" ondragend="dragEndQ(event)" ondragover="allowDropQ(event)" ondragenter="dragEnterQ(event)" ondragleave="dragLeaveQ(event)" ondrop="dropQ(event, ${i})">
+            <div class="meta cursor-grab">
+              <div class="t"><b>#${i+1} ☰</b> ${escapeHtml(s.title)}</div>
+              <div class="s">${escapeHtml(s.sub)}</div>
+            </div>
+            <div style="display:flex; gap:4px;">
+              <button class="btn small" onclick="window.Editor.draft = deepClone(window.Editor.questions[${i}]); window.updatePreview(true); window.toast(t('toastShown'));" type="button" title="В превью">👁</button>
+              <button class="btn small" onclick="copyQ(${i})" type="button" title="Дублировать">📋</button>
+              <button class="btn small" onclick="window.openModal(window.Editor.questions[${i}])" type="button" title="Редактировать">✏️</button> 
+              <button class="btn small danger" onclick="delQ('${q.id}')" type="button" title="Удалить">🗑</button>
+            </div>
+          </div>
+        `;
+      }).join('');
     }
 
-    Editor.questions.forEach((q,i)=>{
-      const wrap = document.createElement("div"); wrap.className = "q-item";
-
-      const meta = document.createElement("div"); meta.className = "meta";
-      const s = qSummary(q);
-      meta.innerHTML = `<div class="t">${escapeHtml(String(i+1)+". "+s.title)}</div><div class="s">${escapeHtml(s.sub)}</div>`;
-
-      const btns = document.createElement("div");
-      btns.style.display="flex"; btns.style.gap="8px"; btns.style.flexWrap="wrap"; btns.style.justifyContent="flex-end";
-      const bPrev = document.createElement("button"); bPrev.className = "btn small"; bPrev.type="button"; bPrev.textContent = "👁"; bPrev.title = t("btnShow");
-      bPrev.onclick = ()=>{ Editor.draft = deepClone(q); updatePreview(true); toast(t("toastShown")); };
-      
-      const bEdit = document.createElement("button"); bEdit.className = "btn small"; bEdit.type="button"; bEdit.textContent = "✏️"; bEdit.title = t("btnEdit");
-      bEdit.onclick = ()=> openModal(q);
-      
-      const bDel = document.createElement("button"); bDel.className = "btn small danger"; bDel.type="button"; bDel.textContent = "🗑"; bDel.title = t("btnDel");
-      bDel.onclick = ()=>{ Editor.questions = Editor.questions.filter(x=>x.id!==q.id); renderList(); updatePreview(false); toast(t("toastDeleted")); };
-
-      btns.appendChild(bPrev); btns.appendChild(bEdit); btns.appendChild(bDel);
-      wrap.appendChild(meta); wrap.appendChild(btns); list.appendChild(wrap);
-    });
+    // Обновляем список шаблонов
+    const sel = $("newQTemplate");
+    if(sel){
+        const val = sel.value;
+        sel.innerHTML = `<option value="-1">Стандартные (по умолчанию)</option>`;
+        Editor.questions.forEach((q, i) => {
+            sel.innerHTML += `<option value="${i}">Как в вопросе #${i+1}</option>`;
+        });
+        if(val && Editor.questions[val]) sel.value = val;
+        else sel.value = "-1";
+    }
   }
 
-  /* ИЗМЕНЕНИЕ ДЛЯ СТАБИЛЬНОГО ОТОБРАЖЕНИЯ ФОНА */
+  // Делаем доступными для инлайн-кнопок
+  window.Editor = Editor;
+  window.updatePreview = updatePreview;
+  window.toast = toast;
+  window.openModal = openModal;
+
+  // --- ШАБЛОНЫ НАСТРОЕК ---
+  window.applyTemplateToAll = () => {
+    if(Editor.questions.length === 0) return;
+    const tplIdx = parseInt($("newQTemplate").value);
+    
+    if(!confirm("Применить настройки (шрифт, размер, таймер) ко всем вопросам?\nТексты и ответы НЕ изменятся.")) return;
+    
+    let baseQ = { font: "", fontSize: 20, seconds: null };
+    if (tplIdx >= 0 && Editor.questions[tplIdx]) {
+        const tq = Editor.questions[tplIdx];
+        baseQ = { font: tq.font, fontSize: tq.fontSize, seconds: tq.seconds };
+    }
+    
+    Editor.questions.forEach(q => {
+        q.font = baseQ.font;
+        q.fontSize = baseQ.fontSize;
+        q.seconds = baseQ.seconds;
+    });
+    
+    renderList();
+    updatePreview(false);
+    toast("Настройки применены!");
+  };
+
   function showModal(){ $("modalBackdrop").style.display = "block"; $("modalBackdrop").setAttribute("aria-hidden","false"); }
   function hideModal(){ $("modalBackdrop").style.display = "none"; $("modalBackdrop").setAttribute("aria-hidden","true"); }
 
@@ -2259,10 +2395,8 @@ try{
   function renderChoiceUI(){
     const list = $("choiceList"); list.innerHTML = "";
     const q = Editor.draft; if(!q) return;
-
     q.options = q.options || ["",""];
     q.correctIndices = q.correctIndices || (typeof q.correctIndex === "number" ? [q.correctIndex] : [0]);
-
     q.options.forEach((val, idx)=>{
       const row = document.createElement("div"); row.className = "answerRow";
 
@@ -2326,16 +2460,25 @@ try{
       Editor.draft = { id: uid(), type: "choice", prompt: "", options: ["",""], correctIndices: [0], seconds: null, image: "", audio: "", font: "", fontSize: 20 };
       Editor.editingId = null;
       $("modalTitle").textContent = t("modalTitleAdd");
+      
+      // Подтягиваем шаблон, если создаем с нуля
+      const tplIdx = parseInt($("newQTemplate") ? $("newQTemplate").value : "-1");
+      if (tplIdx >= 0 && Editor.questions[tplIdx]) {
+          const tq = Editor.questions[tplIdx];
+          Editor.draft.font = tq.font; Editor.draft.fontSize = tq.fontSize; Editor.draft.seconds = tq.seconds;
+      }
     }
 
     $("selType").value = Editor.draft.type || "choice";
     $("inpPrompt").value = Editor.draft.prompt || "";
     if(!("font" in Editor.draft)) Editor.draft.font = ""; if($("inpQFont")) $("inpQFont").value = Editor.draft.font;
-    if(!("fontSize" in Editor.draft)) Editor.draft.fontSize = 20; if($("inpQFontSize")) $("inpQFontSize").value = Editor.draft.fontSize || 20;
+    if(!("fontSize" in Editor.draft)) Editor.draft.fontSize = 20;
+    if($("inpQFontSize")) $("inpQFontSize").value = Editor.draft.fontSize || 20;
     
     if(!("seconds" in Editor.draft)) Editor.draft.seconds = null; if($("inpQSeconds")) $("inpQSeconds").value = (Editor.draft.seconds ?? "");
     if(!("image" in Editor.draft)) Editor.draft.image = ""; if(!("audio" in Editor.draft)) Editor.draft.audio = "";
     if($("inpQImage")) $("inpQImage").value = Editor.draft.image; if($("inpQAudio")) $("inpQAudio").value = Editor.draft.audio;
+    
     syncModalType();
     if($("selType").value === "choice") renderChoiceUI(); else renderTextUI();
 
@@ -2344,13 +2487,16 @@ try{
 
   function getDraftFromModal(){
     const q = Editor.draft; if(!q) return null;
-    q.type = $("selType").value; q.prompt = $("inpPrompt").value || "";
+    q.type = $("selType").value;
+    q.prompt = $("inpPrompt").value || "";
     q.font = $("inpQFont") ? $("inpQFont").value : ""; q.fontSize = $("inpQFontSize") ? Number($("inpQFontSize").value) || 20 : 20;
 
     q.seconds = ($("inpQSeconds") && $("inpQSeconds").value !== "") ? Number($("inpQSeconds").value) : null;
-    if(q.seconds != null){ const s = Number(q.seconds); if(!Number.isFinite(s) || s < 3 || s > 600) return "Таймер вопроса: 3–600 секунд"; q.seconds = Math.round(s); }
+    if(q.seconds != null){ const s = Number(q.seconds); if(!Number.isFinite(s) || s < 3 || s > 600) return "Таймер вопроса: 3–600 секунд";
+      q.seconds = Math.round(s); }
     
-    q.image = $("inpQImage") ? $("inpQImage").value.trim() : ""; q.audio = $("inpQAudio") ? $("inpQAudio").value.trim() : "";
+    q.image = $("inpQImage") ? $("inpQImage").value.trim() : "";
+    q.audio = $("inpQAudio") ? $("inpQAudio").value.trim() : "";
 
     if(q.type === "choice"){
       q.options = (q.options || []).map(x=>String(x||""));
@@ -2409,7 +2555,6 @@ try{
       const warn = $("sizeWarning");
       
       if (bar) bar.style.width = pct + "%";
-      
       if (curLen < maxLen * 0.75) {
           if(bar) bar.style.background = "var(--ok)";
           if(lblText) { lblText.textContent = "🟢 Код в норме"; lblText.style.color = "var(--ok)"; }
@@ -2432,8 +2577,7 @@ try{
 
   function updatePreview(previewWithDraft){
     const payload = buildPayload(previewWithDraft); 
-    const data = encodeGameData(payload); 
-    
+    const data = encodeGameData(payload);
     checkLinkSize(data);
 
     if (!previewWithDraft && !document.body.classList.contains("gameOnly")) {
@@ -2441,12 +2585,14 @@ try{
     }
 
     const useKey = data.length > 2500; 
-    let urlParams = "?preview=1"; if (previewWithDraft) urlParams += "&autostart=1";
+    let urlParams = "?preview=1";
+    if (previewWithDraft) urlParams += "&autostart=1";
     if(useKey){
       const key = storePreviewCfg(payload);
       if(key){ const src = selfPageUrl() + urlParams + "&cfgkey=" + encodeURIComponent(key) + "#cfgkey=" + encodeURIComponent(key); $("livePreview").src = src; return; }
     }
-    const src = selfPageUrl() + urlParams + "&game=" + data; $("livePreview").src = src;
+    const src = selfPageUrl() + urlParams + "&game=" + data;
+    $("livePreview").src = src;
   }
 
   let _previewTid = null;
@@ -2470,6 +2616,99 @@ try{
   $("btnClearQs").addEventListener("click", ()=>{ Editor.questions = []; renderList(); updatePreview(false); toast(t("toastCleared")); });
   $("btnCloseModal").addEventListener("click", ()=>{ Editor.draft=null; Editor.editingId=null; hideModal(); });
   $("modalBackdrop").addEventListener("click", (e)=>{ if(e.target === $("modalBackdrop")){ Editor.draft=null; Editor.editingId=null; hideModal(); } });
+  
+  // --- УМНЫЙ ИМПОРТ ---
+  window.closeImport = () => { $("importBackdrop").style.display = "none"; $("importBackdrop").setAttribute("aria-hidden","true"); $("importText").value = ''; };
+  
+  if ($("btnImportQ")) {
+    $("btnImportQ").addEventListener("click", () => {
+      if(Editor.questions.length >= 9) { toast(t("toast9Q")); return; }
+      $("importBackdrop").style.display = "block";
+      $("importBackdrop").setAttribute("aria-hidden","false");
+    });
+  }
+
+  window.fixEgeText = () => {
+      let el = document.getElementById('importText');
+      let val = el.value;
+      val = val.replace(/Ш/g, 'о').replace(/t/g, 'т').replace(/r/g, 'г').replace(/u/g, 'и').replace(/n/g, 'п')
+               .replace(/c/g, 'с').replace(/p/g, 'р').replace(/k/g, 'к').replace(/x/g, 'х').replace(/y/g, 'у')
+               .replace(/a/g, 'а').replace(/e/g, 'е').replace(/o/g, 'о').replace(/H/g, 'Н').replace(/T/g, 'Т')
+               .replace(/M/g, 'М').replace(/K/g, 'К').replace(/P/g, 'Р').replace(/C/g, 'С').replace(/E/g, 'Е')
+               .replace(/A/g, 'А').replace(/O/g, 'О').replace(/X/g, 'Х');
+      el.value = val;
+  };
+
+  window.processImport = () => {
+      const txt = document.getElementById('importText').value.trim();
+      if (!txt) return closeImport();
+
+      const mode = document.getElementById('importMode').value;
+      const tplIdx = parseInt(document.getElementById('newQTemplate').value);
+      
+      let baseQ = { font: "", fontSize: 20, seconds: null, image: "", audio: "" };
+      if (tplIdx >= 0 && Editor.questions[tplIdx]) {
+          const tq = Editor.questions[tplIdx];
+          baseQ = { font: tq.font, fontSize: tq.fontSize, seconds: tq.seconds };
+      }
+
+      let addedCount = 0;
+
+      if (mode === 'line') {
+          const lines = txt.split('\n');
+          for(let line of lines) {
+              if (Editor.questions.length >= 9) break; // Лимит Башни
+              const trimmed = line.trim();
+              if (trimmed) {
+                  Editor.questions.push({ id: uid(), ...baseQ, type: 'text', prompt: trimmed, accepts: ['Ответ'] });
+                  addedCount++;
+              }
+          }
+      } else {
+          const blocks = txt.split(/\n\s*\n/);
+          for(let block of blocks) {
+              if (Editor.questions.length >= 9) break; // Лимит Башни
+              const lines = block.trim().split('\n');
+              let qText = [];
+              let opts = [];
+              let autoAnswer = '';
+              
+              const optRegex = /^(\d+|[а-яА-Яa-zA-Z])[\)\.]\s+(.+)$/;
+              lines.forEach(line => {
+                  const trimmed = line.trim();
+                  const match = trimmed.match(optRegex);
+                  if (match) {
+                      opts.push({ marker: match[1].toLowerCase(), t: match[2].trim() });
+                  } else if (trimmed.toLowerCase().startsWith('ответ:') || trimmed.toLowerCase().startsWith('answer:')) {
+                      autoAnswer = trimmed.replace(/^(ответ:|answer:)\s*/i, '').trim().toLowerCase();
+                  } else {
+                      qText.push(trimmed);
+                  }
+              });
+
+              if (opts.length >= 2) {
+                  let correctIndices = [0]; // По умолчанию первый
+                  if (autoAnswer) {
+                      const foundIdx = opts.findIndex(o => o.marker === autoAnswer || o.t.toLowerCase() === autoAnswer);
+                      if (foundIdx !== -1) correctIndices = [foundIdx];
+                  }
+                  Editor.questions.push({ id: uid(), ...baseQ, type: 'choice', prompt: qText.join('\n'), options: opts.map(o => o.t), correctIndices: correctIndices });
+                  addedCount++;
+              } else if (qText.length > 0) {
+                  Editor.questions.push({ id: uid(), ...baseQ, type: 'text', prompt: qText.join('\n'), accepts: autoAnswer ? [autoAnswer] : ['Ответ'] });
+                  addedCount++;
+              }
+          }
+      }
+
+      closeImport();
+      renderList();
+      updatePreview(false);
+      if (Editor.questions.length >= 9 && addedCount > 0) toast(`Импорт завершен (достигнут лимит 9)`);
+      else if (addedCount > 0) toast(`Импортировано: ${addedCount}`);
+      else toast("Не удалось распознать текст");
+  };
+
   $("selType").addEventListener("change", ()=>{
     const q = Editor.draft; if(!q) return; q.type = $("selType").value; syncModalType();
     if(q.type === "choice"){ q.options = q.options || ["",""]; q.correctIndices = q.correctIndices || [0]; renderChoiceUI(); } 
@@ -2495,7 +2734,6 @@ try{
     const payload = buildPayload(false); const url = buildGameUrl(payload); const iframeCode = buildIframeFromUrl(url);
     const ok = await copyToClipboard(iframeCode); toast(ok ? t("toastCopied") : t("toastError"));
   });
-
   if ($("btnResetAll")) {
     $("btnResetAll").addEventListener("click", ()=>{
       if(confirm("Вы уверены, что хотите удалить все вопросы и настройки, чтобы начать заново?")) {
@@ -2586,7 +2824,6 @@ try{
               $("chkInstGlow").checked = !!p.instruction.glow;
           }
           if(p.feedback && p.feedback.text !== undefined) $("inpFeedback").value = p.feedback.text;
-          
           if(Array.isArray(p.questions)) {
               Editor.questions = p.questions.map(q => ({...q, id: uid()}));
           }
