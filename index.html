@@ -1006,6 +1006,7 @@
       z-index: 5;
     }
     #card{
+      position:relative; /* Добавлено для черновика */
       width:min(640px, calc(100% - 24px));
       background:var(--panel-bg);
       border:1px solid var(--panel-stroke);
@@ -1199,7 +1200,44 @@
   backdrop-filter: blur(10px);
   font-family: system-ui, sans-serif;
 }
+
+/* --- СТИЛИ ДЛЯ ЧЕРНОВИКА --- */
+#gDrawToggle {
+  font-size: 16px;
+  background: rgba(0,0,0,0.5); border: 2px solid #d6b14a;
+  border-radius: 50%; width: 34px; height: 34px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: 0.3s; padding: 0; box-shadow: 0 0 8px rgba(214,177,74,0.3);
+  color: white; outline: none; pointer-events: auto;
+}
+#gDrawToggle:hover { transform: scale(1.1); }
+#card.draw-mode #gDrawToggle {
+  background: #d6b14a; box-shadow: 0 0 15px #d6b14a; transform: scale(1.1); color: black;
+}
+#card.draw-mode #answers,
+#card.draw-mode #inputRow,
+#card.draw-mode #qMedia { display: none !important; }
+
+#gDrawArea {
+  display: none; width: 100%; height: 40vh; min-height: 220px; margin-top: 15px;
+  border-radius: 16px; border: 3px solid #d6b14a;
+  background-color: #fdfdfc;
+  background-image: linear-gradient(#b0d4e3 1px, transparent 1px), linear-gradient(90deg, #b0d4e3 1px, transparent 1px);
+  background-size: 25px 25px;
+  position: relative; z-index: 10;
+  box-shadow: inset 0 0 20px rgba(0,0,0,0.1);
+}
+#card.draw-mode #gDrawArea { display: block; }
+#gCanvas { width: 100%; height: 100%; touch-action: none; cursor: crosshair; border-radius: 12px; }
+
+#gCanvasClear {
+  position: absolute; top: 10px; right: 10px; z-index: 15;
+  background: rgba(255, 77, 77, 0.15); border: 1px solid rgba(255, 77, 77, 0.5);
+  color: #fff; padding: 6px 12px; border-radius: 10px; font-size: 12px; font-weight: bold; cursor: pointer; transition: 0.2s;
+}
+#gCanvasClear:hover { background: rgba(255, 77, 77, 0.3); }
 `;
+
   const __GAME_HTML__ = `
 <div id="wrap">
   <canvas id="c"></canvas>
@@ -1230,7 +1268,10 @@
           <div id="q">...</div>
         </div>
         <div style="display:flex;flex-direction:column;align-items:flex-end;gap:8px">
-          <div id="badge">1 / 9</div>
+          <div style="display:flex; align-items:center; gap:10px;">
+            <button id="gDrawToggle" title="Черновик">✏️</button>
+            <div id="badge">1 / 9</div>
+          </div>
           <div id="qTimerBadge" class="qTimer" style="display:none">⏳ 10</div>
         </div>
       </div>
@@ -1249,6 +1290,12 @@
 
       <div id="msg"></div>
       <div id="hint">Верно → блок опускается и становится этажом (+100). Неверно → обугливание, взрыв и исчезает.</div>
+
+      <div id="gDrawArea">
+        <canvas id="gCanvas"></canvas>
+        <button id="gCanvasClear">🗑 Очистить</button>
+      </div>
+      
     </div>
   </div>
 
@@ -1337,6 +1384,66 @@ const pctTxt = document.getElementById("pct");
 const barFill = document.querySelector("#bar > div");
 const scoreNum = document.getElementById("scoreNum");
 const nextBtn = document.getElementById("nextBtn");
+
+// ПЕРЕМЕННЫЕ ЧЕРНОВИКА
+const drawArea = document.getElementById('gDrawArea');
+const canvasScratch = document.getElementById('gCanvas');
+const ctxScratch = canvasScratch ? canvasScratch.getContext('2d') : null;
+const cardEl = document.getElementById('card');
+const drawToggle = document.getElementById('gDrawToggle');
+const canvasClearBtn = document.getElementById('gCanvasClear');
+let isScratchDrawing = false;
+
+if (canvasScratch) {
+    function resizeScratchCanvas() {
+        canvasScratch.width = drawArea.offsetWidth;
+        canvasScratch.height = drawArea.offsetHeight;
+    }
+
+    function getScratchMousePos(e) {
+        const rect = canvasScratch.getBoundingClientRect();
+        const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+        const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+        return { x: clientX - rect.left, y: clientY - rect.top };
+    }
+
+    const startScratchDraw = (e) => {
+        isScratchDrawing = true;
+        const pos = getScratchMousePos(e);
+        ctxScratch.beginPath();
+        ctxScratch.moveTo(pos.x, pos.y);
+    };
+
+    const doScratchDraw = (e) => {
+        if (!isScratchDrawing) return;
+        const pos = getScratchMousePos(e);
+        ctxScratch.lineTo(pos.x, pos.y);
+        ctxScratch.strokeStyle = '#0f4c81';
+        ctxScratch.lineWidth = 3;
+        ctxScratch.lineCap = 'round';
+        ctxScratch.lineJoin = 'round';
+        ctxScratch.stroke();
+        if(e.cancelable) e.preventDefault();
+    };
+
+    const stopScratchDraw = () => isScratchDrawing = false;
+
+    canvasScratch.addEventListener('pointerdown', startScratchDraw);
+    canvasScratch.addEventListener('pointermove', doScratchDraw);
+    canvasScratch.addEventListener('pointerup', stopScratchDraw);
+    canvasScratch.addEventListener('pointerout', stopScratchDraw);
+
+    canvasClearBtn.onclick = () => {
+        ctxScratch.clearRect(0, 0, canvasScratch.width, canvasScratch.height);
+    };
+
+    drawToggle.onclick = () => {
+        cardEl.classList.toggle('draw-mode');
+        if(cardEl.classList.contains('draw-mode')) {
+            setTimeout(resizeScratchCanvas, 50);
+        }
+    };
+}
 
 let W=0,H=0,DPR=1;
 function resize(){
@@ -1714,6 +1821,10 @@ function loop(t){ if(!lastT) lastT=t; const dt=Math.min(0.033,(t-lastT)/1000); l
 function normalizeAnswer(s){ return String(s||"").trim().toLowerCase(); }
 
 function showQuestion(){
+  // Очищаем и скрываем черновик перед новым вопросом
+  if(cardEl) cardEl.classList.remove('draw-mode');
+  if(ctxScratch && canvasScratch) ctxScratch.clearRect(0, 0, canvasScratch.width, canvasScratch.height);
+
   const qi = state.questionIndex;
   const q = QUESTIONS[(QUESTIONS.length? (qi % QUESTIONS.length):0)];
 
@@ -1775,7 +1886,7 @@ function showQuestion(){
   }
 
   showOverlayAnimated();
-  setTimeout(()=>{ if(q.type==="input") ansInput.focus(); }, 50);
+  setTimeout(()=>{ if(q.type==="input" && !cardEl.classList.contains('draw-mode')) ansInput.focus(); }, 50);
 
   try{
     if(window.__qTimerId){ clearInterval(window.__qTimerId); window.__qTimerId=null; }
@@ -1825,6 +1936,9 @@ function __applyTitle__(title){
 function checkAnswer(userValue){
   if (state.answered) return;
   state.answered = true;
+  
+  // Убираем черновик, чтобы показать результат
+  if(cardEl) cardEl.classList.remove('draw-mode');
 
   try{ if(window.__qTimerId){ clearInterval(window.__qTimerId); window.__qTimerId=null; } }catch(e){}
   try{ document.getElementById("qAudio").pause(); }catch(e){}
