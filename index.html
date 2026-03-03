@@ -1428,23 +1428,33 @@ let lastY = 0;
 
 if (canvasScratch) {
     function resizeScratchCanvas() {
+        const rect = drawArea.getBoundingClientRect();
+        const dpr = window.devicePixelRatio || 1;
+        
+        // Сохраняем то, что уже нарисовано
         const tempCanvas = document.createElement('canvas');
         tempCanvas.width = canvasScratch.width;
         tempCanvas.height = canvasScratch.height;
         const tempCtx = tempCanvas.getContext('2d');
         tempCtx.drawImage(canvasScratch, 0, 0);
 
-        canvasScratch.width = drawArea.offsetWidth;
-        canvasScratch.height = drawArea.offsetHeight;
-
+        // Задаем реальное разрешение с учетом экрана телефона/монитора (чтобы не было пикселей)
+        canvasScratch.width = rect.width * dpr;
+        canvasScratch.height = rect.height * dpr;
+        
+        // Масштабируем кисть
+        ctxScratch.scale(dpr, dpr);
+        
+        // Возвращаем рисунок
+        ctxScratch.save();
+        ctxScratch.setTransform(1, 0, 0, 1, 0, 0);
         ctxScratch.drawImage(tempCanvas, 0, 0);
+        ctxScratch.restore();
     }
 
     function getScratchMousePos(e) {
         const rect = canvasScratch.getBoundingClientRect();
-        const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-        const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-        return { x: clientX - rect.left, y: clientY - rect.top };
+        return { x: e.clientX - rect.left, y: e.clientY - rect.top };
     }
 
     function applyCtxStyle() {
@@ -1463,14 +1473,12 @@ if (canvasScratch) {
     const startScratchDraw = (e) => {
         isScratchDrawing = true;
         const pos = getScratchMousePos(e);
-        lastX = pos.x;
-        lastY = pos.y;
+        lastX = pos.x; lastY = pos.y;
         
         applyCtxStyle();
         ctxScratch.beginPath();
         ctxScratch.moveTo(lastX, lastY);
-        // Рисуем точку на месте клика
-        ctxScratch.lineTo(lastX, lastY);
+        ctxScratch.lineTo(lastX + 0.01, lastY); // ставим аккуратную круглую точку при клике
         ctxScratch.stroke();
         
         if(e.cancelable) e.preventDefault();
@@ -1478,30 +1486,37 @@ if (canvasScratch) {
 
     const doScratchDraw = (e) => {
         if (!isScratchDrawing) return;
-        const pos = getScratchMousePos(e);
         
         applyCtxStyle();
-        ctxScratch.beginPath();
-        ctxScratch.moveTo(lastX, lastY);
-        ctxScratch.lineTo(pos.x, pos.y);
-        ctxScratch.stroke();
         
-        lastX = pos.x;
-        lastY = pos.y;
+        // Получаем все микро-движения между кадрами (делает линию идеально плавной!)
+        const events = e.getCoalescedEvents ? e.getCoalescedEvents() : [e];
+        for(let ev of events) {
+            const pos = getScratchMousePos(ev);
+            ctxScratch.beginPath();
+            ctxScratch.moveTo(lastX, lastY);
+            ctxScratch.lineTo(pos.x, pos.y);
+            ctxScratch.stroke();
+            lastX = pos.x;
+            lastY = pos.y;
+        }
         
         if(e.cancelable) e.preventDefault();
     };
 
-    const stopScratchDraw = () => isScratchDrawing = false;
+    const stopScratchDraw = () => { isScratchDrawing = false; };
 
-    // passive: false отключает скроллинг страницы при рисовании на тачскринах
+    // passive: false отключает скроллинг страницы при рисовании на мобильных
     canvasScratch.addEventListener('pointerdown', startScratchDraw, {passive: false});
     canvasScratch.addEventListener('pointermove', doScratchDraw, {passive: false});
     canvasScratch.addEventListener('pointerup', stopScratchDraw);
     canvasScratch.addEventListener('pointerout', stopScratchDraw);
 
     canvasClearBtn.onclick = () => {
+        ctxScratch.save();
+        ctxScratch.setTransform(1, 0, 0, 1, 0, 0);
         ctxScratch.clearRect(0, 0, canvasScratch.width, canvasScratch.height);
+        ctxScratch.restore();
     };
 
     drawEraser.onclick = () => {
@@ -1509,7 +1524,7 @@ if (canvasScratch) {
         drawEraser.classList.toggle('active', isEraser);
     };
 
-    // Если меняем цвет — выключаем ластик автоматически
+    // Выключаем ластик, если выбрали новый цвет
     drawColor.addEventListener('input', () => {
         isEraser = false;
         drawEraser.classList.remove('active');
@@ -1520,11 +1535,15 @@ if (canvasScratch) {
         if(cardEl.classList.contains('draw-mode')) {
             // Подгоняем размер только если холст был свернут
             if (canvasScratch.width === 0 || canvasScratch.width === 300) {
-                canvasScratch.width = drawArea.offsetWidth;
-                canvasScratch.height = drawArea.offsetHeight;
+                resizeScratchCanvas();
             }
         }
     };
+    
+    // Фикс при изменении размера окна
+    window.addEventListener("resize", () => {
+        if (cardEl.classList.contains('draw-mode')) resizeScratchCanvas();
+    });
 }
 
 let W=0,H=0,DPR=1;
@@ -2416,7 +2435,7 @@ try{
               q.seconds = mq.s || null;
               q.image = mq.i || "";
               q.audio = mq.au || "";
-              q.font = mq.fn || "";
+              q.font = mq.fn = q.font;
               q.fontSize = mq.fs || null;
               return q;
           })
