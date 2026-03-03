@@ -1798,7 +1798,16 @@ function showQuestion(){
     }
   }catch(e){}
 
-  if (window.__CFG?.useLatex && window.MathJax && window.MathJax.typesetPromise) { setTimeout(() => { window.MathJax.typesetPromise([document.getElementById("card")]).catch(()=>{}); }, 60); }
+  if (window.__CFG?.useLatex) { 
+      const renderMath = () => {
+          if(window.MathJax && window.MathJax.typesetPromise) {
+              window.MathJax.typesetPromise([document.getElementById("card")]).catch(()=>{});
+          } else {
+              setTimeout(renderMath, 200);
+          }
+      };
+      renderMath();
+  }
 }
 
 function __applyTitle__(title){
@@ -1897,9 +1906,12 @@ function doPreload() {
 
 doPreload().then(res => { if(res && res.bg) state.bg = res.bg; }).catch(()=>{});
 async function startGame(){
-  if (window.__CFG?.useLatex && !window.MathJax) {
+  if (window.__CFG?.useLatex && !document.getElementById('mathjax-script')) {
     window.MathJax = { tex: { inlineMath: [['$', '$']], displayMath: [['$$', '$$']] }, startup: { typeset: false } };
-    const script = document.createElement('script'); script.src = "https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"; document.head.appendChild(script);
+    const script = document.createElement('script'); 
+    script.id = 'mathjax-script';
+    script.src = "https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"; 
+    document.head.appendChild(script);
   }
 
   try{
@@ -2140,6 +2152,8 @@ try{
       const out = {};
       if (p.title && p.title !== "Башня знаний") out.ti = p.title;
       if (p.bgDataUrl) out.bg = p.bgDataUrl;
+      if (p.useLatex) out.ul = 1;
+      if (p.useImages === false) out.ui = 0;
       if (p.timer && p.timer.enabled) { out.tm = 1; out.ts = p.timer.seconds; }
       if (p.instruction) {
           out.i = {};
@@ -2175,7 +2189,9 @@ try{
 
       const p = {
           title: out.ti || "Башня знаний",
-          useRepoBg: true, useImages: true, useLatex: false,
+          useRepoBg: true, 
+          useImages: out.ui !== 0, 
+          useLatex: !!out.ul,
           bgDataUrl: out.bg || "",
           timer: { enabled: !!out.tm, seconds: out.ts || 30 },
           instruction: {
