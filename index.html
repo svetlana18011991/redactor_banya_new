@@ -998,16 +998,24 @@
     #nextBtn:active{ transform: translateX(160px) scale(.99); }
     #nextBtn[disabled]{ opacity:.45; cursor:not-allowed; filter:saturate(.7); }
 
+    /* Обертка для прокрутки, если черновик не влезает */
     #overlay{
       position:absolute; inset:0;
-      display:none; align-items:center; justify-content:center;
+      display:none; flex-direction: column; align-items: center;
+      overflow-y: auto;
       background: rgba(0,0,0,.25);
       backdrop-filter: blur(6px);
       z-index: 5;
     }
+    
+    /* Псевдоэлементы, чтобы карточка всегда была по центру, а при переполнении корректно скроллилась */
+    #overlay::before { content: ""; flex: 1 0 60px; width: 100%; }
+    #overlay::after { content: ""; flex: 1 0 30px; width: 100%; }
+
     #card{
-      position:relative; /* Добавлено для черновика */
+      position:relative; 
       width:min(640px, calc(100% - 24px));
+      flex-shrink: 0;
       background:var(--panel-bg);
       border:1px solid var(--panel-stroke);
       border-radius:18px;
@@ -1214,12 +1222,9 @@
 #card.draw-mode #gDrawToggle {
   background: #d6b14a; box-shadow: 0 0 15px #d6b14a; transform: scale(1.1); color: black;
 }
-#card.draw-mode #answers,
-#card.draw-mode #inputRow,
-#card.draw-mode #qMedia { display: none !important; }
 
 #gDrawArea {
-  display: none; width: 100%; height: 40vh; min-height: 220px; margin-top: 15px;
+  display: none; width: 100%; height: 35vh; min-height: 220px; margin-top: 15px;
   border-radius: 16px; border: 3px solid #d6b14a;
   background-color: #fdfdfc;
   background-image: linear-gradient(#b0d4e3 1px, transparent 1px), linear-gradient(90deg, #b0d4e3 1px, transparent 1px);
@@ -1227,6 +1232,7 @@
   position: relative; z-index: 10;
   box-shadow: inset 0 0 20px rgba(0,0,0,0.1);
   overflow: hidden;
+  flex-shrink: 0;
 }
 #card.draw-mode #gDrawArea { display: block; }
 #gCanvas { width: 100%; height: 100%; touch-action: none; cursor: crosshair; border-radius: 12px; display: block; }
@@ -1538,6 +1544,10 @@ if (canvasScratch) {
             if (canvasScratch.width === 0 || canvasScratch.width === 300) {
                 resizeScratchCanvas();
             }
+            // Если черновик уходит за экран, автоматически прокручиваем окно к нему
+            setTimeout(() => {
+                drawArea.scrollIntoView({ behavior: "smooth", block: "nearest" });
+            }, 100);
         }
     };
     
