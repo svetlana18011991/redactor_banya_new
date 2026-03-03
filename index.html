@@ -72,7 +72,6 @@
       display:flex;align-items:center;justify-content:space-between;gap:10px;
     }
     .panel-header .h{font-weight:950;letter-spacing:.2px; display:flex; align-items:center; gap:10px;}
-    .panel-header .h img { height: 32px; width: auto; border-radius: 6px; object-fit: contain; }
 
     .settings{
       height: 100%;
@@ -448,10 +447,11 @@
     <div class="panel settings">
       <div class="panel-header" style="flex-wrap: wrap; gap: 14px;">
         <div class="h">
-          <img src="logo.png" alt="Логотип" onerror="this.style.display='none'"/>
+          <img src="logo.png" alt="Логотип" style="height: 42px; width: 42px; border-radius: 50%; object-fit: cover; box-shadow: 0 0 10px rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.2);" onerror="this.style.display='none'"/>
           <div style="display:flex; flex-direction:column; justify-content:center;">
-            <span style="font-size: 16px; font-weight: 900; line-height: 1.2;">Шкатулка интерактивов</span>
-            <span data-i18n="editorTitle" style="font-size: 12px; color: var(--neon-orange-base); font-weight: 700; line-height: 1.2;">Редактор «Башня»</span>
+            <span style="font-size: 16px; font-weight: 900; line-height: 1.2;">Шкатулка математических интерактивов</span>
+            <span style="font-size: 11px; color: rgba(255,255,255,0.7); line-height: 1.2;">Светлана Быкова</span>
+            <span data-i18n="editorTitle" style="font-size: 12px; color: var(--neon-orange-base); font-weight: 700; line-height: 1.2; margin-top: 2px;">Редактор «Башня»</span>
           </div>
         </div>
         <div style="display:flex; gap:12px; align-items:center; flex-wrap: wrap;">
@@ -1279,6 +1279,12 @@
       <button id="restart">↻ Сыграть ещё раз</button>
     </div>
   </div>
+
+  <div style="position: absolute; bottom: 12px; left: 50%; transform: translateX(-50%); display: flex; align-items: center; gap: 8px; opacity: 0.5; pointer-events: none; z-index: 2; user-select: none;">
+    <img src="logo.png" alt="Логотип" style="height: 24px; width: 24px; border-radius: 50%; object-fit: cover; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.8));" onerror="this.style.display='none'">
+    <span style="font-family: 'Caveat', cursive; font-size: 20px; color: rgba(255,255,255,0.85); text-shadow: 0 2px 4px rgba(0,0,0,0.9); white-space: nowrap; letter-spacing: 0.5px;">Шкатулка математических интерактивов</span>
+  </div>
+
 </div>
 `;
 
