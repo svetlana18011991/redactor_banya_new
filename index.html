@@ -439,6 +439,14 @@
         border-color: var(--neon-orange-base) !important;
         box-shadow: 0 0 8px var(--neon-orange-glow), inset 0 0 4px rgba(255, 136, 0, 0.2) !important;
     }
+
+    /* Анимация пульсации логотипа */
+    @keyframes pulse-logo {
+      0% { transform: scale(1); box-shadow: 0 0 5px rgba(255, 174, 0, 0.4); }
+      50% { transform: scale(1.08); box-shadow: 0 0 15px rgba(255, 174, 0, 0.8); }
+      100% { transform: scale(1); box-shadow: 0 0 5px rgba(255, 174, 0, 0.4); }
+    }
+    .anim-pulse { animation: pulse-logo 2.5s infinite ease-in-out; }
 </style>
 </head>
 
@@ -447,12 +455,14 @@
     <div class="panel settings">
       <div class="panel-header" style="flex-wrap: wrap; gap: 14px;">
         <div class="h">
-          <img src="logo.png" alt="Логотип" style="height: 42px; width: 42px; border-radius: 50%; object-fit: cover; box-shadow: 0 0 10px rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.2);" onerror="this.style.display='none'"/>
-          <div style="display:flex; flex-direction:column; justify-content:center;">
-            <span style="font-size: 16px; font-weight: 900; line-height: 1.2;">Шкатулка математических интерактивов</span>
-            <span style="font-size: 11px; color: rgba(255,255,255,0.7); line-height: 1.2;">Светлана Быкова</span>
-            <span data-i18n="editorTitle" style="font-size: 12px; color: var(--neon-orange-base); font-weight: 700; line-height: 1.2; margin-top: 2px;">Редактор «Башня»</span>
-          </div>
+          <a href="https://t.me/interactiv_matematika" target="_blank" title="Перейти в Telegram-канал" style="display:flex; align-items:center; gap:10px; text-decoration:none; color:inherit; transition: opacity 0.2s;" onmouseover="this.style.opacity=0.8" onmouseout="this.style.opacity=1">
+            <img src="logo.png" alt="Логотип" class="anim-pulse" style="height: 42px; width: 42px; border-radius: 50%; object-fit: cover; border: 1px solid rgba(255, 174, 0, 0.5);" onerror="this.style.display='none'"/>
+            <div style="display:flex; flex-direction:column; justify-content:center;">
+              <span style="font-size: 16px; font-weight: 900; line-height: 1.2;">Шкатулка математических интерактивов</span>
+              <span style="font-size: 11px; color: rgba(255,255,255,0.7); line-height: 1.2;">Светлана Быкова</span>
+              <span data-i18n="editorTitle" style="font-size: 12px; color: var(--neon-orange-base); font-weight: 700; line-height: 1.2; margin-top: 2px;">Редактор «Башня»</span>
+            </div>
+          </a>
         </div>
         <div style="display:flex; gap:12px; align-items:center; flex-wrap: wrap;">
           <div style="display:flex; flex-direction:column; align-items:flex-end; gap:4px; justify-content:center;">
@@ -1262,6 +1272,14 @@
   color: #d90000; padding: 6px 12px; border-radius: 8px; font-size: 13px; font-weight: bold; cursor: pointer; transition: 0.2s;
 }
 #gCanvasClear:hover { background: rgba(255, 77, 77, 0.3); }
+
+/* Анимация пульсации логотипа в игре */
+@keyframes pulse-logo-game {
+  0% { transform: scale(1); filter: drop-shadow(0 2px 4px rgba(0,0,0,0.8)) drop-shadow(0 0 2px rgba(255,174,0,0.5)); }
+  50% { transform: scale(1.15); filter: drop-shadow(0 4px 8px rgba(0,0,0,0.9)) drop-shadow(0 0 10px rgba(255,174,0,0.8)); }
+  100% { transform: scale(1); filter: drop-shadow(0 2px 4px rgba(0,0,0,0.8)) drop-shadow(0 0 2px rgba(255,174,0,0.5)); }
+}
+.anim-pulse-game { animation: pulse-logo-game 2.5s infinite ease-in-out; }
 `;
 
   const __GAME_HTML__ = `
@@ -1358,10 +1376,10 @@
     </div>
   </div>
 
-  <div style="position: absolute; bottom: 12px; left: 50%; transform: translateX(-50%); display: flex; align-items: center; gap: 8px; opacity: 0.5; pointer-events: none; z-index: 2; user-select: none;">
-    <img src="logo.png" alt="Логотип" style="height: 24px; width: 24px; border-radius: 50%; object-fit: cover; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.8));" onerror="this.style.display='none'">
+  <a href="https://t.me/interactiv_matematika" target="_blank" style="position: absolute; bottom: 12px; left: 50%; transform: translateX(-50%); display: flex; align-items: center; gap: 8px; opacity: 0.65; pointer-events: auto; z-index: 10; text-decoration: none; transition: opacity 0.3s;" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=0.65" title="Перейти в Telegram-канал">
+    <img src="logo.png" class="anim-pulse-game" alt="Логотип" style="height: 26px; width: 26px; border-radius: 50%; object-fit: cover; border: 1px solid rgba(255,174,0,0.4);" onerror="this.style.display='none'">
     <span style="font-family: 'Caveat', cursive; font-size: 20px; color: rgba(255,255,255,0.85); text-shadow: 0 2px 4px rgba(0,0,0,0.9); white-space: nowrap; letter-spacing: 0.5px;">Шкатулка математических интерактивов</span>
-  </div>
+  </a>
 
 </div>
 `;
@@ -1932,7 +1950,7 @@ function loop(t){ if(!lastT) lastT=t; const dt=Math.min(0.033,(t-lastT)/1000); l
 function normalizeAnswer(s){ return String(s||"").trim().toLowerCase(); }
 
 function showQuestion(){
-  // Очищаем и скрываем черновик перед новым вопросом
+  // Очищаем и закрываем черновик перед новым вопросом
   if(cardEl) cardEl.classList.remove('draw-mode');
   if(ctxScratch && canvasScratch) {
       ctxScratch.save();
@@ -2299,6 +2317,11 @@ try{
             if(instGlow) { startCard.style.boxShadow = "0 0 25px " + instColor + ", inset 0 0 15px " + instColor + ", 0 18px 60px rgba(0,0,0,.5)"; } 
             else { startCard.style.boxShadow = "var(--shadow)"; }
         }
+        
+        // ---> ИСПРАВЛЕНИЕ: ОБНОВЛЯЕМ ЗАГОЛОВОК СРАЗУ <---
+        const startCardH1 = document.querySelector("#startCard h1");
+        if (startCardH1) startCardH1.textContent = window.__CFG.title || "Башня знаний";
+        document.title = window.__CFG.title || "Башня знаний";
         
         const fCustom = document.getElementById("finishCustomText");
         if(fCustom){
